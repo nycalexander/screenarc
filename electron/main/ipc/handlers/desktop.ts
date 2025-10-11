@@ -6,7 +6,7 @@ import log from 'electron-log/main';
 import { getFFmpegPath, getBinaryPath } from '../../lib/utils';
 import { getCursorScale, setCursorScale } from '../../features/cursor-manager';
 import { loadCursorThemeFromFile } from '../../lib/cursor-theme-parser';
-import { mapCpackNameToIDC } from '../../lib/win-cursor-manager';
+import { mapCursorNameToIDC } from '../../lib/win-cursor-manager';
 import { CursorTheme } from '../../types';
 
 export function getDisplays() {
@@ -92,8 +92,8 @@ export async function getDshowDevices(): Promise<{ video: { name: string, altern
 export async function loadCursorTheme(_event: IpcMainInvokeEvent): Promise<CursorTheme | null> {
   log.info('[IPC] Received request to parse cursor.theme');
   try {
-    const cpackPath = getBinaryPath('cursor.theme');
-    const cursorTheme = await loadCursorThemeFromFile(cpackPath);
+    const cursorThemePath = getBinaryPath('cursor.theme');
+    const cursorTheme = await loadCursorThemeFromFile(cursorThemePath);
     return cursorTheme;
   } catch (error) {
     log.error('[IPC] Failed to parse cursor theme file:', error);
@@ -101,6 +101,6 @@ export async function loadCursorTheme(_event: IpcMainInvokeEvent): Promise<Curso
   }
 }
 
-export function handleMapCpackNameToIDC(_event: IpcMainInvokeEvent, name: string) {
-  return mapCpackNameToIDC(name);
+export function handleMapCursorNameToIDC(_event: IpcMainInvokeEvent, name: string) {
+  return mapCursorNameToIDC(name);
 }

@@ -1,32 +1,8 @@
 import log from 'electron-log/main';
 import { exec } from 'node:child_process';
-import { createRequire } from 'node:module';
 import { appState } from '../state';
 import { getLinuxDE } from '../lib/utils';
-
-const require = createRequire(import.meta.url);
-
-const LINUX_SCALES = [1, 1.5, 2];
-const LINUX_BASE_SIZE = 24;
-
-// --- Dynamic Imports ---
-let WinAPI: any | undefined;
-let Winreg: any;
-
-// A new initialization function to handle async imports
-export function initializeCursorDependencies() {
-  if (process.platform === 'win32') {
-    try {
-      // Use dynamic import() which is async
-      WinAPI = require('ffi-rs');
-      Winreg = require('winreg'); // winreg might be a default export
-      log.info('[CursorManager] Successfully loaded ffi-rs and winreg for Windows.');
-    } catch (e) {
-      log.error('[CursorManager] Failed to load Windows-specific modules. Cursor management will be disabled.', e);
-    }
-  }
-}
-
+import { LINUX_SCALES, LINUX_BASE_SIZE } from '../lib/constants';
 
 // --- Functions ---
 export async function getCursorScale(): Promise<number> {
@@ -62,10 +38,11 @@ export async function getCursorScale(): Promise<number> {
 
 export function setCursorScale(scale: number) {
   switch (process.platform) {
-    case 'win32': {
-      // On Windows, we no longer change the system cursor size.
-      // This function is now a no-op for Windows.
-      // The cursor size is handled virtually in the editor.
+    case 'win32':
+    case 'darwin': {
+      // On Windows and macOS, we no longer change the system cursor size.
+      // This function is now a no-op.
+      // The cursor size is handled virtually in the editor (post-processing).
       break;
     }
     case 'linux': {

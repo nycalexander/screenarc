@@ -1,7 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import log from 'electron-log/main';
-import { AniParser, CursorParser } from './win-cursor-parser';
+import { AniParser, CursorParser } from './cursor-file-parser';
 
 export interface CursorFrame {
   width: number;
@@ -28,10 +28,10 @@ function detectFileType(buffer: Buffer): 'ani' | 'cur' | 'unknown' {
 }
 
 /**
- * Parses a .cpack file with the CPAK format.
+ * Parses a .theme file with the CPAK format.
  */
-export async function loadCursorThemeFromFile(cpackPath: string): Promise<CursorPack> {
-  const buf = await fs.readFile(cpackPath);
+export async function loadCursorThemeFromFile(themePath: string): Promise<CursorPack> {
+  const buf = await fs.readFile(themePath);
   if (buf.toString('ascii', 0, 4) !== 'CPAK') {
     throw new Error('Incorrect CPAK format');
   }

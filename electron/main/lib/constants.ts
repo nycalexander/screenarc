@@ -25,3 +25,7 @@ export const RESOLUTIONS: Record<ResolutionKey, { width: number; height: number 
   '1080p': { width: 1920, height: 1080 },
   '2k': { width: 2560, height: 1440 },
 };
+
+
+export const LINUX_SCALES = [1, 1.5, 2];
+export const LINUX_BASE_SIZE = 24;
