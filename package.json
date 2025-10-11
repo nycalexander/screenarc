@@ -63,6 +63,7 @@
   "optionalDependencies": {
     "global-mouse-events": "github:tamnguyenvan/global-mouse-events",
     "iohook-macos": "^1.0.4",
+    "node-macos-cursor": "github:tamnguyenvan/node-macos-cursor",
     "x11": "github:tamnguyenvan/node-x11"
   },
   "main": "dist-electron/index.js",

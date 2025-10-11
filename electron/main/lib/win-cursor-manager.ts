@@ -2,6 +2,9 @@
 // electron/main/lib/win-cursor-manager.ts
 
 import log from 'electron-log/main';
+import { createRequire } from 'node:module';
+
+const require = createRequire(import.meta.url);
 
 let nativeModule: any;
 const handleToNameMap: Record<number, string> = {};
@@ -26,15 +29,15 @@ const CURSOR_NAME_TO_IDC_MAP: Record<string, string> = {
 };
 
 
-export function initializeWinCursorManager(module: any) {
+export function initializeWinCursorManager() {
     try {
-        nativeModule = module;
+        nativeModule = require('node-windows-cursor');
+        isInitialized = true;
 
         for (const [name, id] of Object.entries(CURSOR_IDS)) {
             const handle = nativeModule.loadCursorById(id);
             if (handle) handleToNameMap[Number(handle)] = name;
         }
-        isInitialized = true;
         log.info('[WinCursorManager] Initialized successfully with native node-windows-cursor module.');
     } catch (e) {
         log.error('[WinCursorManager] Failed to initialize:', e);
