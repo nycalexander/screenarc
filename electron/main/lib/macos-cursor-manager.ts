@@ -19,7 +19,7 @@ const CURSOR_NAMES = [
 
 export function initializeMacOSCursorManager() {
     try {
-        nativeModule = require('macos-cursor-manager');
+        nativeModule = require('node-macos-cursor');
         isInitialized = true;
 
         for (const name of CURSOR_NAMES) {
