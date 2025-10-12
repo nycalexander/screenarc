@@ -1,10 +1,43 @@
+// src/components/editor/WindowControls.tsx
+
 import { Minus, Maximize2, X } from 'lucide-react'
 
-export function WindowControls() {
+// Component giờ sẽ nhận prop 'platform' để render giao diện phù hợp
+export function WindowControls({ platform }: { platform: NodeJS.Platform | null }) {
   const handleMinimize = () => window.electronAPI.minimizeWindow()
   const handleMaximize = () => window.electronAPI.maximizeWindow()
   const handleClose = () => window.electronAPI.closeWindow()
 
+  // Render giao diện cho Windows
+  if (platform === 'win32') {
+    return (
+      <div className="flex items-center h-full" style={{ WebkitAppRegion: 'no-drag' }}>
+        <button
+          onClick={handleMinimize}
+          className="w-12 h-8 flex justify-center items-center transition-colors duration-150 hover:bg-accent"
+          aria-label="Minimize"
+        >
+          <Minus className="w-4 h-4 text-foreground" />
+        </button>
+        <button
+          onClick={handleMaximize}
+          className="w-12 h-8 flex justify-center items-center transition-colors duration-150 hover:bg-accent"
+          aria-label="Maximize"
+        >
+          <Maximize2 className="w-4 h-4 text-foreground" />
+        </button>
+        <button
+          onClick={handleClose}
+          className="w-12 h-8 flex justify-center items-center transition-colors duration-150 hover:bg-destructive hover:text-destructive-foreground"
+          aria-label="Close"
+        >
+          <X className="w-4 h-4" />
+        </button>
+      </div>
+    )
+  }
+
+  // Render giao diện "traffic light" cho macOS và Linux
   return (
     <div className="flex items-center gap-2" style={{ WebkitAppRegion: 'no-drag' }}>
       <button

@@ -188,7 +188,7 @@ export function EditorPage() {
             style={{ WebkitAppRegion: 'drag' }}
           >
             <div className="absolute left-3 top-1/2 -translate-y-1/2">
-              {platform !== 'darwin' && <WindowControls />}
+              {platform !== 'darwin' && <WindowControls platform={platform} />}
             </div>
             <h1 className="text-sm font-bold text-foreground pointer-events-none tracking-tight">ScreenArc</h1>
             <div
