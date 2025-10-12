@@ -62,7 +62,7 @@
   },
   "optionalDependencies": {
     "global-mouse-events": "github:tamnguyenvan/global-mouse-events",
-    "iohook-macos": "^1.0.4",
+    "iohook-macos": "github:tamnguyenvan/iohook-macos",
     "node-win-cursor": "github:tamnguyenvan/node-win-cursor",
     "node-macos-cursor": "github:tamnguyenvan/node-macos-cursor",
     "x11": "github:tamnguyenvan/node-x11"
