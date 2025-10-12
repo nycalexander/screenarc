@@ -234,6 +234,7 @@ class WindowsMouseTracker extends EventEmitter implements IMouseTracker {
 class MacOSMouseTracker extends EventEmitter implements IMouseTracker {
   private pollIntervalId: NodeJS.Timeout | null = null;
   private currentCursorName = 'arrow';
+  private currentAniFrame = 0;
 
   async start() {
     if (!iohook) {
@@ -278,7 +279,7 @@ class MacOSMouseTracker extends EventEmitter implements IMouseTracker {
       x: event.x,
       y: event.y,
       type,
-      cursorImageKey: this.currentCursorName
+      cursorImageKey: `${this.currentCursorName}-${this.currentAniFrame}`
     };
     if (type === 'click') {
       data.button = this.mapButton(event.button);

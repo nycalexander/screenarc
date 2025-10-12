@@ -66,10 +66,10 @@ async function prepareMacOSCursorBitmaps(theme: CursorTheme, scale: number): Pro
               const buffer = new Uint8ClampedArray(Object.values(frame.rgba));
               const imageData = new ImageData(buffer, frame.width, frame.height);
               const bitmap = await createImageBitmap(imageData);
-              const key = `${cursorThemeName}`;
+              const key = `${cursorThemeName}-${i}`;
               bitmapMap.set(key, { ...frame, imageBitmap: bitmap });
             } catch (e) {
-              log.error(`[RendererPage] Failed to create bitmap for ${cursorThemeName}`, e);
+              log.error(`[RendererPage] Failed to create bitmap for ${cursorThemeName}-${i}`, e);
             }
           }
         }
@@ -139,9 +139,11 @@ export function RendererPage() {
           if (projectState.cursorTheme) {
             const scale = await window.electronAPI.getSetting<number>('recorder.cursorScale') || 2;
             log.info(`[RendererPage] Regenerating bitmaps for ${projectState.platform} at scale ${scale}x`);
-            finalCursorBitmaps = projectState.platform === 'win32'
-              ? await prepareWindowsCursorBitmaps(projectState.cursorTheme, scale)
-              : await prepareMacOSCursorBitmaps(projectState.cursorTheme, scale);
+            if (projectState.platform === 'win32') {
+              finalCursorBitmaps = await prepareWindowsCursorBitmaps(projectState.cursorTheme, scale);
+            } else { // darwin
+              finalCursorBitmaps = await prepareMacOSCursorBitmaps(projectState.cursorTheme, scale);
+            }
           } else {
             log.warn(`[RendererPage] Platform is ${projectState.platform} but no cursorTheme was found in project state.`);
           }

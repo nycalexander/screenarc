@@ -144,10 +144,11 @@ async function prepareMacOSCursorBitmaps(theme: CursorTheme, scale: number): Pro
               const buffer = new Uint8ClampedArray(Object.values(frame.rgba));
               const imageData = new ImageData(buffer, frame.width, frame.height);
               const bitmap = await createImageBitmap(imageData);
-              const key = `${cursorThemeName}`; // On macOS, use the name directly
+              // On macOS, the key format is simpler, matching the tracker's output.
+              const key = `${cursorThemeName}-${i}`;
               bitmapMap.set(key, { ...frame, imageBitmap: bitmap });
             } catch (e) {
-              console.error(`Failed to create bitmap for ${cursorThemeName}`, e);
+              console.error(`Failed to create bitmap for ${cursorThemeName}-${i}`, e);
             }
           }
         }
