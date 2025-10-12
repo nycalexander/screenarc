@@ -339,29 +339,37 @@ export function RecorderPage() {
             )}
 
             {/* Action Buttons */}
-            <div className="flex items-center gap-2" style={{ WebkitAppRegion: 'no-drag' }}>
-              <Button
-                onClick={handleStart}
-                title="Record"
-                disabled={isInitializing || actionInProgress !== 'none'}
-                size="icon"
-                className="h-10 w-10 rounded-full shadow-lg"
-              >
-                <Video size={18} />
-              </Button>
-              <Button
-                onClick={handleLoadVideo}
-                title="Load from video"
-                disabled={isInitializing || actionInProgress !== 'none'}
-                variant="secondary"
-                size="icon"
-                className="h-10 w-10 rounded-full shadow-lg"
-              >
-                <FolderOpen size={18} />
-              </Button>
-              {(actionInProgress !== 'none' || isInitializing) && (
-                <Loader2 size={20} className="animate-spin text-primary" />
-              )}
+            <div className="flex items-center" style={{ WebkitAppRegion: 'no-drag' }}>
+              <div className="flex items-center gap-2">
+                <Button
+                  onClick={handleStart}
+                  title="Record"
+                  disabled={isInitializing || actionInProgress !== 'none'}
+                  size="icon"
+                  className="h-10 w-10 rounded-full shadow-lg"
+                >
+                  <Video size={18} />
+                </Button>
+                <Button
+                  onClick={handleLoadVideo}
+                  title="Load from video"
+                  disabled={isInitializing || actionInProgress !== 'none'}
+                  variant="secondary"
+                  size="icon"
+                  className="h-10 w-10 rounded-full shadow-lg"
+                >
+                  <FolderOpen size={18} />
+                </Button>
+              </div>
+              <div className="w-8 h-10 flex items-center justify-center">
+                <Loader2
+                  size={20}
+                  className={cn(
+                    'animate-spin text-primary transition-opacity duration-300',
+                    actionInProgress !== 'none' || isInitializing ? 'opacity-100' : 'opacity-0',
+                  )}
+                />
+              </div>
             </div>
           </div>
 
