@@ -31,14 +31,14 @@ const CURSOR_NAME_TO_IDC_MAP: Record<string, string> = {
 
 export function initializeWinCursorManager() {
     try {
-        nativeModule = require('node-windows-cursor');
+        nativeModule = require('node-win-cursor');
         isInitialized = true;
 
         for (const [name, id] of Object.entries(CURSOR_IDS)) {
             const handle = nativeModule.loadCursorById(id);
             if (handle) handleToNameMap[Number(handle)] = name;
         }
-        log.info('[WinCursorManager] Initialized successfully with native node-windows-cursor module.');
+        log.info('[WinCursorManager] Initialized successfully with native node-win-cursor module.');
     } catch (e) {
         log.error('[WinCursorManager] Failed to initialize:', e);
     }
