@@ -10,6 +10,7 @@ import { useShallow } from 'zustand/react/shallow';
 import { useEffect, useState, useMemo } from 'react';
 import { cn } from '../../lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
+import { AudioSettings } from './sidepanel/AudioSettings';
 
 type SidePanelTab = 'general' | 'camera' | 'cursor' | 'audio' | 'animation' | 'settings';
 
@@ -82,27 +83,6 @@ function FrameSettingsPanel() {
   );
 }
 
-function AudioSettingsPanel() {
-  return (
-    <div className="h-full flex flex-col">
-      <div className="p-6 border-b border-sidebar-border">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-            <AudioLines className="w-5 h-5 text-primary" />
-          </div>
-          <div>
-            <h2 className="text-lg font-semibold text-sidebar-foreground">Audio Settings</h2>
-            <p className="text-sm text-muted-foreground">Adjust volume and effects</p>
-          </div>
-        </div>
-      </div>
-      <div className="flex-1 p-6 flex items-center justify-center stable-scrollbar"> {/* MODIFIED HERE */}
-        <p className="text-muted-foreground text-sm">Audio controls coming soon.</p>
-      </div>
-    </div>
-  );
-}
-
 export function SidePanel() {
   const [activeTab, setActiveTab] = useState<SidePanelTab>('general');
 
@@ -152,7 +132,7 @@ export function SidePanel() {
       case 'camera':
         return <CameraSettings />;
       case 'audio':
-        return <AudioSettingsPanel />;
+        return <AudioSettings />;
       case 'animation':
         return <AnimationSettingsPanel />;
       case 'cursor':

@@ -13,6 +13,7 @@ import { createTimelineSlice, initialTimelineState } from './slices/timelineSlic
 import { createPresetSlice, initialPresetState } from './slices/presetSlice';
 import { createWebcamSlice, initialWebcamState } from './slices/webcamSlice';
 import { createUISlice, initialUIState } from './slices/uiSlice';
+import { createAudioSlice, initialAudioState } from './slices/audioSlice';
 
 // Combine all actions into one type for the final store
 type EditorStore = EditorState & AllActions;
@@ -28,6 +29,7 @@ export const useEditorStore = create(
       ...initialPresetState,
       ...initialWebcamState,
       ...initialUIState,
+      ...initialAudioState,
       
       // Combine actions from all slices
       ...createProjectSlice(set, get),
@@ -37,10 +39,11 @@ export const useEditorStore = create(
       ...createPresetSlice(set, get),
       ...createWebcamSlice(set, get),
       ...createUISlice(set, get),
+      ...createAudioSlice(set, get),
 
       // Global reset action
       reset: () => set(state => {
-        Object.assign(state, initialProjectState, initialPlaybackState, initialFrameState, initialTimelineState);
+        Object.assign(state, initialProjectState, initialPlaybackState, initialFrameState, initialTimelineState, initialAudioState);
         // App-level state like presets and theme are not reset here
       }),
     })),

@@ -227,6 +227,17 @@ export interface UIActions {
   togglePreviewFullScreen: () => void;
 }
 
+export interface AudioState {
+  volume: number; // 0 to 1
+  isMuted: boolean;
+}
+
+export interface AudioActions {
+  setVolume: (volume: number) => void;
+  toggleMute: () => void;
+}
+
+
 // Combined state type for the editor store
 export type EditorState =
   ProjectState &
@@ -235,7 +246,8 @@ export type EditorState =
   TimelineState &
   PresetState &
   WebcamState &
-  UIState;
+  UIState &
+  AudioState;
 
 
 // Combined actions type for the editor store
@@ -246,7 +258,8 @@ export type EditorActions =
   & TimelineActions 
   & PresetActions 
   & WebcamActions 
-  & UIActions & {
+  & UIActions 
+  & AudioActions & {
     // Global reset action
     reset: () => void;
   };

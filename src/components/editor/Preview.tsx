@@ -14,7 +14,7 @@ export const Preview = memo(({ videoRef }: { videoRef: React.RefObject<HTMLVideo
     webcamVideoUrl, duration, currentTime, togglePlay,
     isPreviewFullScreen, togglePreviewFullScreen, frameStyles,
     isWebcamVisible, webcamPosition, webcamStyles, videoDimensions,
-    canvasDimensions
+    canvasDimensions, volume, isMuted
   } = useEditorStore(
     useShallow(state => ({
       videoUrl: state.videoUrl,
@@ -31,6 +31,8 @@ export const Preview = memo(({ videoRef }: { videoRef: React.RefObject<HTMLVideo
       webcamStyles: state.webcamStyles,
       videoDimensions: state.videoDimensions,
       canvasDimensions: state.canvasDimensions,
+      volume: state.volume,
+      isMuted: state.isMuted,
     })));
 
   const { setPlaying, setCurrentTime, setDuration, setVideoDimensions } = useEditorStore.getState();
@@ -153,6 +155,15 @@ export const Preview = memo(({ videoRef }: { videoRef: React.RefObject<HTMLVideo
       webcamVideo?.pause();
     }
   }, [isPlaying, videoRef]);
+
+  // Effect to handle volume and mute state
+  useEffect(() => {
+    const video = videoRef.current;
+    if (video) {
+      video.volume = volume;
+      video.muted = isMuted;
+    }
+  }, [volume, isMuted, videoRef]);
 
   useEffect(() => {
     const video = videoRef.current;
