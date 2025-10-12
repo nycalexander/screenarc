@@ -50,6 +50,7 @@ export const useExportProcess = () => {
       isWebcamVisible: fullState.isWebcamVisible,
       recordingGeometry: fullState.recordingGeometry,
       cursorImages: fullState.cursorImages,
+      cursorTheme: fullState.cursorTheme,
       syncOffset: fullState.syncOffset,
     };
 

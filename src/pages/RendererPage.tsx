@@ -1,7 +1,7 @@
 import log from 'electron-log/renderer';
 import { useEffect, useRef } from 'react';
 import { useEditorStore } from '../store/editorStore';
-import { EditorState, EditorActions } from '../types';
+import { EditorState, EditorActions, CursorTheme, CursorFrame, CursorImageBitmap } from '../types';
 import { ExportSettings } from '../components/editor/ExportModal';
 import { RESOLUTIONS } from '../lib/constants';
 import { drawScene } from '../lib/renderer';
@@ -11,6 +11,75 @@ type RenderStartPayload = {
   projectState: Omit<EditorState, keyof EditorActions>;
   exportSettings: ExportSettings;
 }
+
+// These are needed to regenerate bitmaps within the renderer worker context.
+async function prepareWindowsCursorBitmaps(theme: CursorTheme, scale: number): Promise<Map<string, CursorImageBitmap>> {
+  const bitmapMap = new Map<string, CursorImageBitmap>();
+  const cursorSet = theme[scale];
+  if (!cursorSet) {
+    log.warn(`[RendererPage] No cursor set found for scale ${scale}x`);
+    return bitmapMap;
+  }
+  const processingPromises: Promise<void>[] = [];
+  for (const cursorThemeName in cursorSet) {
+    const frames = cursorSet[cursorThemeName];
+    processingPromises.push(
+      (async () => {
+        const idcName = await window.electronAPI.mapCursorNameToIDC(cursorThemeName);
+        for (let i = 0; i < frames.length; i++) {
+          const frame = frames[i] as CursorFrame;
+          if (frame.rgba && frame.width > 0 && frame.height > 0) {
+            try {
+              const buffer = new Uint8ClampedArray(Object.values(frame.rgba));
+              const imageData = new ImageData(buffer, frame.width, frame.height);
+              const bitmap = await createImageBitmap(imageData);
+              const key = `${idcName}-${i}`;
+              bitmapMap.set(key, { ...frame, imageBitmap: bitmap });
+            } catch (e) {
+              log.error(`[RendererPage] Failed to create bitmap for ${idcName}-${i}`, e);
+            }
+          }
+        }
+      })()
+    );
+  }
+  await Promise.all(processingPromises);
+  return bitmapMap;
+}
+
+async function prepareMacOSCursorBitmaps(theme: CursorTheme, scale: number): Promise<Map<string, CursorImageBitmap>> {
+  const bitmapMap = new Map<string, CursorImageBitmap>();
+  const cursorSet = theme[scale];
+  if (!cursorSet) {
+    log.warn(`[RendererPage] No cursor set found for scale ${scale}x`);
+    return bitmapMap;
+  }
+  const processingPromises: Promise<void>[] = [];
+  for (const cursorThemeName in cursorSet) {
+    const frames = cursorSet[cursorThemeName];
+    processingPromises.push(
+      (async () => {
+        for (let i = 0; i < frames.length; i++) {
+          const frame = frames[i] as CursorFrame;
+          if (frame.rgba && frame.width > 0 && frame.height > 0) {
+            try {
+              const buffer = new Uint8ClampedArray(Object.values(frame.rgba));
+              const imageData = new ImageData(buffer, frame.width, frame.height);
+              const bitmap = await createImageBitmap(imageData);
+              const key = `${cursorThemeName}`;
+              bitmapMap.set(key, { ...frame, imageBitmap: bitmap });
+            } catch (e) {
+              log.error(`[RendererPage] Failed to create bitmap for ${cursorThemeName}`, e);
+            }
+          }
+        }
+      })()
+    );
+  }
+  await Promise.all(processingPromises);
+  return bitmapMap;
+}
+
 
 // Helper to pre-load an image for the renderer worker
 const loadBackgroundImage = (background: EditorState['frameStyles']['background']): Promise<HTMLImageElement | null> => {
@@ -64,12 +133,26 @@ export function RendererPage() {
 
         useEditorStore.setState(projectState);
 
-        // Pre-load the background image before starting the frame loop
-        const [bgImage, cursorImageBitmaps] = await Promise.all([
-          loadBackgroundImage(projectState.frameStyles.background),
-          prepareCursorBitmaps(projectState.cursorImages)
-        ]);
-        const projectStateWithCursorBitmaps = { ...projectState, cursorBitmapsToRender: cursorImageBitmaps };
+        // Regenerate cursor bitmaps within the worker context
+        let finalCursorBitmaps = new Map<string, CursorImageBitmap>();
+        if (projectState.platform === 'win32' || projectState.platform === 'darwin') {
+          if (projectState.cursorTheme) {
+            const scale = await window.electronAPI.getSetting<number>('recorder.cursorScale') || 2;
+            log.info(`[RendererPage] Regenerating bitmaps for ${projectState.platform} at scale ${scale}x`);
+            finalCursorBitmaps = projectState.platform === 'win32'
+              ? await prepareWindowsCursorBitmaps(projectState.cursorTheme, scale)
+              : await prepareMacOSCursorBitmaps(projectState.cursorTheme, scale);
+          } else {
+            log.warn(`[RendererPage] Platform is ${projectState.platform} but no cursorTheme was found in project state.`);
+          }
+        } else { // Linux
+          log.info('[RendererPage] Preparing Linux bitmaps from project state.');
+          finalCursorBitmaps = await prepareCursorBitmaps(projectState.cursorImages);
+        }
+        
+        const projectStateWithCursorBitmaps = { ...projectState, cursorBitmapsToRender: finalCursorBitmaps };
+
+        const bgImage = await loadBackgroundImage(projectState.frameStyles.background);
 
         const loadVideo = (videoElement: HTMLVideoElement, source: string, path: string): Promise<void> =>
           new Promise((resolve, reject) => {
