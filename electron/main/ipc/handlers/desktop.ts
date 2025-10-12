@@ -1,106 +1,111 @@
 // Handlers for desktop-related IPC (displays, sources, cursor).
 
-import { IpcMainEvent, IpcMainInvokeEvent, screen, dialog } from 'electron';
-import { exec } from 'node:child_process';
-import log from 'electron-log/main';
-import { getFFmpegPath, getBinaryPath } from '../../lib/utils';
-import { getCursorScale, setCursorScale } from '../../features/cursor-manager';
-import { loadCursorThemeFromFile } from '../../lib/cursor-theme-parser';
-import { mapCursorNameToIDC } from '../../lib/win-cursor-manager';
-import { CursorTheme } from '../../types';
+import { IpcMainEvent, IpcMainInvokeEvent, screen, dialog } from 'electron'
+import { exec } from 'node:child_process'
+import log from 'electron-log/main'
+import { getFFmpegPath, getBinaryPath } from '../../lib/utils'
+import { getCursorScale, setCursorScale } from '../../features/cursor-manager'
+import { loadCursorThemeFromFile } from '../../lib/cursor-theme-parser'
+import { mapCursorNameToIDC } from '../../lib/win-cursor-manager'
+import { CursorTheme } from '../../types'
 
 export function getDisplays() {
-  const primaryDisplay = screen.getPrimaryDisplay();
+  const primaryDisplay = screen.getPrimaryDisplay()
   return screen.getAllDisplays().map((display, index) => ({
     id: display.id,
     name: `Display ${index + 1} (${display.bounds.width}x${display.bounds.height})`,
     bounds: display.bounds,
     isPrimary: display.id === primaryDisplay.id,
-  }));
+  }))
 }
 
 export function handleGetCursorScale() {
-  return getCursorScale();
+  return getCursorScale()
 }
 
 export function handleSetCursorScale(_event: IpcMainEvent, scale: number) {
-  setCursorScale(scale);
+  setCursorScale(scale)
 }
 
 export function showSaveDialog(_event: IpcMainInvokeEvent, options: Electron.SaveDialogOptions) {
-    return dialog.showSaveDialog(options);
+  return dialog.showSaveDialog(options)
 }
 
-export async function getVideoFrame(_event: IpcMainInvokeEvent, { videoPath, time }: { videoPath: string, time: number }): Promise<string> {
-  const FFMPEG_PATH = getFFmpegPath();
+export async function getVideoFrame(
+  _event: IpcMainInvokeEvent,
+  { videoPath, time }: { videoPath: string; time: number },
+): Promise<string> {
+  const FFMPEG_PATH = getFFmpegPath()
   return new Promise((resolve, reject) => {
-    const command = `"${FFMPEG_PATH}" -ss ${time} -i "${videoPath}" -vframes 1 -f image2pipe -c:v png -`;
+    const command = `"${FFMPEG_PATH}" -ss ${time} -i "${videoPath}" -vframes 1 -f image2pipe -c:v png -`
     exec(command, { encoding: 'binary', maxBuffer: 10 * 1024 * 1024 }, (error, stdout, stderr) => {
       if (error) {
-        log.error(`[Desktop] FFmpeg frame extraction error: ${stderr}`);
-        return reject(error);
+        log.error(`[Desktop] FFmpeg frame extraction error: ${stderr}`)
+        return reject(error)
       }
-      resolve(`data:image/png;base64,${Buffer.from(stdout, 'binary').toString('base64')}`);
-    });
-  });
+      resolve(`data:image/png;base64,${Buffer.from(stdout, 'binary').toString('base64')}`)
+    })
+  })
 }
 
-export async function getDshowDevices(): Promise<{ video: { name: string, alternativeName: string }[], audio: { name: string, alternativeName: string }[] }> {
+export async function getDshowDevices(): Promise<{
+  video: { name: string; alternativeName: string }[]
+  audio: { name: string; alternativeName: string }[]
+}> {
   if (process.platform !== 'win32') {
-    return { video: [], audio: [] };
+    return { video: [], audio: [] }
   }
 
-  const FFMPEG_PATH = getFFmpegPath();
-  const command = `"${FFMPEG_PATH}" -hide_banner -list_devices true -f dshow -i dummy`;
+  const FFMPEG_PATH = getFFmpegPath()
+  const command = `"${FFMPEG_PATH}" -hide_banner -list_devices true -f dshow -i dummy`
 
   return new Promise((resolve) => {
     exec(command, (_error, _stdout, stderr) => {
       // The command is expected to "fail" and output to stderr, which is normal for this command.
-      const lines = stderr.split('\n');
-      const video: { name: string, alternativeName: string }[] = [];
-      const audio: { name: string, alternativeName: string }[] = [];
+      const lines = stderr.split('\n')
+      const video: { name: string; alternativeName: string }[] = []
+      const audio: { name: string; alternativeName: string }[] = []
 
-      let lastDevice: { name: string, type: 'video' | 'audio' } | null = null;
+      let lastDevice: { name: string; type: 'video' | 'audio' } | null = null
 
       for (const line of lines) {
-        const friendlyNameMatch = line.match(/\[dshow.*\] "([^"]+)" \((video|audio)\)/);
+        const friendlyNameMatch = line.match(/\[dshow.*\] "([^"]+)" \((video|audio)\)/)
         if (friendlyNameMatch) {
-          const [, name, type] = friendlyNameMatch;
-          lastDevice = { name, type: type as 'video' | 'audio' };
-          continue;
+          const [, name, type] = friendlyNameMatch
+          lastDevice = { name, type: type as 'video' | 'audio' }
+          continue
         }
 
-        const altNameMatch = line.match(/\[dshow.*\]\s+Alternative name "([^"]+)"/);
+        const altNameMatch = line.match(/\[dshow.*\]\s+Alternative name "([^"]+)"/)
         if (altNameMatch && lastDevice) {
-          const [, alternativeName] = altNameMatch;
+          const [, alternativeName] = altNameMatch
           if (lastDevice.type === 'video') {
-            video.push({ name: lastDevice.name, alternativeName });
+            video.push({ name: lastDevice.name, alternativeName })
           } else {
-            audio.push({ name: lastDevice.name, alternativeName });
+            audio.push({ name: lastDevice.name, alternativeName })
           }
-          lastDevice = null; // Reset for the next device
+          lastDevice = null // Reset for the next device
         }
       }
 
-      log.info(`[Desktop] Found dshow devices: ${video.length} video, ${audio.length} audio.`);
-      resolve({ video, audio });
-    });
-  });
+      log.info(`[Desktop] Found dshow devices: ${video.length} video, ${audio.length} audio.`)
+      resolve({ video, audio })
+    })
+  })
 }
 
-
 export async function loadCursorTheme(_event: IpcMainInvokeEvent): Promise<CursorTheme | null> {
-  log.info('[IPC] Received request to parse cursor.theme');
+  log.info('[IPC] Received request to parse cursor.theme')
   try {
-    const cursorThemePath = getBinaryPath('cursor.theme');
-    const cursorTheme = await loadCursorThemeFromFile(cursorThemePath);
-    return cursorTheme;
+    const cursorThemePath = getBinaryPath('cursor.theme')
+    const cursorTheme = await loadCursorThemeFromFile(cursorThemePath)
+    return cursorTheme
   } catch (error) {
-    log.error('[IPC] Failed to parse cursor theme file:', error);
-    return null;
+    log.error('[IPC] Failed to parse cursor theme file:', error)
+    return null
   }
 }
 
 export function handleMapCursorNameToIDC(_event: IpcMainInvokeEvent, name: string) {
-  return mapCursorNameToIDC(name);
+  return mapCursorNameToIDC(name)
 }

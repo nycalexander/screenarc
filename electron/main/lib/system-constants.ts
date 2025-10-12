@@ -5,8 +5,8 @@ export const WIN_API = {
   SPIF_SENDCHANGE: 0x02,
   // This is an undocumented value that seems to be necessary to reload cursor theme size.
   // Found through reverse engineering and community forums.
-  SPI_SETCURSORSIZE_UNDOCUMENTED: 0x2029, 
-};
+  SPI_SETCURSORSIZE_UNDOCUMENTED: 0x2029,
+}
 
 // --- Mouse Button Codes ---
 export const MOUSE_BUTTONS = {
@@ -25,8 +25,8 @@ export const MOUSE_BUTTONS = {
     RIGHT: 2,
     MIDDLE: 3,
   },
-};
+}
 
 export const MACOS_API = {
   kCGEventSourceStateHIDSystemState: 1,
-};
+}

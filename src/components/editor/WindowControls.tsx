@@ -1,9 +1,9 @@
-import { Minus, Maximize2, X } from 'lucide-react';
+import { Minus, Maximize2, X } from 'lucide-react'
 
 export function WindowControls() {
-  const handleMinimize = () => window.electronAPI.minimizeWindow();
-  const handleMaximize = () => window.electronAPI.maximizeWindow();
-  const handleClose = () => window.electronAPI.closeWindow();
+  const handleMinimize = () => window.electronAPI.minimizeWindow()
+  const handleMaximize = () => window.electronAPI.maximizeWindow()
+  const handleClose = () => window.electronAPI.closeWindow()
 
   return (
     <div className="flex items-center gap-2" style={{ WebkitAppRegion: 'no-drag' }}>
@@ -29,5 +29,5 @@ export function WindowControls() {
         <Maximize2 className="w-1.5 h-1.5 text-green-900/60 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
       </button>
     </div>
-  );
+  )
 }

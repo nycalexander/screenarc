@@ -1,6 +1,6 @@
-import { useState, useEffect, useCallback } from 'react';
-import { useEditorStore } from '../store/editorStore';
-import { ExportSettings } from '../components/editor/ExportModal';
+import { useState, useEffect, useCallback } from 'react'
+import { useEditorStore } from '../store/editorStore'
+import { ExportSettings } from '../components/editor/ExportModal'
 
 /**
  * Custom hook to manage the entire video export process.
@@ -8,32 +8,32 @@ import { ExportSettings } from '../components/editor/ExportModal';
  * related to exporting, cleaning up the EditorPage component.
  */
 export const useExportProcess = () => {
-  const [isModalOpen, setModalOpen] = useState(false);
-  const [isExporting, setIsExporting] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [result, setResult] = useState<{ success: boolean; outputPath?: string; error?: string } | null>(null);
+  const [isModalOpen, setModalOpen] = useState(false)
+  const [isExporting, setIsExporting] = useState(false)
+  const [progress, setProgress] = useState(0)
+  const [result, setResult] = useState<{ success: boolean; outputPath?: string; error?: string } | null>(null)
 
   // Effect to set up and tear down IPC listeners for export progress and completion
   useEffect(() => {
     const cleanProgressListener = window.electronAPI.onExportProgress(({ progress }) => {
-      setProgress(progress);
-    });
+      setProgress(progress)
+    })
 
     const cleanCompleteListener = window.electronAPI.onExportComplete(({ success, outputPath, error }) => {
-      setIsExporting(false);
-      setProgress(100);
-      setResult({ success, outputPath, error });
-    });
+      setIsExporting(false)
+      setProgress(100)
+      setResult({ success, outputPath, error })
+    })
 
     return () => {
-      cleanProgressListener();
-      cleanCompleteListener();
-    };
-  }, []);
+      cleanProgressListener()
+      cleanCompleteListener()
+    }
+  }, [])
 
   // Handler to initiate the export process
   const handleStartExport = useCallback(async (settings: ExportSettings, outputPath: string) => {
-    const fullState = useEditorStore.getState();
+    const fullState = useEditorStore.getState()
     const plainState = {
       platform: fullState.platform,
       videoPath: fullState.videoPath,
@@ -52,37 +52,37 @@ export const useExportProcess = () => {
       cursorImages: fullState.cursorImages,
       cursorTheme: fullState.cursorTheme,
       syncOffset: fullState.syncOffset,
-    };
+    }
 
-    setResult(null);
-    setIsExporting(true);
-    setProgress(0);
+    setResult(null)
+    setIsExporting(true)
+    setProgress(0)
 
     try {
       await window.electronAPI.startExport({
         projectState: plainState,
         exportSettings: settings,
         outputPath: outputPath,
-      });
+      })
     } catch (e) {
-      console.error("Export invocation failed", e);
-      setResult({ success: false, error: `An error occurred while starting the export: ${e}` });
-      setIsExporting(false);
+      console.error('Export invocation failed', e)
+      setResult({ success: false, error: `An error occurred while starting the export: ${e}` })
+      setIsExporting(false)
     }
-  }, []);
+  }, [])
 
   // Handler to cancel an ongoing export
   const handleCancelExport = () => {
-    window.electronAPI.cancelExport();
-  };
+    window.electronAPI.cancelExport()
+  }
 
   // Handler to close the modal and reset its state
   const handleCloseModal = () => {
     if (result) {
-      setResult(null);
+      setResult(null)
     }
-    setModalOpen(false);
-  };
+    setModalOpen(false)
+  }
 
   return {
     isModalOpen,
@@ -93,5 +93,5 @@ export const useExportProcess = () => {
     closeExportModal: handleCloseModal,
     startExport: handleStartExport,
     cancelExport: handleCancelExport,
-  };
-};
+  }
+}

@@ -1,39 +1,39 @@
-import { MousePointer } from "lucide-react"
-import { Collapse } from "../../ui/collapse"
-import { cn } from "../../../lib/utils"
-import { useEffect, useState } from "react"
-import { useEditorStore } from "../../../store/editorStore"
+import { MousePointer } from 'lucide-react'
+import { Collapse } from '../../ui/collapse'
+import { cn } from '../../../lib/utils'
+import { useEffect, useState } from 'react'
+import { useEditorStore } from '../../../store/editorStore'
 
 const POST_PROCESSING_SCALES = [
-  { value: 2, label: "2x" },
-  { value: 1.5, label: "1.5x" },
-  { value: 1, label: "1x" },
+  { value: 2, label: '2x' },
+  { value: 1.5, label: '1.5x' },
+  { value: 1, label: '1x' },
 ]
 
 export function CursorSettings() {
   const { platform, setPostProcessingCursorScale } = useEditorStore((state) => ({
     platform: state.platform,
     setPostProcessingCursorScale: state.setPostProcessingCursorScale,
-  }));
-  const [cursorScale, setCursorScale] = useState<number>(2); // Default to 2x
+  }))
+  const [cursorScale, setCursorScale] = useState<number>(2) // Default to 2x
 
   useEffect(() => {
     if (platform === 'win32' || platform === 'darwin') {
       // Load initial scale from settings when component mounts
-      window.electronAPI.getSetting<number>('recorder.cursorScale').then(savedScale => {
-        if (savedScale && POST_PROCESSING_SCALES.some(s => s.value === savedScale)) {
-          setCursorScale(savedScale);
+      window.electronAPI.getSetting<number>('recorder.cursorScale').then((savedScale) => {
+        if (savedScale && POST_PROCESSING_SCALES.some((s) => s.value === savedScale)) {
+          setCursorScale(savedScale)
         }
-      });
+      })
     }
   }, [platform])
 
   const handleCursorScaleChange = (value: number) => {
-    setCursorScale(value);
-    setPostProcessingCursorScale(value);
-  };
+    setCursorScale(value)
+    setPostProcessingCursorScale(value)
+  }
 
-  if (platform !== "win32" && platform !== "darwin") {
+  if (platform !== 'win32' && platform !== 'darwin') {
     return (
       <div className="p-6 text-center text-sm text-muted-foreground">
         <p>Cursor scaling is only available on Windows and macOS in the editor.</p>
@@ -71,10 +71,10 @@ export function CursorSettings() {
                   key={scale.value}
                   onClick={() => handleCursorScaleChange(scale.value)}
                   className={cn(
-                    "py-2 text-sm font-medium rounded-md transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                    'py-2 text-sm font-medium rounded-md transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
                     cursorScale === scale.value
-                      ? "bg-background shadow-sm text-foreground"
-                      : "text-muted-foreground hover:text-foreground",
+                      ? 'bg-background shadow-sm text-foreground'
+                      : 'text-muted-foreground hover:text-foreground',
                   )}
                 >
                   {scale.label}

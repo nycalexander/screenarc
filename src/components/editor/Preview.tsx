@@ -1,23 +1,34 @@
-import React, { useEffect, useRef, memo, useState, useCallback } from 'react';
-import { useEditorStore, usePlaybackState } from '../../store/editorStore';
-import { Film, Fullscreen, Shrink } from 'lucide-react';
-import { PauseIcon, PlayIcon } from '../ui/icons';
-import { useShallow } from 'zustand/react/shallow';
-import { formatTime } from '../../lib/utils';
-import { Slider } from '../ui/slider';
-import { Button } from '../ui/button';
-import { drawScene } from '../../lib/renderer';
-import { cn } from '../../lib/utils';
+import React, { useEffect, useRef, memo, useState, useCallback } from 'react'
+import { useEditorStore, usePlaybackState } from '../../store/editorStore'
+import { Film, Fullscreen, Shrink } from 'lucide-react'
+import { PauseIcon, PlayIcon } from '../ui/icons'
+import { useShallow } from 'zustand/react/shallow'
+import { formatTime } from '../../lib/utils'
+import { Slider } from '../ui/slider'
+import { Button } from '../ui/button'
+import { drawScene } from '../../lib/renderer'
+import { cn } from '../../lib/utils'
 
 export const Preview = memo(({ videoRef }: { videoRef: React.RefObject<HTMLVideoElement> }) => {
   const {
-    videoUrl, cutRegions,
-    webcamVideoUrl, duration, currentTime, togglePlay,
-    isPreviewFullScreen, togglePreviewFullScreen, frameStyles,
-    isWebcamVisible, webcamPosition, webcamStyles, videoDimensions,
-    canvasDimensions, volume, isMuted
+    videoUrl,
+    cutRegions,
+    webcamVideoUrl,
+    duration,
+    currentTime,
+    togglePlay,
+    isPreviewFullScreen,
+    togglePreviewFullScreen,
+    frameStyles,
+    isWebcamVisible,
+    webcamPosition,
+    webcamStyles,
+    videoDimensions,
+    canvasDimensions,
+    volume,
+    isMuted,
   } = useEditorStore(
-    useShallow(state => ({
+    useShallow((state) => ({
       videoUrl: state.videoUrl,
       cutRegions: state.cutRegions,
       webcamVideoUrl: state.webcamVideoUrl,
@@ -34,204 +45,223 @@ export const Preview = memo(({ videoRef }: { videoRef: React.RefObject<HTMLVideo
       canvasDimensions: state.canvasDimensions,
       volume: state.volume,
       isMuted: state.isMuted,
-    })));
+    })),
+  )
 
-  const { setPlaying, setCurrentTime, setDuration, setVideoDimensions } = useEditorStore.getState();
-  const { isPlaying, isCurrentlyCut } = usePlaybackState();
+  const { setPlaying, setCurrentTime, setDuration, setVideoDimensions } = useEditorStore.getState()
+  const { isPlaying, isCurrentlyCut } = usePlaybackState()
 
-  const [bgImage, setBgImage] = useState<HTMLImageElement | null>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const webcamVideoRef = useRef<HTMLVideoElement>(null);
-  const animationFrameId = useRef<number>();
-  const [controlBarWidth, setControlBarWidth] = useState(0);
+  const [bgImage, setBgImage] = useState<HTMLImageElement | null>(null)
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const webcamVideoRef = useRef<HTMLVideoElement>(null)
+  const animationFrameId = useRef<number>()
+  const [controlBarWidth, setControlBarWidth] = useState(0)
 
   // --- Start of Changes for Fullscreen Controls ---
-  const [isControlBarVisible, setIsControlBarVisible] = useState(false);
-  const inactivityTimerRef = useRef<number | null>(null);
-  const previewContainerRef = useRef<HTMLDivElement>(null);
+  const [isControlBarVisible, setIsControlBarVisible] = useState(false)
+  const inactivityTimerRef = useRef<number | null>(null)
+  const previewContainerRef = useRef<HTMLDivElement>(null)
 
   // This effect handles the auto-hiding control bar in fullscreen mode.
   useEffect(() => {
     if (!isPreviewFullScreen) {
       if (inactivityTimerRef.current) {
-        window.clearTimeout(inactivityTimerRef.current);
-        inactivityTimerRef.current = null;
+        window.clearTimeout(inactivityTimerRef.current)
+        inactivityTimerRef.current = null
       }
-      return; // Do nothing if not in fullscreen
+      return // Do nothing if not in fullscreen
     }
 
     // Start with controls hidden
-    setIsControlBarVisible(false);
+    setIsControlBarVisible(false)
 
     const showControlsAndSetTimer = () => {
-      setIsControlBarVisible(true);
+      setIsControlBarVisible(true)
       if (inactivityTimerRef.current) {
-        window.clearTimeout(inactivityTimerRef.current);
+        window.clearTimeout(inactivityTimerRef.current)
       }
       inactivityTimerRef.current = window.setTimeout(() => {
-        setIsControlBarVisible(false);
-      }, 3000); // Hide after 3 seconds of inactivity
-    };
+        setIsControlBarVisible(false)
+      }, 3000) // Hide after 3 seconds of inactivity
+    }
 
-    const container = previewContainerRef.current;
+    const container = previewContainerRef.current
     if (container) {
-      container.addEventListener('mousemove', showControlsAndSetTimer);
+      container.addEventListener('mousemove', showControlsAndSetTimer)
     }
 
     // Cleanup function
     return () => {
       if (inactivityTimerRef.current) {
-        window.clearTimeout(inactivityTimerRef.current);
+        window.clearTimeout(inactivityTimerRef.current)
       }
       if (container) {
-        container.removeEventListener('mousemove', showControlsAndSetTimer);
+        container.removeEventListener('mousemove', showControlsAndSetTimer)
       }
-    };
-  }, [isPreviewFullScreen]);
+    }
+  }, [isPreviewFullScreen])
   // --- End of Changes for Fullscreen Controls ---
 
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const resizeObserver = new ResizeObserver(entries => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+    const resizeObserver = new ResizeObserver((entries) => {
       if (entries[0]) {
-        const newWidth = entries[0].contentRect.width;
-        if (newWidth > 0) { setControlBarWidth(newWidth); }
+        const newWidth = entries[0].contentRect.width
+        if (newWidth > 0) {
+          setControlBarWidth(newWidth)
+        }
       }
-    });
-    resizeObserver.observe(canvas);
-    return () => { resizeObserver.disconnect(); };
-  }, [canvasDimensions]);
+    })
+    resizeObserver.observe(canvas)
+    return () => {
+      resizeObserver.disconnect()
+    }
+  }, [canvasDimensions])
 
   useEffect(() => {
-    const background = frameStyles.background;
+    const background = frameStyles.background
     if ((background.type === 'image' || background.type === 'wallpaper') && background.imageUrl) {
-      const img = new Image();
-      img.onload = () => { setBgImage(img); };
-      const finalUrl = background.imageUrl.startsWith('blob:') ? background.imageUrl : `media://${background.imageUrl}`;
-      img.src = finalUrl;
+      const img = new Image()
+      img.onload = () => {
+        setBgImage(img)
+      }
+      const finalUrl = background.imageUrl.startsWith('blob:') ? background.imageUrl : `media://${background.imageUrl}`
+      img.src = finalUrl
     } else {
-      setBgImage(null);
+      setBgImage(null)
     }
-  }, [frameStyles.background]);
+  }, [frameStyles.background])
 
   const renderCanvas = useCallback(async () => {
-    const canvas = canvasRef.current;
-    const video = videoRef.current;
-    const webcamVideo = webcamVideoRef.current;
-    const state = useEditorStore.getState();
-    const ctx = canvas?.getContext('2d');
+    const canvas = canvasRef.current
+    const video = videoRef.current
+    const webcamVideo = webcamVideoRef.current
+    const state = useEditorStore.getState()
+    const ctx = canvas?.getContext('2d')
     if (!canvas || !video || !ctx || !state.videoDimensions.width) {
-      if (state.isPlaying) animationFrameId.current = requestAnimationFrame(renderCanvas);
-      return;
+      if (state.isPlaying) animationFrameId.current = requestAnimationFrame(renderCanvas)
+      return
     }
-    await drawScene(ctx, state, video, webcamVideo, video.currentTime, canvas.width, canvas.height, bgImage);
+    await drawScene(ctx, state, video, webcamVideo, video.currentTime, canvas.width, canvas.height, bgImage)
     if (state.isPlaying) {
-      animationFrameId.current = requestAnimationFrame(renderCanvas);
+      animationFrameId.current = requestAnimationFrame(renderCanvas)
     }
-  }, [videoRef, bgImage]);
+  }, [videoRef, bgImage])
 
   useEffect(() => {
     if (isPlaying) {
-      animationFrameId.current = requestAnimationFrame(renderCanvas);
+      animationFrameId.current = requestAnimationFrame(renderCanvas)
     } else {
-      renderCanvas();
+      renderCanvas()
     }
     return () => {
       if (animationFrameId.current) {
-        cancelAnimationFrame(animationFrameId.current);
+        cancelAnimationFrame(animationFrameId.current)
       }
-    };
-  }, [isPlaying, currentTime, renderCanvas, canvasDimensions, frameStyles, isWebcamVisible, webcamPosition, webcamStyles, videoDimensions]);
+    }
+  }, [
+    isPlaying,
+    currentTime,
+    renderCanvas,
+    canvasDimensions,
+    frameStyles,
+    isWebcamVisible,
+    webcamPosition,
+    webcamStyles,
+    videoDimensions,
+  ])
 
   useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-    const webcamVideo = webcamVideoRef.current;
+    const video = videoRef.current
+    if (!video) return
+    const webcamVideo = webcamVideoRef.current
     if (isPlaying) {
-      video.play().catch(console.error);
-      webcamVideo?.play().catch(console.error);
+      video.play().catch(console.error)
+      webcamVideo?.play().catch(console.error)
     } else {
-      video.pause();
-      webcamVideo?.pause();
+      video.pause()
+      webcamVideo?.pause()
     }
-  }, [isPlaying, videoRef]);
+  }, [isPlaying, videoRef])
 
   // Effect to handle volume and mute state
   useEffect(() => {
-    const video = videoRef.current;
+    const video = videoRef.current
     if (video) {
-      video.volume = volume;
-      video.muted = isMuted;
+      video.volume = volume
+      video.muted = isMuted
     }
-  }, [volume, isMuted, videoRef]);
+  }, [volume, isMuted, videoRef])
 
   useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
+    const video = videoRef.current
+    if (!video) return
     if (isPlaying && isCurrentlyCut) {
-      const allCutRegions = Object.values(useEditorStore.getState().cutRegions);
-      const activeCutRegion = allCutRegions.find(r => video.currentTime >= r.startTime && video.currentTime < (r.startTime + r.duration));
+      const allCutRegions = Object.values(useEditorStore.getState().cutRegions)
+      const activeCutRegion = allCutRegions.find(
+        (r) => video.currentTime >= r.startTime && video.currentTime < r.startTime + r.duration,
+      )
       if (activeCutRegion) {
-        video.currentTime = activeCutRegion.startTime + activeCutRegion.duration;
-        setCurrentTime(video.currentTime);
+        video.currentTime = activeCutRegion.startTime + activeCutRegion.duration
+        setCurrentTime(video.currentTime)
       }
     }
-  }, [isCurrentlyCut, isPlaying, videoRef, setCurrentTime]);
+  }, [isCurrentlyCut, isPlaying, videoRef, setCurrentTime])
 
   const handleTimeUpdate = () => {
-    if (!videoRef.current) return;
-    const endTrimRegion = Object.values(cutRegions).find(r => r.trimType === 'end');
+    if (!videoRef.current) return
+    const endTrimRegion = Object.values(cutRegions).find((r) => r.trimType === 'end')
     if (endTrimRegion && videoRef.current.currentTime >= endTrimRegion.startTime) {
-      videoRef.current.currentTime = endTrimRegion.startTime;
-      videoRef.current.pause();
+      videoRef.current.currentTime = endTrimRegion.startTime
+      videoRef.current.pause()
     }
     if (webcamVideoRef.current) {
-      webcamVideoRef.current.currentTime = videoRef.current.currentTime;
+      webcamVideoRef.current.currentTime = videoRef.current.currentTime
     }
-    setCurrentTime(videoRef.current.currentTime);
-  };
+    setCurrentTime(videoRef.current.currentTime)
+  }
 
   // --- Start of Bug Fix for Rewind on Fullscreen ---
   const handleLoadedMetadata = () => {
-    const video = videoRef.current;
+    const video = videoRef.current
     if (video) {
-      setDuration(video.duration);
-      setVideoDimensions({ width: video.videoWidth, height: video.videoHeight });
+      setDuration(video.duration)
+      setVideoDimensions({ width: video.videoWidth, height: video.videoHeight })
 
-      const timeFromStore = useEditorStore.getState().currentTime;
+      const timeFromStore = useEditorStore.getState().currentTime
 
       const onSeekComplete = () => {
-        renderCanvas();
-        video.removeEventListener('seeked', onSeekComplete);
-      };
+        renderCanvas()
+        video.removeEventListener('seeked', onSeekComplete)
+      }
 
-      video.addEventListener('seeked', onSeekComplete);
+      video.addEventListener('seeked', onSeekComplete)
       // Restore the video's time from the store to prevent rewinding
-      video.currentTime = timeFromStore;
+      video.currentTime = timeFromStore
     }
-  };
+  }
   // --- End of Bug Fix ---
 
   const handleWebcamLoadedMetadata = useCallback(() => {
-    const mainVideo = videoRef.current;
-    const webcamVideo = webcamVideoRef.current;
+    const mainVideo = videoRef.current
+    const webcamVideo = webcamVideoRef.current
     if (mainVideo && webcamVideo) {
-      webcamVideo.currentTime = mainVideo.currentTime;
+      webcamVideo.currentTime = mainVideo.currentTime
       if (mainVideo.paused) {
-        webcamVideo.pause();
+        webcamVideo.pause()
       } else {
-        webcamVideo.play().catch(console.error);
+        webcamVideo.play().catch(console.error)
       }
     }
-  }, [videoRef]);
+  }, [videoRef])
 
   const handleScrub = (value: number) => {
     if (videoRef.current) {
-      videoRef.current.currentTime = value;
-      setCurrentTime(value);
+      videoRef.current.currentTime = value
+      setCurrentTime(value)
     }
-  };
+  }
 
   return (
     <div ref={previewContainerRef} className="w-full h-full flex flex-col items-center justify-center relative">
@@ -285,14 +315,18 @@ export const Preview = memo(({ videoRef }: { videoRef: React.RefObject<HTMLVideo
       {videoUrl && (
         <div
           className={cn(
-            "w-full mt-3 transition-opacity duration-200",
-            isPreviewFullScreen && "absolute bottom-6 left-0 right-0 mx-auto px-4 z-10",
-            isPreviewFullScreen && !isControlBarVisible && "opacity-0 pointer-events-none"
+            'w-full mt-3 transition-opacity duration-200',
+            isPreviewFullScreen && 'absolute bottom-6 left-0 right-0 mx-auto px-4 z-10',
+            isPreviewFullScreen && !isControlBarVisible && 'opacity-0 pointer-events-none',
           )}
-          style={{ maxWidth: isPreviewFullScreen ? "min(90%, 800px)" : "100%" }}
+          style={{ maxWidth: isPreviewFullScreen ? 'min(90%, 800px)' : '100%' }}
         >
-          <div className="bg-card/95 backdrop-blur-xl border border-border/40 shadow-md rounded-xl px-4 py-3 flex items-center gap-4 max-w-full mx-auto"
-            style={{ width: isPreviewFullScreen ? 'auto' : controlBarWidth, minWidth: isPreviewFullScreen ? 'auto' : 420 }}
+          <div
+            className="bg-card/95 backdrop-blur-xl border border-border/40 shadow-md rounded-xl px-4 py-3 flex items-center gap-4 max-w-full mx-auto"
+            style={{
+              width: isPreviewFullScreen ? 'auto' : controlBarWidth,
+              minWidth: isPreviewFullScreen ? 'auto' : 420,
+            }}
           >
             <Button
               variant="ghost"
@@ -328,6 +362,6 @@ export const Preview = memo(({ videoRef }: { videoRef: React.RefObject<HTMLVideo
         </div>
       )}
     </div>
-  );
-});
-Preview.displayName = 'Preview';
+  )
+})
+Preview.displayName = 'Preview'

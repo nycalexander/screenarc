@@ -1,16 +1,16 @@
-import * as React from 'react';
-import { useState, useEffect, useId } from 'react';
-import { cn } from '../../lib/utils';
+import * as React from 'react'
+import { useState, useEffect, useId } from 'react'
+import { cn } from '../../lib/utils'
 
 export interface ColorPickerProps {
   /** The current color value in a format accepted by CSS (e.g., #RRGGBB). */
-  value: string;
+  value: string
   /** Callback function when the color changes. */
-  onChange: (value: string) => void;
+  onChange: (value: string) => void
   /** Optional label to display above the color picker. */
-  label?: string;
+  label?: string
   /** Optional additional class names. */
-  className?: string;
+  className?: string
 }
 
 /**
@@ -20,8 +20,8 @@ export interface ColorPickerProps {
  */
 export const ColorPicker = ({ value, onChange, label, className }: ColorPickerProps) => {
   // Internal state for the text input to avoid updating the parent on every keystroke.
-  const [localValue, setLocalValue] = useState(value);
-  const colorInputId = useId();
+  const [localValue, setLocalValue] = useState(value)
+  const colorInputId = useId()
 
   /**
    * Synchronizes the internal text input state when the `value` prop changes from the parent.
@@ -31,46 +31,46 @@ export const ColorPicker = ({ value, onChange, label, className }: ColorPickerPr
     // Check prevents an unnecessary update if the values are already in sync,
     // which can happen after the blur event handler fires.
     if (value.toLowerCase() !== localValue.toLowerCase()) {
-      setLocalValue(value);
+      setLocalValue(value)
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [value]); // Note: We don't include localValue here to prevent loops.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value]) // Note: We don't include localValue here to prevent loops.
 
   /**
    * Handles changes from the native color picker input (the swatch).
    * This updates the parent state directly.
    */
   const handleSwatchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue = e.target.value;
-    onChange(newValue);
+    const newValue = e.target.value
+    onChange(newValue)
     // The useEffect hook will then synchronize localValue.
-  };
+  }
 
   /**
    * Handles typing in the text field, updating only the local state.
    */
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setLocalValue(e.target.value);
-  };
+    setLocalValue(e.target.value)
+  }
 
   /**
    * When the text input loses focus, propagate the change to the parent.
    */
   const handleInputBlur = () => {
     if (localValue.toLowerCase() !== value.toLowerCase()) {
-      onChange(localValue);
+      onChange(localValue)
     }
-  };
-  
+  }
+
   /**
    * Allows submitting the color by pressing Enter for better UX.
    */
   const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
-      handleInputBlur();
-      (e.target as HTMLInputElement).blur();
+      handleInputBlur()
+      ;(e.target as HTMLInputElement).blur()
     }
-  };
+  }
 
   return (
     <div className={cn('space-y-1 w-full', className)}>
@@ -91,10 +91,7 @@ export const ColorPicker = ({ value, onChange, label, className }: ColorPickerPr
             aria-label="Color Picker Swatch"
           />
           {/* The visible color block inside the swatch border */}
-          <div
-            className="w-full h-full rounded-[5px]"
-            style={{ backgroundColor: value }}
-          />
+          <div className="w-full h-full rounded-[5px]" style={{ backgroundColor: value }} />
         </div>
 
         {/* Text Input */}
@@ -110,10 +107,10 @@ export const ColorPicker = ({ value, onChange, label, className }: ColorPickerPr
         />
       </div>
     </div>
-  );
-};
+  )
+}
 
-ColorPicker.displayName = "ColorPicker";
+ColorPicker.displayName = 'ColorPicker'
 
 // This component is simpler and already existed. I'm including it for completeness
 // as it shares a similar style but has different functionality (no text input).
@@ -122,23 +119,23 @@ export const ColorPickerRoundedRect = ({
   color,
   name,
   onChange,
-  size = 'sm'
+  size = 'sm',
 }: {
-  label: string;
-  color: string;
-  name: string;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  size?: 'sm' | 'md' | 'lg';
+  label: string
+  color: string
+  name: string
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
+  size?: 'sm' | 'md' | 'lg'
 }) => {
   const sizeClasses = {
     sm: 'w-8 h-8',
     md: 'w-10 h-10',
-    lg: 'w-12 h-12'
-  };
+    lg: 'w-12 h-12',
+  }
 
   return (
     <div className="flex items-center gap-3">
-      <label className={cn("relative cursor-pointer group flex-shrink-0", sizeClasses[size])}>
+      <label className={cn('relative cursor-pointer group flex-shrink-0', sizeClasses[size])}>
         <input
           type="color"
           name={name}
@@ -148,13 +145,13 @@ export const ColorPickerRoundedRect = ({
         />
         <div
           className={cn(
-            "w-full aspect-square rounded-lg border-2 transition-all duration-300",
-            "border-sidebar-border hover:border-primary/60"
+            'w-full aspect-square rounded-lg border-2 transition-all duration-300',
+            'border-sidebar-border hover:border-primary/60',
           )}
           style={{ backgroundColor: color }}
         />
       </label>
       <span className="text-sm text-foreground font-medium">{label}</span>
     </div>
-  );
-};
+  )
+}

@@ -1,49 +1,49 @@
-import { useState, useEffect } from 'react';
-import { EditorPage } from './pages/EditorPage';
-import { RecorderPage } from './pages/RecorderPage';
-import { RendererPage } from './pages/RendererPage';
-import { useEditorStore } from './store/editorStore';
+import { useState, useEffect } from 'react'
+import { EditorPage } from './pages/EditorPage'
+import { RecorderPage } from './pages/RecorderPage'
+import { RendererPage } from './pages/RendererPage'
+import { useEditorStore } from './store/editorStore'
 
 function App() {
-  const [route, setRoute] = useState(window.location.hash);
-  const theme = useEditorStore((state) => state.theme);
-  const { initializeSettings } = useEditorStore.getState();
+  const [route, setRoute] = useState(window.location.hash)
+  const theme = useEditorStore((state) => state.theme)
+  const { initializeSettings } = useEditorStore.getState()
 
   useEffect(() => {
-    initializeSettings();
-  }, [initializeSettings]);
+    initializeSettings()
+  }, [initializeSettings])
 
   useEffect(() => {
-    const root = document.documentElement;
+    const root = document.documentElement
     if (theme === 'dark') {
-      root.classList.add('dark');
-      root.setAttribute('data-theme', 'dark');
+      root.classList.add('dark')
+      root.setAttribute('data-theme', 'dark')
     } else {
-      root.classList.remove('dark');
-      root.setAttribute('data-theme', 'light');
+      root.classList.remove('dark')
+      root.setAttribute('data-theme', 'light')
     }
-  }, [theme]);
+  }, [theme])
 
   useEffect(() => {
     const handleHashChange = () => {
-      setRoute(window.location.hash);
-    };
+      setRoute(window.location.hash)
+    }
 
-    window.addEventListener('hashchange', handleHashChange);
+    window.addEventListener('hashchange', handleHashChange)
     return () => {
-      window.removeEventListener('hashchange', handleHashChange);
-    };
-  }, []);
+      window.removeEventListener('hashchange', handleHashChange)
+    }
+  }, [])
 
   if (route.startsWith('#renderer')) {
-    return <RendererPage />;
+    return <RendererPage />
   }
 
   if (route.startsWith('#editor')) {
-    return <EditorPage />;
+    return <EditorPage />
   }
 
-  return <RecorderPage />;
+  return <RecorderPage />
 }
 
-export default App;
+export default App

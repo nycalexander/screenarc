@@ -1,15 +1,15 @@
 // Settings panel for video background (wallpaper, color, gradient, image)
-import type React from "react"
-import { useState, useRef, useEffect } from "react"
-import { useEditorStore } from "../../../store/editorStore"
-import { cn } from "../../../lib/utils"
-import { WALLPAPERS } from "../../../lib/constants"
-import { ImageIcon, Check, UploadCloud, X, Plus, Paintbrush } from "lucide-react"
-import { ControlGroup } from "./ControlGroup"
-import { Button } from "../../ui/button"
-import { ColorPickerRoundedRect } from "../../ui/color-picker"
+import type React from 'react'
+import { useState, useRef, useEffect } from 'react'
+import { useEditorStore } from '../../../store/editorStore'
+import { cn } from '../../../lib/utils'
+import { WALLPAPERS } from '../../../lib/constants'
+import { ImageIcon, Check, UploadCloud, X, Plus, Paintbrush } from 'lucide-react'
+import { ControlGroup } from './ControlGroup'
+import { Button } from '../../ui/button'
+import { ColorPickerRoundedRect } from '../../ui/color-picker'
 
-type BackgroundTab = "color" | "gradient" | "image" | "wallpaper"
+type BackgroundTab = 'color' | 'gradient' | 'image' | 'wallpaper'
 
 // --- Sub-components for each tab ---
 
@@ -21,17 +21,17 @@ const WallpaperSelector = () => {
         <button
           key={`${wallpaper.thumbnailUrl}-${index}`}
           onClick={() =>
-            updateBackground({ type: "wallpaper", thumbnailUrl: wallpaper.thumbnailUrl, imageUrl: wallpaper.imageUrl })
+            updateBackground({ type: 'wallpaper', thumbnailUrl: wallpaper.thumbnailUrl, imageUrl: wallpaper.imageUrl })
           }
           className={cn(
-            "relative aspect-square rounded-lg overflow-hidden border-2 transition-all duration-200 hover:scale-105",
+            'relative aspect-square rounded-lg overflow-hidden border-2 transition-all duration-200 hover:scale-105',
             frameStyles.background.thumbnailUrl === wallpaper.thumbnailUrl
-              ? "border-primary ring-2 ring-primary/20 scale-105"
-              : "border-sidebar-border hover:border-primary/50",
+              ? 'border-primary ring-2 ring-primary/20 scale-105'
+              : 'border-sidebar-border hover:border-primary/50',
           )}
         >
           <img
-            src={wallpaper.thumbnailUrl || "/placeholder.svg"}
+            src={wallpaper.thumbnailUrl || '/placeholder.svg'}
             alt={`Wallpaper ${index + 1}`}
             className="w-full h-full object-cover"
           />
@@ -49,23 +49,23 @@ const WallpaperSelector = () => {
 }
 
 const COLOR_PRESETS = [
-  "#7c3aed",
-  "#3b82f6",
-  "#10b981",
-  "#ef4444",
-  "#f97316",
-  "#ec4899",
-  "#8b5cf6",
-  "#14b8a6",
-  "#eab308",
-  "#6366f1",
-  "#6b7280",
-  "#000000",
-  "#ffffff",
-  "#f43f5e",
-  "#22c55e",
-  "#0ea5e9",
-  "#d946ef",
+  '#7c3aed',
+  '#3b82f6',
+  '#10b981',
+  '#ef4444',
+  '#f97316',
+  '#ec4899',
+  '#8b5cf6',
+  '#14b8a6',
+  '#eab308',
+  '#6366f1',
+  '#6b7280',
+  '#000000',
+  '#ffffff',
+  '#f43f5e',
+  '#22c55e',
+  '#0ea5e9',
+  '#d946ef',
 ]
 
 const ColorSelector = () => {
@@ -75,12 +75,12 @@ const ColorSelector = () => {
       {COLOR_PRESETS.map((color) => (
         <button
           key={color}
-          onClick={() => updateBackground({ type: "color", color })}
+          onClick={() => updateBackground({ type: 'color', color })}
           className={cn(
-            "w-full aspect-square rounded-lg border-2 transition-all duration-200 hover:scale-105",
+            'w-full aspect-square rounded-lg border-2 transition-all duration-200 hover:scale-105',
             frameStyles.background.color === color
-              ? "border-primary ring-2 ring-primary/20 scale-105"
-              : "border-sidebar-border hover:border-primary/50",
+              ? 'border-primary ring-2 ring-primary/20 scale-105'
+              : 'border-sidebar-border hover:border-primary/50',
           )}
           style={{ backgroundColor: color }}
           title={color}
@@ -96,22 +96,22 @@ const ColorSelector = () => {
       ))}
       <label
         className={cn(
-          "relative w-full aspect-square rounded-lg border-2 cursor-pointer transition-all duration-200 hover:scale-105",
-          "border-sidebar-border hover:border-primary/50",
+          'relative w-full aspect-square rounded-lg border-2 cursor-pointer transition-all duration-200 hover:scale-105',
+          'border-sidebar-border hover:border-primary/50',
         )}
         title="Custom Color"
       >
         <input
           type="color"
-          value={frameStyles.background.color || "#ffffff"}
-          onChange={(e) => updateBackground({ type: "color", color: e.target.value })}
+          value={frameStyles.background.color || '#ffffff'}
+          onChange={(e) => updateBackground({ type: 'color', color: e.target.value })}
           className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
         />
         <div
           className="absolute inset-0 w-full h-full rounded-lg"
           style={{
             background:
-              "conic-gradient(from 90deg at 50% 50%, #ef4444 0%, #eab308 25%, #10b981 50%, #3b82f6 75%, #7c3aed 100%)",
+              'conic-gradient(from 90deg at 50% 50%, #ef4444 0%, #eab308 25%, #10b981 50%, #3b82f6 75%, #7c3aed 100%)',
             opacity: 0.9,
           }}
         />
@@ -124,37 +124,37 @@ const ColorSelector = () => {
 }
 
 const GRADIENT_PRESETS = [
-  { name: "Top to Bottom", direction: "to bottom" },
-  { name: "Bottom to Top", direction: "to top" },
-  { name: "Left to Right", direction: "to right" },
-  { name: "Right to Left", direction: "to left" },
-  { name: "Top-Left to Bottom-Right", direction: "to bottom right" },
-  { name: "Bottom-Right to Top-Left", direction: "to top left" },
-  { name: "Top-Right to Bottom-Left", direction: "to bottom left" },
-  { name: "Bottom-Left to Top-Right", direction: "to top right" },
-  { name: "Center Out", direction: "circle-out" },
-  { name: "Center In", direction: "circle-in" },
+  { name: 'Top to Bottom', direction: 'to bottom' },
+  { name: 'Bottom to Top', direction: 'to top' },
+  { name: 'Left to Right', direction: 'to right' },
+  { name: 'Right to Left', direction: 'to left' },
+  { name: 'Top-Left to Bottom-Right', direction: 'to bottom right' },
+  { name: 'Bottom-Right to Top-Left', direction: 'to top left' },
+  { name: 'Top-Right to Bottom-Left', direction: 'to bottom left' },
+  { name: 'Bottom-Left to Top-Right', direction: 'to top right' },
+  { name: 'Center Out', direction: 'circle-out' },
+  { name: 'Center In', direction: 'circle-in' },
 ]
 
 const GradientSelector = () => {
   const { frameStyles, updateBackground } = useEditorStore()
   const [localGradient, setLocalGradient] = useState({
-    start: frameStyles.background.gradientStart || "#6366f1",
-    end: frameStyles.background.gradientEnd || "#9ca9ff",
+    start: frameStyles.background.gradientStart || '#6366f1',
+    end: frameStyles.background.gradientEnd || '#9ca9ff',
   })
 
   useEffect(() => {
-    if (frameStyles.background.type === "gradient") {
+    if (frameStyles.background.type === 'gradient') {
       setLocalGradient({
-        start: frameStyles.background.gradientStart || "#6366f1",
-        end: frameStyles.background.gradientEnd || "#9ca9ff",
+        start: frameStyles.background.gradientStart || '#6366f1',
+        end: frameStyles.background.gradientEnd || '#9ca9ff',
       })
     }
   }, [frameStyles.background.gradientStart, frameStyles.background.gradientEnd, frameStyles.background.type])
 
   const handleApplyGradient = () =>
     updateBackground({
-      type: "gradient",
+      type: 'gradient',
       gradientStart: localGradient.start,
       gradientEnd: localGradient.end,
       gradientDirection: frameStyles.background.gradientDirection,
@@ -187,9 +187,9 @@ const GradientSelector = () => {
           <div className="grid grid-cols-5 gap-1.5">
             {GRADIENT_PRESETS.map((preset) => {
               let bgStyle
-              if (preset.direction === "circle-in") {
+              if (preset.direction === 'circle-in') {
                 bgStyle = { background: `radial-gradient(circle, #ffffff, #808080)` }
-              } else if (preset.direction.startsWith("circle")) {
+              } else if (preset.direction.startsWith('circle')) {
                 bgStyle = { background: `radial-gradient(circle, #808080, #ffffff)` }
               } else {
                 bgStyle = { background: `linear-gradient(${preset.direction}, #808080, #ffffff)` }
@@ -199,13 +199,13 @@ const GradientSelector = () => {
                 <button
                   key={preset.direction}
                   className={cn(
-                    "relative aspect-square rounded-lg overflow-hidden border-2 transition-all duration-200 hover:scale-105",
+                    'relative aspect-square rounded-lg overflow-hidden border-2 transition-all duration-200 hover:scale-105',
                     frameStyles.background.gradientDirection === preset.direction
-                      ? "border-primary ring-2 ring-primary/20 scale-105"
-                      : "border-sidebar-border hover:border-primary/50",
+                      ? 'border-primary ring-2 ring-primary/20 scale-105'
+                      : 'border-sidebar-border hover:border-primary/50',
                   )}
                   style={bgStyle}
-                  onClick={() => updateBackground({ type: "gradient", gradientDirection: preset.direction })}
+                  onClick={() => updateBackground({ type: 'gradient', gradientDirection: preset.direction })}
                   title={preset.name}
                 >
                   {frameStyles.background.gradientDirection === preset.direction && (
@@ -236,16 +236,16 @@ const ImageSelector = () => {
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files?.[0]) {
       const imageUrl = URL.createObjectURL(e.target.files[0])
-      updateBackground({ type: "image", imageUrl })
+      updateBackground({ type: 'image', imageUrl })
     }
   }
 
   const removeUploadedImage = () => {
-    if (frameStyles.background.imageUrl?.startsWith("blob:")) {
+    if (frameStyles.background.imageUrl?.startsWith('blob:')) {
       URL.revokeObjectURL(frameStyles.background.imageUrl)
     }
     updateBackground({
-      type: "wallpaper",
+      type: 'wallpaper',
       imageUrl: WALLPAPERS[0].imageUrl,
       thumbnailUrl: WALLPAPERS[0].thumbnailUrl,
     })
@@ -255,16 +255,16 @@ const ImageSelector = () => {
     <div className="relative group">
       <label
         className={cn(
-          "flex flex-col items-center justify-center w-full rounded-xl cursor-pointer border-2 border-dashed transition-all duration-300 overflow-hidden",
+          'flex flex-col items-center justify-center w-full rounded-xl cursor-pointer border-2 border-dashed transition-all duration-300 overflow-hidden',
           frameStyles.background.imageUrl
-            ? "h-48 border-primary/30 bg-sidebar-accent/10"
-            : "h-32 border-sidebar-border hover:border-primary/60 hover:bg-primary/5",
+            ? 'h-48 border-primary/30 bg-sidebar-accent/10'
+            : 'h-32 border-sidebar-border hover:border-primary/60 hover:bg-primary/5',
         )}
       >
-        {frameStyles.background.imageUrl && frameStyles.background.type === "image" ? (
+        {frameStyles.background.imageUrl && frameStyles.background.type === 'image' ? (
           <>
             <img
-              src={frameStyles.background.imageUrl || "/placeholder.svg"}
+              src={frameStyles.background.imageUrl || '/placeholder.svg'}
               alt="Background"
               className="w-full h-full object-cover"
             />
@@ -321,10 +321,10 @@ export function BackgroundSettings() {
   }, [frameStyles.background.type])
 
   const tabs = [
-    { id: "wallpaper", name: "Wallpaper", component: <WallpaperSelector /> },
-    { id: "color", name: "Color", component: <ColorSelector /> },
-    { id: "gradient", name: "Gradient", component: <GradientSelector /> },
-    { id: "image", name: "Image", component: <ImageSelector /> },
+    { id: 'wallpaper', name: 'Wallpaper', component: <WallpaperSelector /> },
+    { id: 'color', name: 'Color', component: <ColorSelector /> },
+    { id: 'gradient', name: 'Gradient', component: <GradientSelector /> },
+    { id: 'image', name: 'Image', component: <ImageSelector /> },
   ]
 
   return (
@@ -348,8 +348,8 @@ export function BackgroundSettings() {
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as BackgroundTab)}
                 className={cn(
-                  "relative z-10 py-2.5 text-sm font-medium transition-colors duration-200 rounded-full",
-                  activeTab === tab.id ? "text-foreground" : "text-muted-foreground hover:text-foreground",
+                  'relative z-10 py-2.5 text-sm font-medium transition-colors duration-200 rounded-full',
+                  activeTab === tab.id ? 'text-foreground' : 'text-muted-foreground hover:text-foreground',
                 )}
               >
                 {tab.name}

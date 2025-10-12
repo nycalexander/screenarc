@@ -20,6 +20,9 @@
     "publish-linux-app": "tsc && npm run build && electron-builder -l --publish always",
     "publish-win-app": "tsc && npm run build && electron-builder -w --publish always",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "lint:fix": "eslint . --ext ts,tsx --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "preview": "vite preview",
     "postinstall": "electron-rebuild"
   },
@@ -53,8 +56,11 @@
     "electron": "^30.0.1",
     "electron-builder": "^24.13.3",
     "eslint": "^8.57.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.4",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.5",
+    "prettier": "^3.6.2",
     "typescript": "^5.2.2",
     "vite": "^5.1.6",
     "vite-plugin-electron": "^0.28.6",
@@ -63,8 +69,8 @@
   "optionalDependencies": {
     "global-mouse-events": "github:tamnguyenvan/global-mouse-events",
     "iohook-macos": "github:tamnguyenvan/iohook-macos",
-    "node-win-cursor": "github:tamnguyenvan/node-win-cursor",
     "node-macos-cursor": "github:tamnguyenvan/node-macos-cursor",
+    "node-win-cursor": "github:tamnguyenvan/node-win-cursor",
     "x11": "github:tamnguyenvan/node-x11"
   },
   "main": "dist-electron/index.js",

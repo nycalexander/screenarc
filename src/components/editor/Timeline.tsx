@@ -1,84 +1,92 @@
-import React, {
-  useRef, useState,
-  useEffect, useCallback, useMemo, memo
-} from 'react';
-import { useShallow } from 'zustand/react/shallow';
-import { useEditorStore, useAllRegions } from '../../store/editorStore';
-import { ZoomRegionBlock } from './timeline/ZoomRegionBlock';
-import { CutRegionBlock } from './timeline/CutRegionBlock';
-import { Playhead } from './timeline/Playhead';
-import { cn } from '../../lib/utils';
-import { Scissors } from 'lucide-react';
-import { formatTime, calculateRulerInterval } from '../../lib/utils';
-import { useTimelineInteraction } from '../../hooks/useTimelineInteraction';
-import { FlipScissorsIcon } from '../ui/icons';
+import React, { useRef, useState, useEffect, useCallback, useMemo, memo } from 'react'
+import { useShallow } from 'zustand/react/shallow'
+import { useEditorStore, useAllRegions } from '../../store/editorStore'
+import { ZoomRegionBlock } from './timeline/ZoomRegionBlock'
+import { CutRegionBlock } from './timeline/CutRegionBlock'
+import { Playhead } from './timeline/Playhead'
+import { cn } from '../../lib/utils'
+import { Scissors } from 'lucide-react'
+import { formatTime, calculateRulerInterval } from '../../lib/utils'
+import { useTimelineInteraction } from '../../hooks/useTimelineInteraction'
+import { FlipScissorsIcon } from '../ui/icons'
 
 // Memoized Ruler component
-const Ruler = memo(({ ticks, timeToPx, formatTime: formatTimeFunc }: {
-  ticks: { time: number; type: string }[];
-  timeToPx: (time: number) => number;
-  formatTime: (seconds: number) => string;
-}) => (
-  <div className="h-12 sticky overflow-hidden top-0 left-0 right-0 z-10 border-b border-border/30 bg-card/60 backdrop-blur-md">
-    <div className="relative h-full pt-2">
-      {ticks.map(({ time, type }) => (
-        <div key={`${type}-${time}`} className="absolute top-2 h-full" style={{ left: `${timeToPx(time)}px` }}>
-          <div className={cn(
-            "timeline-tick absolute top-0 left-1/2 -translate-x-1/2 w-px",
-            type === 'major' ? 'h-5 opacity-60' : 'h-2.5 opacity-30'
-          )} />
-          {type === 'major' && (
-            <span className="absolute top-3.5 left-1 text-[10px] text-foreground/70 font-mono font-medium tracking-tight">
-              {formatTimeFunc(time)}
-            </span>
-          )}
-        </div>
-      ))}
+const Ruler = memo(
+  ({
+    ticks,
+    timeToPx,
+    formatTime: formatTimeFunc,
+  }: {
+    ticks: { time: number; type: string }[]
+    timeToPx: (time: number) => number
+    formatTime: (seconds: number) => string
+  }) => (
+    <div className="h-12 sticky overflow-hidden top-0 left-0 right-0 z-10 border-b border-border/30 bg-card/60 backdrop-blur-md">
+      <div className="relative h-full pt-2">
+        {ticks.map(({ time, type }) => (
+          <div key={`${type}-${time}`} className="absolute top-2 h-full" style={{ left: `${timeToPx(time)}px` }}>
+            <div
+              className={cn(
+                'timeline-tick absolute top-0 left-1/2 -translate-x-1/2 w-px',
+                type === 'major' ? 'h-5 opacity-60' : 'h-2.5 opacity-30',
+              )}
+            />
+            {type === 'major' && (
+              <span className="absolute top-3.5 left-1 text-[10px] text-foreground/70 font-mono font-medium tracking-tight">
+                {formatTimeFunc(time)}
+              </span>
+            )}
+          </div>
+        ))}
+      </div>
     </div>
-  </div>
-));
-Ruler.displayName = 'Ruler';
+  ),
+)
+Ruler.displayName = 'Ruler'
 
 export function Timeline({ videoRef }: { videoRef: React.RefObject<HTMLVideoElement> }) {
   const { currentTime, duration, timelineZoom, previewCutRegion, selectedRegionId, isPlaying } = useEditorStore(
-    useShallow(state => ({
+    useShallow((state) => ({
       currentTime: state.currentTime,
       duration: state.duration,
       timelineZoom: state.timelineZoom,
       previewCutRegion: state.previewCutRegion,
       selectedRegionId: state.selectedRegionId,
-      isPlaying: state.isPlaying
-    }))
-  );
-  const { setCurrentTime, setSelectedRegionId } = useEditorStore();
+      isPlaying: state.isPlaying,
+    })),
+  )
+  const { setCurrentTime, setSelectedRegionId } = useEditorStore()
 
-  const containerRef = useRef<HTMLDivElement>(null);
-  const timelineRef = useRef<HTMLDivElement>(null);
-  const playheadRef = useRef<HTMLDivElement>(null);
-  const regionRefs = useRef<Map<string, HTMLDivElement | null>>(new Map());
-  const animationFrameRef = useRef<number>();
-  const [containerWidth, setContainerWidth] = useState(0);
+  const containerRef = useRef<HTMLDivElement>(null)
+  const timelineRef = useRef<HTMLDivElement>(null)
+  const playheadRef = useRef<HTMLDivElement>(null)
+  const regionRefs = useRef<Map<string, HTMLDivElement | null>>(new Map())
+  const animationFrameRef = useRef<number>()
+  const [containerWidth, setContainerWidth] = useState(0)
 
   useEffect(() => {
-    if (containerRef.current) setContainerWidth(containerRef.current.clientWidth);
-    const observer = new ResizeObserver(entries => entries[0] && setContainerWidth(entries[0].contentRect.width));
-    if (containerRef.current) observer.observe(containerRef.current);
-    return () => observer.disconnect();
-  }, []);
+    if (containerRef.current) setContainerWidth(containerRef.current.clientWidth)
+    const observer = new ResizeObserver((entries) => entries[0] && setContainerWidth(entries[0].contentRect.width))
+    if (containerRef.current) observer.observe(containerRef.current)
+    return () => observer.disconnect()
+  }, [])
 
   const pixelsPerSecond = useMemo(() => {
-    if (duration === 0 || containerWidth === 0) return 200;
-    return (containerWidth / duration) * timelineZoom;
-  }, [duration, containerWidth, timelineZoom]);
+    if (duration === 0 || containerWidth === 0) return 200
+    return (containerWidth / duration) * timelineZoom
+  }, [duration, containerWidth, timelineZoom])
 
-  const timeToPx = useCallback((time: number) => time * pixelsPerSecond, [pixelsPerSecond]);
-  const pxToTime = useCallback((px: number) => px / pixelsPerSecond, [pixelsPerSecond]);
+  const timeToPx = useCallback((time: number) => time * pixelsPerSecond, [pixelsPerSecond])
+  const pxToTime = useCallback((px: number) => px / pixelsPerSecond, [pixelsPerSecond])
 
-  const updateVideoTime = useCallback((time: number) => {
-    const clampedTime = Math.max(0, Math.min(time, duration));
-    setCurrentTime(clampedTime);
-    if (videoRef.current) videoRef.current.currentTime = clampedTime;
-  }, [duration, setCurrentTime, videoRef]);
+  const updateVideoTime = useCallback(
+    (time: number) => {
+      const clampedTime = Math.max(0, Math.min(time, duration))
+      setCurrentTime(clampedTime)
+      if (videoRef.current) videoRef.current.currentTime = clampedTime
+    },
+    [duration, setCurrentTime, videoRef],
+  )
 
   const {
     draggingRegionId,
@@ -93,57 +101,54 @@ export function Timeline({ videoRef }: { videoRef: React.RefObject<HTMLVideoElem
     timeToPx,
     updateVideoTime,
     duration,
-  });
+  })
 
   const rulerTicks = useMemo(() => {
-    if (duration <= 0 || pixelsPerSecond <= 0) return [];
-    const { major, minor } = calculateRulerInterval(pixelsPerSecond);
-    const ticks = [];
+    if (duration <= 0 || pixelsPerSecond <= 0) return []
+    const { major, minor } = calculateRulerInterval(pixelsPerSecond)
+    const ticks = []
     for (let time = 0; time <= duration; time += major) {
-      ticks.push({ time: parseFloat(time.toPrecision(10)), type: 'major' });
+      ticks.push({ time: parseFloat(time.toPrecision(10)), type: 'major' })
     }
     for (let time = 0; time <= duration; time += minor) {
-      const preciseTime = parseFloat(time.toPrecision(10));
+      const preciseTime = parseFloat(time.toPrecision(10))
       if (preciseTime % major !== 0) {
-        ticks.push({ time: preciseTime, type: 'minor' });
+        ticks.push({ time: preciseTime, type: 'minor' })
       }
     }
-    return ticks;
-  }, [duration, pixelsPerSecond]);
+    return ticks
+  }, [duration, pixelsPerSecond])
 
   useEffect(() => {
     const animate = () => {
       if (videoRef.current && playheadRef.current) {
-        playheadRef.current.style.transform = `translateX(${timeToPx(videoRef.current.currentTime)}px)`;
+        playheadRef.current.style.transform = `translateX(${timeToPx(videoRef.current.currentTime)}px)`
       }
-      animationFrameRef.current = requestAnimationFrame(animate);
-    };
+      animationFrameRef.current = requestAnimationFrame(animate)
+    }
     if (isPlaying) {
-      animationFrameRef.current = requestAnimationFrame(animate);
+      animationFrameRef.current = requestAnimationFrame(animate)
     }
     return () => {
-      if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
-    };
-  }, [isPlaying, timeToPx, videoRef]);
+      if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current)
+    }
+  }, [isPlaying, timeToPx, videoRef])
 
   useEffect(() => {
     if (!isPlaying && playheadRef.current) {
-      playheadRef.current.style.transform = `translateX(${timeToPx(currentTime)}px)`;
+      playheadRef.current.style.transform = `translateX(${timeToPx(currentTime)}px)`
     }
-  }, [currentTime, isPlaying, timeToPx]);
+  }, [currentTime, isPlaying, timeToPx])
 
-  const { zoomRegions, cutRegions } = useAllRegions();
+  const { zoomRegions, cutRegions } = useAllRegions()
 
   const allRegionsToRender = useMemo(() => {
-    const combined = [
-      ...Object.values(zoomRegions),
-      ...Object.values(cutRegions),
-    ];
+    const combined = [...Object.values(zoomRegions), ...Object.values(cutRegions)]
     if (previewCutRegion) {
-      combined.push(previewCutRegion);
+      combined.push(previewCutRegion)
     }
-    return combined;
-  }, [zoomRegions, cutRegions, previewCutRegion]);
+    return combined
+  }, [zoomRegions, cutRegions, previewCutRegion])
 
   return (
     <div className="h-full flex flex-col bg-background/50 p-3">
@@ -158,12 +163,12 @@ export function Timeline({ videoRef }: { videoRef: React.RefObject<HTMLVideoElem
         <div
           ref={containerRef}
           className="flex-1 overflow-x-auto overflow-y-hidden bg-gradient-to-b from-background/30 to-background/10"
-          onMouseDown={e => {
-            if (duration === 0 || (e.target as HTMLElement).closest('[data-region-id]')) return;
-            const rect = (e.currentTarget as HTMLDivElement).getBoundingClientRect();
-            const clickX = e.clientX - rect.left + (e.currentTarget as HTMLDivElement).scrollLeft;
-            updateVideoTime(pxToTime(clickX));
-            setSelectedRegionId(null);
+          onMouseDown={(e) => {
+            if (duration === 0 || (e.target as HTMLElement).closest('[data-region-id]')) return
+            const rect = (e.currentTarget as HTMLDivElement).getBoundingClientRect()
+            const clickX = e.clientX - rect.left + (e.currentTarget as HTMLDivElement).scrollLeft
+            updateVideoTime(pxToTime(clickX))
+            setSelectedRegionId(null)
           }}
         >
           <div
@@ -174,9 +179,9 @@ export function Timeline({ videoRef }: { videoRef: React.RefObject<HTMLVideoElem
             <Ruler ticks={rulerTicks} timeToPx={timeToPx} formatTime={formatTime} />
 
             <div className="absolute top-14 left-0 w-full" style={{ height: 'calc(100% - 3.5rem)' }}>
-              {allRegionsToRender.map(region => {
-                const isSelected = selectedRegionId === region.id;
-                const zIndex = isSelected ? 100 : region.zIndex ?? 1;
+              {allRegionsToRender.map((region) => {
+                const isSelected = selectedRegionId === region.id
+                const zIndex = isSelected ? 100 : (region.zIndex ?? 1)
 
                 return (
                   <div
@@ -194,7 +199,7 @@ export function Timeline({ videoRef }: { videoRef: React.RefObject<HTMLVideoElem
                         isSelected={isSelected}
                         isBeingDragged={draggingRegionId === region.id}
                         onMouseDown={handleRegionMouseDown}
-                        setRef={el => regionRefs.current.set(region.id, el)}
+                        setRef={(el) => regionRefs.current.set(region.id, el)}
                       />
                     )}
                     {region.type === 'cut' && (
@@ -204,11 +209,11 @@ export function Timeline({ videoRef }: { videoRef: React.RefObject<HTMLVideoElem
                         isDraggable={region.id !== previewCutRegion?.id}
                         isBeingDragged={draggingRegionId === region.id}
                         onMouseDown={handleRegionMouseDown}
-                        setRef={el => regionRefs.current.set(region.id, el)}
+                        setRef={(el) => regionRefs.current.set(region.id, el)}
                       />
                     )}
                   </div>
-                );
+                )
               })}
             </div>
 
@@ -216,7 +221,7 @@ export function Timeline({ videoRef }: { videoRef: React.RefObject<HTMLVideoElem
               <div
                 ref={playheadRef}
                 className="absolute top-0 bottom-0 z-[200]"
-                style={{ transform: `translateX(${timeToPx(currentTime)}px)`, pointerEvents: "none" }}
+                style={{ transform: `translateX(${timeToPx(currentTime)}px)`, pointerEvents: 'none' }}
               >
                 <Playhead
                   height={Math.floor((timelineRef.current?.clientHeight ?? 200) * 0.9)}
@@ -236,5 +241,5 @@ export function Timeline({ videoRef }: { videoRef: React.RefObject<HTMLVideoElem
         </div>
       </div>
     </div>
-  );
+  )
 }

@@ -1,8 +1,8 @@
 // Interactive component for selecting zoom focus point on video frame
-import type React from "react"
-import { useRef, useState, useEffect, useCallback } from "react"
-import { useEditorStore } from "../../../store/editorStore"
-import { Loader2 } from "lucide-react"
+import type React from 'react'
+import { useRef, useState, useEffect, useCallback } from 'react'
+import { useEditorStore } from '../../../store/editorStore'
+import { Loader2 } from 'lucide-react'
 
 interface FocusPointPickerProps {
   regionId: string
@@ -33,7 +33,7 @@ export function FocusPointPicker({ regionId, targetX, targetY, startTime, onTarg
           setThumbnailUrl(dataUrl)
         }
       } catch (error) {
-        console.error("Failed to fetch video frame:", error)
+        console.error('Failed to fetch video frame:', error)
       } finally {
         if (!isCancelled) {
           setIsLoading(false)
@@ -74,12 +74,12 @@ export function FocusPointPicker({ regionId, targetX, targetY, startTime, onTarg
       }
 
       const handleMouseUp = () => {
-        document.removeEventListener("mousemove", handleMouseMove)
-        document.removeEventListener("mouseup", handleMouseUp)
+        document.removeEventListener('mousemove', handleMouseMove)
+        document.removeEventListener('mouseup', handleMouseUp)
       }
 
-      document.addEventListener("mousemove", handleMouseMove)
-      document.addEventListener("mouseup", handleMouseUp)
+      document.addEventListener('mousemove', handleMouseMove)
+      document.addEventListener('mouseup', handleMouseUp)
     },
     [onTargetChange],
   )
@@ -107,7 +107,7 @@ export function FocusPointPicker({ regionId, targetX, targetY, startTime, onTarg
         )}
         {thumbnailUrl && (
           <img
-            src={thumbnailUrl || "/placeholder.svg"}
+            src={thumbnailUrl || '/placeholder.svg'}
             className="w-full h-full object-contain pointer-events-none"
             alt="Video Frame Preview"
           />

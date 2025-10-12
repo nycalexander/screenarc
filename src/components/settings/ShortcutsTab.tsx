@@ -1,4 +1,4 @@
-import React from 'react';
+import React from 'react'
 
 const ShortcutItem = ({ keys, description }: { keys: string[]; description: string }) => {
   return (
@@ -15,8 +15,8 @@ const ShortcutItem = ({ keys, description }: { keys: string[]; description: stri
         ))}
       </div>
     </div>
-  );
-};
+  )
+}
 
 export function ShortcutsTab() {
   const shortcutCategories = [
@@ -47,18 +47,18 @@ export function ShortcutsTab() {
         { keys: ['Esc'], description: 'Exit Fullscreen / Deselect' },
       ],
     },
-  ];
+  ]
 
   return (
     <div className="p-8 h-full overflow-y-auto">
       <h2 className="text-lg font-semibold text-foreground mb-6">Keyboard Shortcuts</h2>
 
       <div className="space-y-6">
-        {shortcutCategories.map(category => (
+        {shortcutCategories.map((category) => (
           <div key={category.title}>
             <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-wider mb-2">{category.title}</h3>
             <div className="divide-y divide-border rounded-lg border border-border bg-muted/30 px-4">
-              {category.shortcuts.map(shortcut => (
+              {category.shortcuts.map((shortcut) => (
                 <ShortcutItem key={shortcut.description} keys={shortcut.keys} description={shortcut.description} />
               ))}
             </div>
@@ -66,5 +66,5 @@ export function ShortcutsTab() {
         ))}
       </div>
     </div>
-  );
+  )
 }

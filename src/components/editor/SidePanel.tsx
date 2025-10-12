@@ -1,25 +1,25 @@
-import { useEditorStore } from '../../store/editorStore';
-import { RegionSettingsPanel } from './RegionSettingsPanel';
-import { AudioLines, Webcam, PanelsTopLeft, LineSquiggle, MousePointer } from 'lucide-react';
-import { BackgroundSettings } from './sidepanel/BackgroundSettings';
-import { FrameEffectsSettings } from './sidepanel/FrameEffectsSettings';
-import { CameraSettings } from './sidepanel/CameraSettings';
-import { CursorSettings } from './sidepanel/CursorSettings';
-import { AnimationSettingsPanel } from './sidepanel/AnimationSettingsPanel';
-import { useShallow } from 'zustand/react/shallow';
-import { useEffect, useState, useMemo } from 'react';
-import { cn } from '../../lib/utils';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
-import { AudioSettings } from './sidepanel/AudioSettings';
+import { useEditorStore } from '../../store/editorStore'
+import { RegionSettingsPanel } from './RegionSettingsPanel'
+import { AudioLines, Webcam, PanelsTopLeft, LineSquiggle, MousePointer } from 'lucide-react'
+import { BackgroundSettings } from './sidepanel/BackgroundSettings'
+import { FrameEffectsSettings } from './sidepanel/FrameEffectsSettings'
+import { CameraSettings } from './sidepanel/CameraSettings'
+import { CursorSettings } from './sidepanel/CursorSettings'
+import { AnimationSettingsPanel } from './sidepanel/AnimationSettingsPanel'
+import { useShallow } from 'zustand/react/shallow'
+import { useEffect, useState, useMemo } from 'react'
+import { cn } from '../../lib/utils'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip'
+import { AudioSettings } from './sidepanel/AudioSettings'
 
-type SidePanelTab = 'general' | 'camera' | 'cursor' | 'audio' | 'animation' | 'settings';
+type SidePanelTab = 'general' | 'camera' | 'cursor' | 'audio' | 'animation' | 'settings'
 
 interface TabButtonProps {
-  label: string;
-  icon: React.ReactNode;
-  isActive: boolean;
-  onClick: () => void;
-  disabled?: boolean;
+  label: string
+  icon: React.ReactNode
+  isActive: boolean
+  onClick: () => void
+  disabled?: boolean
 }
 
 function TabButton({ label, icon, isActive, onClick, disabled }: TabButtonProps) {
@@ -33,20 +33,16 @@ function TabButton({ label, icon, isActive, onClick, disabled }: TabButtonProps)
             className={cn(
               'w-full flex flex-col items-center justify-center p-1 rounded-lg transition-colors',
               'hover:bg-accent/50 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 ring-offset-sidebar',
-              isActive
-                ? 'bg-accent text-primary'
-                : 'text-muted-foreground hover:text-foreground',
-              disabled && 'opacity-50 cursor-not-allowed hover:bg-transparent'
+              isActive ? 'bg-accent text-primary' : 'text-muted-foreground hover:text-foreground',
+              disabled && 'opacity-50 cursor-not-allowed hover:bg-transparent',
             )}
             aria-label={label}
           >
-            <div className="w-6 h-6 flex items-center justify-center">
-              {icon}
-            </div>
+            <div className="w-6 h-6 flex items-center justify-center">{icon}</div>
           </button>
         </TooltipTrigger>
-        <TooltipContent 
-          side="left" 
+        <TooltipContent
+          side="left"
           sideOffset={8}
           className="capitalize px-3 py-1.5 text-sm font-medium bg-popover text-popover-foreground shadow-md rounded-md border border-border/50 dark:bg-popover/95 dark:border-border/80 dark:text-foreground"
         >
@@ -54,7 +50,7 @@ function TabButton({ label, icon, isActive, onClick, disabled }: TabButtonProps)
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
-  );
+  )
 }
 
 function FrameSettingsPanel() {
@@ -73,79 +69,81 @@ function FrameSettingsPanel() {
         </div>
       </div>
       {/* Content */}
-      <div className="flex-1 overflow-y-auto stable-scrollbar"> {/* MODIFIED HERE */}
+      <div className="flex-1 overflow-y-auto stable-scrollbar">
+        {' '}
+        {/* MODIFIED HERE */}
         <div className="p-6 space-y-8">
           <BackgroundSettings />
           <FrameEffectsSettings />
         </div>
       </div>
     </div>
-  );
+  )
 }
 
 export function SidePanel() {
-  const [activeTab, setActiveTab] = useState<SidePanelTab>('general');
+  const [activeTab, setActiveTab] = useState<SidePanelTab>('general')
 
   // Get necessary states from the store
   const { selectedRegionId, zoomRegions, cutRegions, webcamVideoUrl, platform, setSelectedRegionId } = useEditorStore(
-    useShallow(state => ({
+    useShallow((state) => ({
       selectedRegionId: state.selectedRegionId,
       zoomRegions: state.zoomRegions,
       cutRegions: state.cutRegions,
       webcamVideoUrl: state.webcamVideoUrl,
       platform: state.platform,
       setSelectedRegionId: state.setSelectedRegionId,
-    }))
-  );
+    })),
+  )
 
   // Optimize region lookup using useMemo
   const selectedRegion = useMemo(() => {
-    if (!selectedRegionId) return null;
-    return zoomRegions[selectedRegionId] || cutRegions[selectedRegionId];
-  }, [selectedRegionId, zoomRegions, cutRegions]);
+    if (!selectedRegionId) return null
+    return zoomRegions[selectedRegionId] || cutRegions[selectedRegionId]
+  }, [selectedRegionId, zoomRegions, cutRegions])
 
   // Auto switch to 'general' tab when a region is selected
   useEffect(() => {
     if (selectedRegion) {
-      setActiveTab('general');
+      setActiveTab('general')
     }
-  }, [selectedRegion]);
-  
+  }, [selectedRegion])
+
   // Handle Escape key to clear selection
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape' && selectedRegionId) {
-        setSelectedRegionId(null);
+        setSelectedRegionId(null)
       }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [selectedRegionId, setSelectedRegionId]);
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [selectedRegionId, setSelectedRegionId])
 
   // Render content based on active tab
   const renderContent = () => {
     switch (activeTab) {
       case 'general':
-        return selectedRegion
-          ? <RegionSettingsPanel region={selectedRegion} />
-          : <FrameSettingsPanel />;
+        return selectedRegion ? <RegionSettingsPanel region={selectedRegion} /> : <FrameSettingsPanel />
       case 'camera':
-        return <CameraSettings />;
+        return <CameraSettings />
       case 'audio':
-        return <AudioSettings />;
+        return <AudioSettings />
       case 'animation':
-        return <AnimationSettingsPanel />;
+        return <AnimationSettingsPanel />
       case 'cursor':
-        return <CursorSettings />;
+        return <CursorSettings />
       default:
-        return <FrameSettingsPanel />;
+        return <FrameSettingsPanel />
     }
-  };
+  }
 
   return (
     <div className="h-full flex">
       {/* Main content area */}
-      <div className="flex-1 bg-sidebar overflow-hidden"> {/* REMOVED overflow-y-auto here */}
+      <div className="flex-1 bg-sidebar overflow-hidden">
+        {' '}
+        {/* REMOVED overflow-y-auto here */}
         {renderContent()}
       </div>
 
@@ -187,5 +185,5 @@ export function SidePanel() {
         </div>
       </div>
     </div>
-  );
+  )
 }

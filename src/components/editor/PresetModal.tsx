@@ -1,13 +1,13 @@
-import { useState, useEffect } from "react"
-import { useShallow } from "zustand/react/shallow"
-import { useEditorStore } from "../../store/editorStore"
-import { Button } from "../ui/button"
-import { Input } from "../ui/input"
-import { PresetPreview } from "./PresetPreview"
-import type { Preset } from "../../types"
-import { cn } from "../../lib/utils"
-import { Plus, Trash2, Check, Lock, RectangleHorizontal } from "lucide-react"
-import { PaddingIcon, BorderThicknessIcon, ShadowIcon, CornerRadiusIcon } from "../ui/icons"
+import { useState, useEffect } from 'react'
+import { useShallow } from 'zustand/react/shallow'
+import { useEditorStore } from '../../store/editorStore'
+import { Button } from '../ui/button'
+import { Input } from '../ui/input'
+import { PresetPreview } from './PresetPreview'
+import type { Preset } from '../../types'
+import { cn } from '../../lib/utils'
+import { Plus, Trash2, Check, Lock, RectangleHorizontal } from 'lucide-react'
+import { PaddingIcon, BorderThicknessIcon, ShadowIcon, CornerRadiusIcon } from '../ui/icons'
 
 interface PresetModalProps {
   isOpen: boolean
@@ -28,10 +28,10 @@ export function PresetModal({ isOpen, onClose }: PresetModalProps) {
     )
 
   const [previewId, setPreviewId] = useState<string | null>(activePresetId)
-  const [newPresetName, setNewPresetName] = useState("")
+  const [newPresetName, setNewPresetName] = useState('')
 
   const [editingId, setEditingId] = useState<string | null>(null)
-  const [editingName, setEditingName] = useState("")
+  const [editingName, setEditingName] = useState('')
 
   // Reset previewId when modal is opened or active preset changes
   useEffect(() => {
@@ -56,7 +56,7 @@ export function PresetModal({ isOpen, onClose }: PresetModalProps) {
   const handleSaveNew = () => {
     if (newPresetName.trim()) {
       saveCurrentStyleAsPreset(newPresetName.trim())
-      setNewPresetName("")
+      setNewPresetName('')
     }
   }
 
@@ -72,12 +72,12 @@ export function PresetModal({ isOpen, onClose }: PresetModalProps) {
       updatePresetName(editingId, editingName.trim())
     }
     setEditingId(null)
-    setEditingName("")
+    setEditingName('')
   }
 
   const cancelRename = () => {
     setEditingId(null)
-    setEditingName("")
+    setEditingName('')
   }
 
   const handleSelect = () => {
@@ -116,8 +116,8 @@ export function PresetModal({ isOpen, onClose }: PresetModalProps) {
                       onChange={(e) => setEditingName(e.target.value)}
                       onBlur={handleRename}
                       onKeyDown={(e) => {
-                        if (e.key === "Enter") handleRename()
-                        if (e.key === "Escape") cancelRename()
+                        if (e.key === 'Enter') handleRename()
+                        if (e.key === 'Escape') cancelRename()
                       }}
                       autoFocus
                       className="h-10"
@@ -129,10 +129,10 @@ export function PresetModal({ isOpen, onClose }: PresetModalProps) {
                     onClick={() => setPreviewId(p.id)}
                     onDoubleClick={() => handleDoubleClick(p)}
                     className={cn(
-                      "w-full text-left px-4 py-3 rounded-lg flex items-center justify-between transition-all duration-200",
+                      'w-full text-left px-4 py-3 rounded-lg flex items-center justify-between transition-all duration-200',
                       previewId === p.id
-                        ? "bg-primary/15 text-primary shadow-sm border border-primary/20"
-                        : "text-foreground hover:bg-accent/60 hover:shadow-sm",
+                        ? 'bg-primary/15 text-primary shadow-sm border border-primary/20'
+                        : 'text-foreground hover:bg-accent/60 hover:shadow-sm',
                     )}
                   >
                     <span className="font-medium flex items-center gap-2">
@@ -151,7 +151,7 @@ export function PresetModal({ isOpen, onClose }: PresetModalProps) {
                 placeholder="New preset name..."
                 className="h-10"
                 onKeyDown={(e) => {
-                  if (e.key === "Enter" && newPresetName.trim()) handleSaveNew()
+                  if (e.key === 'Enter' && newPresetName.trim()) handleSaveNew()
                 }}
               />
               <Button

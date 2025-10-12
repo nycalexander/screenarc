@@ -1,12 +1,12 @@
 // Settings panel for editing timeline regions (zoom and cut)
-import { useState } from "react"
-import { useEditorStore } from "../../store/editorStore"
-import type { TimelineRegion, ZoomRegion } from "../../types"
-import { cn } from "../../lib/utils"
-import { Button } from "../ui/button"
-import { Camera, Scissors, MousePointer, Video, Trash2 } from "lucide-react"
-import { FocusPointPicker } from "./sidepanel/FocusPointPicker"
-import { AnimationSettings } from "./sidepanel/AnimationSettings"
+import { useState } from 'react'
+import { useEditorStore } from '../../store/editorStore'
+import type { TimelineRegion, ZoomRegion } from '../../types'
+import { cn } from '../../lib/utils'
+import { Button } from '../ui/button'
+import { Camera, Scissors, MousePointer, Video, Trash2 } from 'lucide-react'
+import { FocusPointPicker } from './sidepanel/FocusPointPicker'
+import { AnimationSettings } from './sidepanel/AnimationSettings'
 
 interface RegionSettingsPanelProps {
   region: TimelineRegion
@@ -17,7 +17,7 @@ function ZoomSettings({ region }: { region: ZoomRegion }) {
 
   const [activeTab, setActiveTab] = useState(region.mode)
 
-  const handleModeChange = (newMode: "auto" | "fixed") => {
+  const handleModeChange = (newMode: 'auto' | 'fixed') => {
     setActiveTab(newMode)
     updateRegion(region.id, { mode: newMode })
   }
@@ -28,16 +28,16 @@ function ZoomSettings({ region }: { region: ZoomRegion }) {
         <h3 className="text-sm font-semibold text-sidebar-foreground mb-3 tracking-tight">Zoom Type</h3>
         <div className="grid grid-cols-2 gap-2 p-1 bg-muted/50 rounded-lg">
           <Button
-            variant={activeTab === "auto" ? "secondary" : "ghost"}
-            onClick={() => handleModeChange("auto")}
+            variant={activeTab === 'auto' ? 'secondary' : 'ghost'}
+            onClick={() => handleModeChange('auto')}
             className="h-auto py-2.5 flex items-center justify-center gap-2 transition-all duration-200"
           >
             <MousePointer className="w-4 h-4" />
             <span className="font-medium">Auto</span>
           </Button>
           <Button
-            variant={activeTab === "fixed" ? "secondary" : "ghost"}
-            onClick={() => handleModeChange("fixed")}
+            variant={activeTab === 'fixed' ? 'secondary' : 'ghost'}
+            onClick={() => handleModeChange('fixed')}
             className="h-auto py-2.5 flex items-center justify-center gap-2 transition-all duration-200"
           >
             <Video className="w-4 h-4" />
@@ -45,8 +45,8 @@ function ZoomSettings({ region }: { region: ZoomRegion }) {
           </Button>
         </div>
       </div>
-      
-      {activeTab === "auto" && (
+
+      {activeTab === 'auto' && (
         <div className="p-4 bg-primary/5 border border-primary/20 rounded-lg">
           <div className="flex items-start gap-3">
             <MousePointer className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
@@ -60,7 +60,7 @@ function ZoomSettings({ region }: { region: ZoomRegion }) {
         </div>
       )}
 
-      {activeTab === "fixed" && (
+      {activeTab === 'fixed' && (
         <FocusPointPicker
           regionId={region.id}
           targetX={region.targetX}
@@ -88,22 +88,22 @@ function ZoomSettings({ region }: { region: ZoomRegion }) {
 }
 
 export function RegionSettingsPanel({ region }: RegionSettingsPanelProps) {
-  const RegionIcon = region.type === "zoom" ? Camera : Scissors
-  const regionColor = region.type === "zoom" ? "text-primary" : "text-destructive"
-  const regionBg = region.type === "zoom" ? "bg-primary/10" : "bg-destructive/10"
+  const RegionIcon = region.type === 'zoom' ? Camera : Scissors
+  const regionColor = region.type === 'zoom' ? 'text-primary' : 'text-destructive'
+  const regionBg = region.type === 'zoom' ? 'bg-primary/10' : 'bg-destructive/10'
 
   return (
     <div className="h-full flex flex-col">
       {/* Header */}
       <div className="p-6 border-b border-sidebar-border flex-shrink-0">
         <div className="flex items-center gap-3">
-          <div className={cn("w-10 h-10 rounded-lg flex items-center justify-center", regionBg)}>
-            <RegionIcon className={cn("w-5 h-5", regionColor)} />
+          <div className={cn('w-10 h-10 rounded-lg flex items-center justify-center', regionBg)}>
+            <RegionIcon className={cn('w-5 h-5', regionColor)} />
           </div>
           <div>
             <h2 className="text-lg font-semibold text-sidebar-foreground capitalize">{region.type} Region</h2>
             <p className="text-sm text-muted-foreground">
-              {region.type === "zoom" ? "Zoom and pan controls" : "Cut segment settings"}
+              {region.type === 'zoom' ? 'Zoom and pan controls' : 'Cut segment settings'}
             </p>
           </div>
         </div>
@@ -112,10 +112,10 @@ export function RegionSettingsPanel({ region }: RegionSettingsPanelProps) {
       {/* Content */}
       <div className="flex-1 p-6 space-y-6 overflow-y-auto">
         {/* Zoom-specific Controls */}
-        {region.type === "zoom" && <ZoomSettings region={region} />}
+        {region.type === 'zoom' && <ZoomSettings region={region} />}
 
         {/* Cut Region Info */}
-        {region.type === "cut" && (
+        {region.type === 'cut' && (
           <div className="p-4 bg-destructive/5 border border-destructive/20 rounded-lg">
             <div className="flex items-start gap-3">
               <Scissors className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />

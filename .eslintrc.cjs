@@ -2,45 +2,27 @@ module.exports = {
   root: true,
   env: {
     browser: true,
-    node: true,
     es2020: true,
+    node: true,
   },
-  parser: '@typescript-eslint/parser',
-  plugins: [
-    '@typescript-eslint',
-    'react-refresh',
-  ],
   extends: [
     'eslint:recommended',
     'plugin:@typescript-eslint/recommended',
+    'plugin:react/recommended',
     'plugin:react-hooks/recommended',
+    'plugin:prettier/recommended',
   ],
-  parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
-    project: ['./tsconfig.json', './tsconfig.node.json'], // Help ESLint understand project structure
+  ignorePatterns: ['dist', 'dist-electron', '.vite', 'node_modules', 'build'],
+  parser: '@typescript-eslint/parser',
+  plugins: ['react-refresh'],
+  rules: {
+    'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
+    'react/react-in-jsx-scope': 'off',
+    '@typescript-eslint/no-explicit-any': 'warn',
   },
   settings: {
     react: {
-      version: 'detect', // Automatically detect React version
+      version: 'detect',
     },
   },
-  // Files and directories to ignore during linting
-  ignorePatterns: [
-    'dist',
-    'dist-electron',
-    'node_modules',
-    '.eslintrc.cjs',
-    'vite.config.ts',
-  ],
-  rules: {
-    // Enforce only exporting components in .tsx files
-    'react-refresh/only-export-components': [
-      'warn',
-      { allowConstantExport: true },
-    ],
-    // Some suggestions to keep code clean
-    '@typescript-eslint/no-explicit-any': 'warn', // Warn when using `any` type
-    '@typescript-eslint/no-unused-vars': ['warn', { 'argsIgnorePattern': '^_' }], // Warn unused variables
-  },
-};
+}

@@ -1,0 +1,15 @@
+# Build output
+dist
+dist-electron
+build
+
+# Dependencies
+node_modules
+
+# Lockfiles
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Vite
+/public/

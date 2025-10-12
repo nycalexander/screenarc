@@ -1,35 +1,32 @@
 // Main control bar for video playback and timeline editing
-import React from "react"
-import { Scissors, ZoomIn, Trash2, Undo2, Redo2 } from "lucide-react"
-import { useEditorStore } from "../../store/editorStore"
-import type { AspectRatio } from "../../types"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select"
-import { Slider } from "../ui/slider"
-import { StepBackIcon, StepForwardIcon, RewindIcon, PlayIcon, PauseIcon } from "../ui/icons"
-import { cn } from "../../lib/utils"
-
+import React from 'react'
+import { Scissors, ZoomIn, Trash2, Undo2, Redo2 } from 'lucide-react'
+import { useEditorStore } from '../../store/editorStore'
+import type { AspectRatio } from '../../types'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
+import { Slider } from '../ui/slider'
+import { StepBackIcon, StepForwardIcon, RewindIcon, PlayIcon, PauseIcon } from '../ui/icons'
+import { cn } from '../../lib/utils'
 
 interface ToolbarButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: "default" | "icon"
+  variant?: 'default' | 'icon'
   children: React.ReactNode
 }
 
 const ToolbarButton = React.forwardRef<HTMLButtonElement, ToolbarButtonProps>(
-  ({ variant = "default", className = "", disabled, children, ...props }, ref) => {
+  ({ variant = 'default', className = '', disabled, children, ...props }, ref) => {
     return (
       <button
         ref={ref}
         className={cn(
-          "inline-flex items-center justify-center font-semibold transition-colors duration-150",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-          "disabled:pointer-events-none disabled:opacity-40",
-          variant === "icon" 
-            ? "h-10 w-10 rounded-xl" 
-            : "h-10 px-4 rounded-xl text-sm gap-2",
+          'inline-flex items-center justify-center font-semibold transition-colors duration-150',
+          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+          'disabled:pointer-events-none disabled:opacity-40',
+          variant === 'icon' ? 'h-10 w-10 rounded-xl' : 'h-10 px-4 rounded-xl text-sm gap-2',
           disabled
-            ? "bg-card/80 text-muted-foreground/50 border border-border/20 shadow-sm"
-            : "bg-card/90 text-foreground border border-border/40 shadow-sm hover:bg-accent hover:text-accent-foreground hover:border-border/60 hover:shadow-md",
-          className
+            ? 'bg-card/80 text-muted-foreground/50 border border-border/20 shadow-sm'
+            : 'bg-card/90 text-foreground border border-border/40 shadow-sm hover:bg-accent hover:text-accent-foreground hover:border-border/60 hover:shadow-md',
+          className,
         )}
         disabled={disabled}
         {...props}
@@ -39,23 +36,23 @@ const ToolbarButton = React.forwardRef<HTMLButtonElement, ToolbarButtonProps>(
     )
   },
 )
-ToolbarButton.displayName = "ToolbarButton"
+ToolbarButton.displayName = 'ToolbarButton'
 
 interface PlayButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode
 }
 
 const PlayButton = React.forwardRef<HTMLButtonElement, PlayButtonProps>(
-  ({ className = "", children, ...props }, ref) => {
+  ({ className = '', children, ...props }, ref) => {
     return (
       <button
         ref={ref}
         className={cn(
-          "inline-flex items-center justify-center h-12 w-12 rounded-full font-medium",
-          "shadow-md hover:shadow-lg transition-colors duration-150",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-          "bg-primary text-primary-foreground",
-          className
+          'inline-flex items-center justify-center h-12 w-12 rounded-full font-medium',
+          'shadow-md hover:shadow-lg transition-colors duration-150',
+          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+          'bg-primary text-primary-foreground',
+          className,
         )}
         {...props}
       >
@@ -64,14 +61,14 @@ const PlayButton = React.forwardRef<HTMLButtonElement, PlayButtonProps>(
     )
   },
 )
-PlayButton.displayName = "PlayButton"
+PlayButton.displayName = 'PlayButton'
 
 export function PreviewControls({
   videoRef,
   onSeekFrame,
 }: {
   videoRef: React.RefObject<HTMLVideoElement>
-  onSeekFrame: (direction: "next" | "prev") => void
+  onSeekFrame: (direction: 'next' | 'prev') => void
 }) {
   const {
     isPlaying,
@@ -91,7 +88,7 @@ export function PreviewControls({
 
   const handleRewind = () => {
     const cutRegionsMap = useEditorStore.getState().cutRegions
-    const startTrimRegion = Object.values(cutRegionsMap).find((r) => r.trimType === "start")
+    const startTrimRegion = Object.values(cutRegionsMap).find((r) => r.trimType === 'start')
     const rewindTime = startTrimRegion ? startTrimRegion.startTime + startTrimRegion.duration : 0
     setCurrentTime(rewindTime)
     if (videoRef.current) {
@@ -158,7 +155,7 @@ export function PreviewControls({
         <ToolbarButton variant="icon" title="Rewind to Start" onClick={handleRewind}>
           <RewindIcon className="w-4 h-4" />
         </ToolbarButton>
-        <ToolbarButton variant="icon" title="Previous Frame (J)" onClick={() => onSeekFrame("prev")}>
+        <ToolbarButton variant="icon" title="Previous Frame (J)" onClick={() => onSeekFrame('prev')}>
           <StepBackIcon className="w-4 h-4" />
         </ToolbarButton>
 
@@ -166,7 +163,7 @@ export function PreviewControls({
           {isPlaying ? <PauseIcon className="w-5 h-5" /> : <PlayIcon className="w-5 h-5 ml-0.5" />}
         </PlayButton>
 
-        <ToolbarButton variant="icon" title="Next Frame (K)" onClick={() => onSeekFrame("next")}>
+        <ToolbarButton variant="icon" title="Next Frame (K)" onClick={() => onSeekFrame('next')}>
           <StepForwardIcon className="w-4 h-4" />
         </ToolbarButton>
       </div>

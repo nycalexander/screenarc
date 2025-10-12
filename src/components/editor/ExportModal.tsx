@@ -1,17 +1,17 @@
 // Modal for configuring export settings and showing export progress
-import type React from "react"
-import { useEffect, useState } from "react"
-import { Button } from "../ui/button"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select"
-import { Upload, Loader2, CheckCircle2, XCircle, Folder } from "lucide-react"
-import { Input } from "../ui/input"
-import { cn } from "../../lib/utils"
+import type React from 'react'
+import { useEffect, useState } from 'react'
+import { Button } from '../ui/button'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
+import { Upload, Loader2, CheckCircle2, XCircle, Folder } from 'lucide-react'
+import { Input } from '../ui/input'
+import { cn } from '../../lib/utils'
 
 export type ExportSettings = {
-  format: "mp4" | "gif"
-  resolution: "720p" | "1080p" | "2k"
+  format: 'mp4' | 'gif'
+  resolution: '720p' | '1080p' | '2k'
   fps: 30
-  quality: "low" | "medium" | "high"
+  quality: 'low' | 'medium' | 'high'
 }
 
 interface ExportModalProps {
@@ -24,9 +24,9 @@ interface ExportModalProps {
   result: { success: boolean; outputPath?: string; error?: string } | null
 }
 
-const generateFilename = (format: "mp4" | "gif") => {
+const generateFilename = (format: 'mp4' | 'gif') => {
   const now = new Date()
-  const timestamp = now.toISOString().replace(/[:.]/g, "-").replace("T", "-").slice(0, 19)
+  const timestamp = now.toISOString().replace(/[:.]/g, '-').replace('T', '-').slice(0, 19)
   return `ScreenArc-${timestamp}.${format}`
 }
 
@@ -39,12 +39,12 @@ const SettingsView = ({
   onClose: () => void
 }) => {
   const [settings, setSettings] = useState<ExportSettings>({
-    format: "mp4",
-    resolution: "1080p",
+    format: 'mp4',
+    resolution: '1080p',
     fps: 30,
-    quality: "medium",
+    quality: 'medium',
   })
-  const [outputPath, setOutputPath] = useState("")
+  const [outputPath, setOutputPath] = useState('')
 
   const handleValueChange = (key: keyof ExportSettings, value: string) => {
     setSettings((prev) => ({ ...prev, [key]: value }))
@@ -52,12 +52,12 @@ const SettingsView = ({
 
   const handleBrowse = async () => {
     const result = await window.electronAPI.showSaveDialog({
-      title: "Save Video",
+      title: 'Save Video',
       defaultPath: outputPath,
       filters:
-        settings.format === "mp4"
-          ? [{ name: "MP4 Video", extensions: ["mp4"] }]
-          : [{ name: "GIF Animation", extensions: ["gif"] }],
+        settings.format === 'mp4'
+          ? [{ name: 'MP4 Video', extensions: ['mp4'] }]
+          : [{ name: 'GIF Animation', extensions: ['gif'] }],
     })
 
     if (!result.canceled && result.filePath) {
@@ -68,11 +68,11 @@ const SettingsView = ({
   useEffect(() => {
     const setDefaultPath = async () => {
       try {
-        const homePath = await window.electronAPI.getPath("home")
+        const homePath = await window.electronAPI.getPath('home')
         const filename = generateFilename(settings.format)
         setOutputPath(`${homePath}/${filename}`)
       } catch (error) {
-        console.error("Failed to get home path, falling back to relative path.", error)
+        console.error('Failed to get home path, falling back to relative path.', error)
         setOutputPath(generateFilename(settings.format))
       }
     }
@@ -99,7 +99,7 @@ const SettingsView = ({
       <div className="flex-1 p-6 overflow-y-auto">
         <div className="space-y-5">
           <SettingRow label="Format">
-            <Select value={settings.format} onValueChange={(value) => handleValueChange("format", value)}>
+            <Select value={settings.format} onValueChange={(value) => handleValueChange('format', value)}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
@@ -110,7 +110,7 @@ const SettingsView = ({
             </Select>
           </SettingRow>
           <SettingRow label="Resolution">
-            <Select value={settings.resolution} onValueChange={(value) => handleValueChange("resolution", value)}>
+            <Select value={settings.resolution} onValueChange={(value) => handleValueChange('resolution', value)}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
@@ -122,7 +122,7 @@ const SettingsView = ({
             </Select>
           </SettingRow>
           <SettingRow label="Quality">
-            <Select value={settings.quality} onValueChange={(value) => handleValueChange("quality", value)}>
+            <Select value={settings.quality} onValueChange={(value) => handleValueChange('quality', value)}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
@@ -194,13 +194,7 @@ const ProgressView = ({ progress, onCancel }: { progress: number; onCancel: () =
   </div>
 )
 
-const ResultView = ({
-  result,
-  onClose,
-}: {
-  result: NonNullable<ExportModalProps["result"]>
-  onClose: () => void
-}) => {
+const ResultView = ({ result, onClose }: { result: NonNullable<ExportModalProps['result']>; onClose: () => void }) => {
   const handleOpenFolder = () => {
     if (result.success && result.outputPath) {
       window.electronAPI.showItemInFolder(result.outputPath)
@@ -211,8 +205,8 @@ const ResultView = ({
     <div className="flex flex-col items-center text-center p-8">
       <div
         className={cn(
-          "w-16 h-16 rounded-full flex items-center justify-center mb-5",
-          result.success ? "bg-green-500/10" : "bg-red-500/10",
+          'w-16 h-16 rounded-full flex items-center justify-center mb-5',
+          result.success ? 'bg-green-500/10' : 'bg-red-500/10',
         )}
       >
         {result.success ? (
@@ -222,12 +216,12 @@ const ResultView = ({
         )}
       </div>
       <h2 className="text-lg font-semibold text-foreground mb-2">
-        {result.success ? "Export Successful" : "Export Failed"}
+        {result.success ? 'Export Successful' : 'Export Failed'}
       </h2>
       <p className="text-sm text-muted-foreground mb-8 max-w-xs break-words leading-relaxed">
         {result.success
           ? `Your video has been saved to the selected location.`
-          : `${result.error || "An unknown error occurred."}`}
+          : `${result.error || 'An unknown error occurred.'}`}
       </p>
       <div className="flex w-full gap-3">
         {result.success ? (

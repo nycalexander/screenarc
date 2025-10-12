@@ -1,23 +1,18 @@
 // src/components/editor/sidepanel/FrameEffectsSettings.tsx
-import { useMemo } from "react"
-import { useEditorStore } from "../../../store/editorStore"
-import { ColorPicker } from "../../ui/color-picker"
-import { Slider } from "../../ui/slider"
-import { Collapse } from "../../ui/collapse"
-import { rgbaToHexAlpha, hexToRgb } from "../../../lib/utils"
-import { 
-  BorderThicknessIcon, 
-  CornerRadiusIcon, 
-  PaddingIcon, 
-  ShadowIcon 
-} from "../../ui/icons"
+import { useMemo } from 'react'
+import { useEditorStore } from '../../../store/editorStore'
+import { ColorPicker } from '../../ui/color-picker'
+import { Slider } from '../../ui/slider'
+import { Collapse } from '../../ui/collapse'
+import { rgbaToHexAlpha, hexToRgb } from '../../../lib/utils'
+import { BorderThicknessIcon, CornerRadiusIcon, PaddingIcon, ShadowIcon } from '../../ui/icons'
 
 export function FrameEffectsSettings() {
   const { frameStyles, updateFrameStyle } = useEditorStore()
 
   const handleStyleChange = (name: string, value: string | number) => {
     updateFrameStyle({
-      [name]: typeof value === "string" ? Number.parseFloat(value) || 0 : value,
+      [name]: typeof value === 'string' ? Number.parseFloat(value) || 0 : value,
     })
   }
 
@@ -25,11 +20,8 @@ export function FrameEffectsSettings() {
     () => rgbaToHexAlpha(frameStyles.shadowColor),
     [frameStyles.shadowColor],
   )
-  
-  const { hex: borderHex } = useMemo(
-    () => rgbaToHexAlpha(frameStyles.borderColor),
-    [frameStyles.borderColor]
-  )
+
+  const { hex: borderHex } = useMemo(() => rgbaToHexAlpha(frameStyles.borderColor), [frameStyles.borderColor])
 
   const handleShadowColorChange = (newHex: string) => {
     const rgb = hexToRgb(newHex)
@@ -58,24 +50,17 @@ export function FrameEffectsSettings() {
   return (
     <div className="space-y-4">
       {/* Padding Section */}
-      <Collapse
-        title="Padding"
-        description="Space around your video content"
-        icon={<PaddingIcon />}
-        defaultOpen={true}
-      >
+      <Collapse title="Padding" description="Space around your video content" icon={<PaddingIcon />} defaultOpen={true}>
         <div className="space-y-3">
           <label className="flex items-center justify-between text-sm text-muted-foreground">
             <span>Padding</span>
-            <span className="text-xs font-semibold text-primary tabular-nums">
-              {frameStyles.padding}%
-            </span>
+            <span className="text-xs font-semibold text-primary tabular-nums">{frameStyles.padding}%</span>
           </label>
           <Slider
             min={0}
             max={30}
             value={frameStyles.padding}
-            onChange={(value) => handleStyleChange("padding", value)}
+            onChange={(value) => handleStyleChange('padding', value)}
           />
         </div>
       </Collapse>
@@ -90,40 +75,31 @@ export function FrameEffectsSettings() {
         <div className="space-y-3">
           <label className="flex items-center justify-between text-sm text-muted-foreground">
             <span>Radius</span>
-            <span className="text-xs font-semibold text-primary tabular-nums">
-              {frameStyles.borderRadius}px
-            </span>
+            <span className="text-xs font-semibold text-primary tabular-nums">{frameStyles.borderRadius}px</span>
           </label>
           <Slider
             min={0}
             max={50}
             value={frameStyles.borderRadius}
-            onChange={(value) => handleStyleChange("borderRadius", value)}
+            onChange={(value) => handleStyleChange('borderRadius', value)}
           />
         </div>
       </Collapse>
 
       {/* Shadow Section */}
-      <Collapse
-        title="Shadow"
-        description="Add depth with drop shadows"
-        icon={<ShadowIcon />}
-        defaultOpen={false}
-      >
+      <Collapse title="Shadow" description="Add depth with drop shadows" icon={<ShadowIcon />} defaultOpen={false}>
         <div className="space-y-4">
           <div className="space-y-2.5">
             <div className="flex items-center justify-between">
               <span className="text-sm text-muted-foreground">Blur</span>
-              <span className="text-xs font-semibold text-primary tabular-nums">
-                {frameStyles.shadowBlur}px
-              </span>
+              <span className="text-xs font-semibold text-primary tabular-nums">{frameStyles.shadowBlur}px</span>
             </div>
             <Slider
               min={0}
               max={100}
               step={1}
               value={frameStyles.shadowBlur}
-              onChange={(v) => handleStyleChange("shadowBlur", v)}
+              onChange={(v) => handleStyleChange('shadowBlur', v)}
             />
           </div>
 
@@ -131,42 +107,34 @@ export function FrameEffectsSettings() {
             <div className="space-y-2.5">
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">Offset X</span>
-                <span className="text-xs font-semibold text-primary tabular-nums">
-                  {frameStyles.shadowOffsetX}px
-                </span>
+                <span className="text-xs font-semibold text-primary tabular-nums">{frameStyles.shadowOffsetX}px</span>
               </div>
               <Slider
                 min={-50}
                 max={50}
                 step={1}
                 value={frameStyles.shadowOffsetX}
-                onChange={(v) => handleStyleChange("shadowOffsetX", v)}
+                onChange={(v) => handleStyleChange('shadowOffsetX', v)}
               />
             </div>
             <div className="space-y-2.5">
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">Offset Y</span>
-                <span className="text-xs font-semibold text-primary tabular-nums">
-                  {frameStyles.shadowOffsetY}px
-                </span>
+                <span className="text-xs font-semibold text-primary tabular-nums">{frameStyles.shadowOffsetY}px</span>
               </div>
               <Slider
                 min={-50}
                 max={50}
                 step={1}
                 value={frameStyles.shadowOffsetY}
-                onChange={(v) => handleStyleChange("shadowOffsetY", v)}
+                onChange={(v) => handleStyleChange('shadowOffsetY', v)}
               />
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <ColorPicker
-                label="Color"
-                value={shadowHex}
-                onChange={handleShadowColorChange}
-              />
+              <ColorPicker label="Color" value={shadowHex} onChange={handleShadowColorChange} />
             </div>
             <div className="space-y-2.5">
               <div className="flex items-center justify-between">
@@ -175,13 +143,7 @@ export function FrameEffectsSettings() {
                   {Math.round(shadowAlpha * 100)}%
                 </span>
               </div>
-              <Slider
-                min={0}
-                max={1}
-                step={0.01}
-                value={shadowAlpha}
-                onChange={handleShadowOpacityChange}
-              />
+              <Slider min={0} max={1} step={0.01} value={shadowAlpha} onChange={handleShadowOpacityChange} />
             </div>
           </div>
         </div>
@@ -198,23 +160,17 @@ export function FrameEffectsSettings() {
           <div className="space-y-2.5">
             <div className="flex items-center justify-between">
               <span className="text-sm text-muted-foreground">Thickness</span>
-              <span className="text-xs font-semibold text-primary tabular-nums">
-                {frameStyles.borderWidth}px
-              </span>
+              <span className="text-xs font-semibold text-primary tabular-nums">{frameStyles.borderWidth}px</span>
             </div>
             <Slider
               min={0}
               max={20}
               value={frameStyles.borderWidth}
-              onChange={(v) => handleStyleChange("borderWidth", v)}
+              onChange={(v) => handleStyleChange('borderWidth', v)}
             />
           </div>
           <div>
-            <ColorPicker
-              label="Color"
-              value={borderHex}
-              onChange={handleBorderColorChange}
-            />
+            <ColorPicker label="Color" value={borderHex} onChange={handleBorderColorChange} />
           </div>
         </div>
       </Collapse>

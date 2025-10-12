@@ -1,10 +1,10 @@
-import { useEditorStore } from "../../../store/editorStore"
-import { useShallow } from "zustand/react/shallow"
-import { AudioLines, Volume, Volume1, Volume2, VolumeX } from "lucide-react"
-import { Collapse } from "../../ui/collapse"
-import { Slider } from "../../ui/slider"
-import { Button } from "../../ui/button"
-import { cn } from "../../../lib/utils"
+import { useEditorStore } from '../../../store/editorStore'
+import { useShallow } from 'zustand/react/shallow'
+import { AudioLines, Volume, Volume1, Volume2, VolumeX } from 'lucide-react'
+import { Collapse } from '../../ui/collapse'
+import { Slider } from '../../ui/slider'
+import { Button } from '../../ui/button'
+import { cn } from '../../../lib/utils'
 
 export function AudioSettings() {
   const { volume, isMuted, setVolume, toggleMute } = useEditorStore(
@@ -48,7 +48,7 @@ export function AudioSettings() {
                 size="icon"
                 onClick={toggleMute}
                 className="flex-shrink-0 h-10 w-10"
-                aria-label={isMuted ? "Unmute" : "Mute"}
+                aria-label={isMuted ? 'Unmute' : 'Mute'}
               >
                 <VolumeIcon className="w-5 h-5" />
               </Button>
@@ -70,8 +70,8 @@ export function AudioSettings() {
               onClick={() => setVolume(1)}
               disabled={isMuted}
               className={cn(
-                "w-full h-11 font-semibold transition-all duration-300",
-                "bg-primary hover:bg-primary/90 text-primary-foreground"
+                'w-full h-11 font-semibold transition-all duration-300',
+                'bg-primary hover:bg-primary/90 text-primary-foreground',
               )}
             >
               <Volume2 className="w-4 h-4 mr-2" />

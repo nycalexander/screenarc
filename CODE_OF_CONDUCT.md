@@ -8,28 +8,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+
 - Your new feature here.
 
 ### Changed
+
 - An update to an existing feature.
 
 ### Fixed
+
 - A bug fix.
 
 ## [1.1.1] - 2024-10-03
 
 ### Added
+
 - Implement "load from video" feature.
 
 ### Changed
-- 
+
+-
 
 ### Fixed
-- 
+
+-
 
 ## [1.1.1] - 2024-05-21
 
 ### Added
+
 - Initial public release of ScreenArc.
 - Core recording engine for screen and mouse metadata.
 - Editing studio with timeline, frame customization, and auto-zoom.
