@@ -11,6 +11,7 @@ import { cn } from '../../lib/utils';
 import { Scissors } from 'lucide-react';
 import { formatTime, calculateRulerInterval } from '../../lib/utils';
 import { useTimelineInteraction } from '../../hooks/useTimelineInteraction';
+import { FlipScissorsIcon } from '../ui/icons';
 
 // Memoized Ruler component
 const Ruler = memo(({ ticks, timeToPx, formatTime: formatTimeFunc }: {
@@ -18,17 +19,16 @@ const Ruler = memo(({ ticks, timeToPx, formatTime: formatTimeFunc }: {
   timeToPx: (time: number) => number;
   formatTime: (seconds: number) => string;
 }) => (
-  <div className="h-14 sticky overflow-hidden top-0 left-0 right-0 z-10 border-b border-border/50 bg-gradient-to-b from-card via-card/95 to-card/80 backdrop-blur-xl">
-    <div className="absolute inset-0 bg-gradient-to-b from-muted/20 to-transparent pointer-events-none" />
-    <div className="relative h-full pt-3">
+  <div className="h-12 sticky overflow-hidden top-0 left-0 right-0 z-10 border-b border-border/30 bg-card/60 backdrop-blur-md">
+    <div className="relative h-full pt-2">
       {ticks.map(({ time, type }) => (
-        <div key={`${type}-${time}`} className="absolute top-3 h-full" style={{ left: `${timeToPx(time)}px` }}>
+        <div key={`${type}-${time}`} className="absolute top-2 h-full" style={{ left: `${timeToPx(time)}px` }}>
           <div className={cn(
-            "timeline-tick absolute top-0 left-1/2 -translate-x-1/2 w-px transition-opacity",
-            type === 'major' ? 'h-6 opacity-40' : 'h-3 opacity-20'
+            "timeline-tick absolute top-0 left-1/2 -translate-x-1/2 w-px",
+            type === 'major' ? 'h-5 opacity-60' : 'h-2.5 opacity-30'
           )} />
           {type === 'major' && (
-            <span className="absolute top-7 left-0.5 text-[11px] text-muted-foreground font-mono font-medium tracking-tight">
+            <span className="absolute top-3.5 left-1 text-[10px] text-foreground/70 font-mono font-medium tracking-tight">
               {formatTimeFunc(time)}
             </span>
           )}
@@ -38,15 +38,6 @@ const Ruler = memo(({ ticks, timeToPx, formatTime: formatTimeFunc }: {
   </div>
 ));
 Ruler.displayName = 'Ruler';
-
-const FlipScissorsIcon = (props: React.SVGProps<SVGSVGElement>) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" {...props} >
-    <g transform="translate(24,0) scale(-1,1)">
-      <circle cx={6} cy={6} r={3} /> <path d="M8.12 8.12 12 12" /> <path d="M20 4 8.12 15.88" /> <circle cx={6} cy={18} r={3} /> <path d="M14.8 14.8 20 20" />
-    </g>
-  </svg>
-);
-
 
 export function Timeline({ videoRef }: { videoRef: React.RefObject<HTMLVideoElement> }) {
   const { currentTime, duration, timelineZoom, previewCutRegion, selectedRegionId, isPlaying } = useEditorStore(
@@ -156,17 +147,17 @@ export function Timeline({ videoRef }: { videoRef: React.RefObject<HTMLVideoElem
 
   return (
     <div className="h-full flex flex-col bg-background/50 p-3">
-      <div className="h-full flex flex-row rounded-xl overflow-hidden shadow-xl bg-card/95 backdrop-blur-xl border border-border/60">
-        <div 
-          className="w-10 shrink-0 h-full bg-gradient-to-b from-card to-card/80 flex items-center justify-center transition-all duration-200 cursor-ew-resize select-none border-r border-border/50 hover:bg-accent/30 active:bg-accent/50 group" 
+      <div className="h-full flex flex-row rounded-xl overflow-hidden shadow-xl bg-card border border-border">
+        <div
+          className="w-8 shrink-0 h-full bg-gradient-to-b from-card to-muted/30 flex items-center justify-center transition-all duration-200 cursor-ew-resize select-none border-r border-border hover:bg-accent/40 active:bg-accent/60 group"
           onMouseDown={handleLeftStripMouseDown}
         >
-          <Scissors size={18} className="text-muted-foreground/60 group-hover:text-muted-foreground transition-colors" />
+          <Scissors size={16} className="text-muted-foreground group-hover:text-foreground transition-colors" />
         </div>
-        
-        <div 
-          ref={containerRef} 
-          className="flex-1 overflow-x-auto overflow-y-hidden bg-gradient-to-b from-muted/5 to-background/5" 
+
+        <div
+          ref={containerRef}
+          className="flex-1 overflow-x-auto overflow-y-hidden bg-gradient-to-b from-background/30 to-background/10"
           onMouseDown={e => {
             if (duration === 0 || (e.target as HTMLElement).closest('[data-region-id]')) return;
             const rect = (e.currentTarget as HTMLDivElement).getBoundingClientRect();
@@ -175,13 +166,13 @@ export function Timeline({ videoRef }: { videoRef: React.RefObject<HTMLVideoElem
             setSelectedRegionId(null);
           }}
         >
-          <div 
-            ref={timelineRef} 
-            className="relative h-full min-w-full overflow-hidden" 
+          <div
+            ref={timelineRef}
+            className="relative h-full min-w-full overflow-hidden"
             style={{ width: `${timeToPx(duration)}px` }}
           >
             <Ruler ticks={rulerTicks} timeToPx={timeToPx} formatTime={formatTime} />
-            
+
             <div className="absolute top-14 left-0 w-full" style={{ height: 'calc(100% - 3.5rem)' }}>
               {allRegionsToRender.map(region => {
                 const isSelected = selectedRegionId === region.id;
@@ -220,28 +211,28 @@ export function Timeline({ videoRef }: { videoRef: React.RefObject<HTMLVideoElem
                 );
               })}
             </div>
-            
+
             {duration > 0 && (
-              <div 
-                ref={playheadRef} 
-                className="absolute top-0 bottom-0 z-[200]" 
+              <div
+                ref={playheadRef}
+                className="absolute top-0 bottom-0 z-[200]"
                 style={{ transform: `translateX(${timeToPx(currentTime)}px)`, pointerEvents: "none" }}
               >
-                <Playhead 
-                  height={Math.floor((timelineRef.current?.clientHeight ?? 200) * 0.9)} 
-                  isDragging={false} 
-                  onMouseDown={handlePlayheadMouseDown} 
+                <Playhead
+                  height={Math.floor((timelineRef.current?.clientHeight ?? 200) * 0.9)}
+                  isDragging={false}
+                  onMouseDown={handlePlayheadMouseDown}
                 />
               </div>
             )}
           </div>
         </div>
-        
-        <div 
-          className="w-10 shrink-0 h-full bg-gradient-to-b from-card to-card/80 flex items-center justify-center transition-all duration-200 cursor-ew-resize select-none border-l border-border/50 hover:bg-accent/30 active:bg-accent/50 group" 
+
+        <div
+          className="w-8 shrink-0 h-full bg-gradient-to-b from-card to-muted/30 flex items-center justify-center transition-all duration-200 cursor-ew-resize select-none border-l border-border hover:bg-accent/40 active:bg-accent/60 group"
           onMouseDown={handleRightStripMouseDown}
         >
-          <FlipScissorsIcon className="text-muted-foreground/60 group-hover:text-muted-foreground transition-colors size-[18px]" />
+          <FlipScissorsIcon size={16} className="text-muted-foreground group-hover:text-foreground transition-colors" />
         </div>
       </div>
     </div>

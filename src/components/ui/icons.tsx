@@ -1,9 +1,22 @@
+/**
+ * Base icon properties that all icons inherit from
+ */
 interface IconProps extends React.SVGProps<SVGSVGElement> {
+  /** Size of the icon (width and height) */
   size?: number | string;
+  /** Additional CSS class names */
   className?: string;
+  /** Child elements (not commonly used for icons) */
   children?: React.ReactNode;
 }
 
+// ======================
+// UI Control Icons
+// ======================
+
+/**
+ * Icon representing padding/spacing controls
+ */
 export const PaddingIcon = (props: IconProps) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
@@ -17,6 +30,9 @@ export const PaddingIcon = (props: IconProps) => (
   </svg>
 );
 
+/**
+ * Icon representing corner radius/border radius controls
+ */
 export const CornerRadiusIcon = (props: IconProps) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
@@ -30,6 +46,9 @@ export const CornerRadiusIcon = (props: IconProps) => (
   </svg>
 );
 
+/**
+ * Icon representing shadow/drop shadow controls
+ */
 export const ShadowIcon = (props: IconProps) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
@@ -43,6 +62,9 @@ export const ShadowIcon = (props: IconProps) => (
   </svg>
 );
 
+/**
+ * Icon representing border width/thickness controls
+ */
 export const BorderThicknessIcon = (props: IconProps) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
@@ -56,6 +78,9 @@ export const BorderThicknessIcon = (props: IconProps) => (
   </svg>
 );
 
+/**
+ * Icon representing opacity/transparency controls
+ */
 export const OpacityIcon = (props: IconProps) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
@@ -69,6 +94,13 @@ export const OpacityIcon = (props: IconProps) => (
   </svg>
 );
 
+// ======================
+// General UI Icons
+// ======================
+
+/**
+ * Settings/gear icon for configuration
+ */
 export const SettingsIcon = (props: IconProps) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
@@ -88,6 +120,9 @@ export const SettingsIcon = (props: IconProps) => (
   </svg>
 );
 
+/**
+ * Information 'i' icon for tooltips and help
+ */
 export const InfoIcon = (props: IconProps) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
@@ -108,16 +143,69 @@ export const InfoIcon = (props: IconProps) => (
   </svg>
 );
 
+// ======================
+// Media Control Icons
+// ======================
+
+/**
+ * Rewind/backward icon for media controls
+ */
 export const RewindIcon = (props: IconProps) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width={props.size}
     height={props.size}
-    fill="currentColor"
-    viewBox="0 0 256 256"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={2}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className="icon icon-tabler icons-tabler-outline icon-tabler-player-track-prev"
     {...props}
   >
-    <path d="M223.77,58a16,16,0,0,0-16.25.53L128,109.14V71.84A15.91,15.91,0,0,0,103.52,58.5L15.33,114.66a15.8,15.8,0,0,0,0,26.68l88.19,56.16A15.91,15.91,0,0,0,128,184.16v-37.3l79.52,50.64A15.91,15.91,0,0,0,232,184.16V71.84A15.83,15.83,0,0,0,223.77,58ZM112,183.93,24.18,128,112,72.06Zm104,0L128.18,128,216,72.06Z" />
+    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+    <path d="M21 5v14l-8 -7z" />
+    <path d="M10 5v14l-8 -7z" />
+  </svg>
+);
+
+export const PlayIcon = (props: IconProps) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={props.size}
+    height={props.size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={2}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className="icon icon-tabler icons-tabler-outline icon-tabler-player-play"
+    {...props}
+  >
+    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+    <path d="M7 4v16l13 -8z" />
+  </svg>
+);
+
+export const PauseIcon = (props: IconProps) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={props.size}
+    height={props.size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={2}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className="icon icon-tabler icons-tabler-outline icon-tabler-player-pause"
+    {...props}
+  >
+    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+    <path d="M6 5m0 1a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1v12a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1z" />
+    <path d="M14 5m0 1a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1v12a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1z" />
   </svg>
 );
 
@@ -151,11 +239,18 @@ export const StepBackIcon = (props: IconProps) => (
     xmlns="http://www.w3.org/2000/svg"
     width={props.size}
     height={props.size}
-    fill="currentColor"
-    viewBox="0 0 256 256"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={2}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className="icon icon-tabler icons-tabler-outline icon-tabler-player-skip-back"
     {...props}
   >
-    <path d="M199.81,34a16,16,0,0,0-16.24.43L64,109.23V40a8,8,0,0,0-16,0V216a8,8,0,0,0,16,0V146.77l119.57,74.78A15.95,15.95,0,0,0,208,208.12V47.88A15.86,15.86,0,0,0,199.81,34ZM192,208,64.16,128,192,48.07Z" />
+    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+    <path d="M20 5v14l-12 -7z" />
+    <path d="M4 5l0 14" />
   </svg>
 );
 
@@ -164,11 +259,18 @@ export const StepForwardIcon = (props: IconProps) => (
     xmlns="http://www.w3.org/2000/svg"
     width={props.size}
     height={props.size}
-    fill="currentColor"
-    viewBox="0 0 256 256"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={2}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className="icon icon-tabler icons-tabler-outline icon-tabler-player-skip-forward"
     {...props}
   >
-    <path d="M200,32a8,8,0,0,0-8,8v69.23L72.43,34.45A15.95,15.95,0,0,0,48,47.88V208.12a16,16,0,0,0,24.43,13.43L192,146.77V216a8,8,0,0,0,16,0V40A8,8,0,0,0,200,32ZM64,207.93V48.05l127.84,80Z" />
+    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+    <path d="M4 5v14l12 -7z" />
+    <path d="M20 5l0 14" />
   </svg>
 );
 
@@ -188,5 +290,24 @@ export const FlipHorizontalIcon = (props: IconProps) => (
     <path d="M8 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3" />
     <path d="M16 3h3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-3" />
     <path d="M12 22V2" />
+  </svg>
+);
+
+export const FlipScissorsIcon = (props: IconProps) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={props.size}
+    height={props.size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={2}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    {...props}
+  >
+    <g transform="translate(24,0) scale(-1,1)">
+      <circle cx={6} cy={6} r={3} /> <path d="M8.12 8.12 12 12" /> <path d="M20 4 8.12 15.88" /> <circle cx={6} cy={18} r={3} /> <path d="M14.8 14.8 20 20" />
+    </g>
   </svg>
 );

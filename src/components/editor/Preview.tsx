@@ -74,7 +74,7 @@ export const Preview = memo(({ videoRef }: { videoRef: React.RefObject<HTMLVideo
     if (container) {
       container.addEventListener('mousemove', showControlsAndSetTimer);
     }
-    
+
     // Cleanup function
     return () => {
       if (inactivityTimerRef.current) {
@@ -273,25 +273,25 @@ export const Preview = memo(({ videoRef }: { videoRef: React.RefObject<HTMLVideo
       {videoUrl && (
         <div
           className={cn(
-            "w-full mt-2 transition-opacity duration-300",
+            "w-full mt-3 transition-opacity duration-200",
             isPreviewFullScreen && "absolute bottom-6 left-0 right-0 mx-auto px-4 z-10",
             isPreviewFullScreen && !isControlBarVisible && "opacity-0 pointer-events-none"
           )}
           style={{ maxWidth: isPreviewFullScreen ? "min(90%, 800px)" : "100%" }}
         >
-          <div className="bg-card/90 backdrop-blur-xl border border-border/40 rounded-xl px-4 py-2.5 flex items-center gap-4 shadow-lg max-w-full mx-auto"
-               style={{ width: isPreviewFullScreen ? 'auto' : controlBarWidth, minWidth: isPreviewFullScreen ? 'auto' : 400 }}
+          <div className="bg-card/95 backdrop-blur-xl border border-border/40 shadow-md rounded-xl px-4 py-3 flex items-center gap-4 max-w-full mx-auto"
+            style={{ width: isPreviewFullScreen ? 'auto' : controlBarWidth, minWidth: isPreviewFullScreen ? 'auto' : 420 }}
           >
             <Button
               variant="ghost"
               size="icon"
               onClick={togglePlay}
-              className="flex-shrink-0 text-foreground/70 hover:text-foreground hover:bg-accent/50 h-9 w-9 rounded-lg transition-all duration-200"
+              className="flex-shrink-0 text-foreground hover:text-foreground hover:bg-accent h-10 w-10 rounded-xl transition-all duration-150 border border-border/30 shadow-sm hover:shadow"
             >
               {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
             </Button>
-            <div className="flex items-baseline gap-2 text-xs font-mono tabular-nums text-muted-foreground min-w-[120px]">
-              <span className="text-foreground/80 font-medium">{formatTime(currentTime, true)}</span>
+            <div className="flex items-baseline gap-2 text-xs font-mono tabular-nums text-muted-foreground min-w-[130px]">
+              <span className="text-foreground font-semibold">{formatTime(currentTime, true)}</span>
               <span className="text-muted-foreground/50">/</span>
               <span className="text-muted-foreground">{formatTime(duration, true)}</span>
             </div>
@@ -308,7 +308,7 @@ export const Preview = memo(({ videoRef }: { videoRef: React.RefObject<HTMLVideo
               variant="ghost"
               size="icon"
               onClick={togglePreviewFullScreen}
-              className="flex-shrink-0 text-foreground/70 hover:text-foreground hover:bg-accent/50 h-9 w-9 rounded-lg transition-all duration-200"
+              className="flex-shrink-0 text-foreground hover:text-foreground hover:bg-accent h-10 w-10 rounded-xl transition-all duration-150 border border-border/30 shadow-sm hover:shadow"
             >
               {isPreviewFullScreen ? <Shrink className="w-4 h-4" /> : <Fullscreen className="w-4 h-4" />}
             </Button>
