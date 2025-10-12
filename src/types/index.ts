@@ -77,7 +77,6 @@ export interface CursorFrame {
   yhot: number;
   delay: number;
   rgba: Buffer;
-  hash: string;
 }
 
 export interface CursorImageBase {

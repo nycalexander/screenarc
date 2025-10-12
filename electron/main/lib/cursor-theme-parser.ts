@@ -2,17 +2,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import log from 'electron-log/main';
 import { AniParser, CursorParser } from './cursor-file-parser';
-
-export interface CursorFrame {
-  width: number;
-  height: number;
-  xhot: number;
-  yhot: number;
-  delay: number;
-  rgba: Buffer;
-  hash: string;
-}
-type CursorPack = Record<number, Record<string, CursorFrame[]>>;
+import { CursorTheme } from '../types';
 
 /**
  * Detects the file type from a buffer.
@@ -28,17 +18,17 @@ function detectFileType(buffer: Buffer): 'ani' | 'cur' | 'unknown' {
 }
 
 /**
- * Parses a .theme file with the CPAK format.
+ * Parses a .theme file with the CURA format.
  */
-export async function loadCursorThemeFromFile(themePath: string): Promise<CursorPack> {
+export async function loadCursorThemeFromFile(themePath: string): Promise<CursorTheme> {
   const buf = await fs.readFile(themePath);
-  if (buf.toString('ascii', 0, 4) !== 'CPAK') {
-    throw new Error('Incorrect CPAK format');
+  if (buf.toString('ascii', 0, 4) !== 'CURA') {
+    throw new Error('Incorrect CURA format');
   }
 
   const total = buf.readUInt32LE(4);
   let offset = 8;
-  const result: CursorPack = {};
+  const result: CursorTheme = {};
 
   for (let i = 0; i < total; i++) {
     const type = buf.readUInt8(offset); offset += 1; // 0 for CUR, 1 for ANI, 2 for auto-detect
@@ -57,7 +47,7 @@ export async function loadCursorThemeFromFile(themePath: string): Promise<Cursor
     } else if (detectedType === 'cur') {
       parser = new CursorParser(data);
     } else {
-      log.warn(`[CPackParser] Skipping ${name} (unknown file type)`);
+      log.warn(`[CURAParser] Skipping ${name} (unknown file type)`);
       continue;
     }
 
@@ -69,9 +59,8 @@ export async function loadCursorThemeFromFile(themePath: string): Promise<Cursor
         const baseName = path.basename(name, path.extname(name));
         result[scale][baseName] = frames;
       }
-      log.info(`[CPackParser] ✅ Parsed ${name}`);
     } catch (e) {
-      log.error(`[CPackParser] ❌ Error parsing ${name}:`, e);
+      log.error(`[CURAParser] ❌ Error parsing ${name}:`, e);
     }
   }
   return result;

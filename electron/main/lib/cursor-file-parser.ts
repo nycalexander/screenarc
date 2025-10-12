@@ -1,17 +1,6 @@
-import { createHash } from 'node:crypto';
 import log from 'electron-log/main';
+import { CursorFrame } from '../types';
 
-export interface CursorFrame {
-  width: number;
-  height: number;
-  xhot: number;
-  yhot: number;
-  delay: number;
-  rgba: Buffer;
-  hash: string;
-}
-
-const hash = (buffer: Buffer) => createHash('sha1').update(buffer).digest('hex');
 
 /** Utility: convert BGRA → RGBA and flip vertically */
 function convertToRgba(bgra: Buffer, width: number, height: number): Buffer {
@@ -63,7 +52,7 @@ export class CursorParser {
 
         const pixelData = imgBuf.slice(headerSize, headerSize + width * height * 4);
         const rgba = convertToRgba(pixelData, width, height);
-        const frame: CursorFrame = { width, height, xhot, yhot, delay: 0, rgba, hash: hash(rgba) };
+        const frame: CursorFrame = { width, height, xhot, yhot, delay: 0, rgba };
 
         const scale = Math.round((width / 32) * 10) / 10;
         if (!result[scale]) result[scale] = [];

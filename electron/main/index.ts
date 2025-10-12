@@ -9,7 +9,6 @@ import { setupLogging } from './lib/logging';
 import { registerIpcHandlers } from './ipc';
 import { createRecorderWindow } from './windows/recorder-window';
 import { onAppQuit } from './features/recording-manager';
-import { initializeCursorDependencies } from './features/cursor-manager';
 import { initializeMouseTrackerDependencies } from './features/mouse-tracker';
 
 // --- Initialization ---
@@ -33,7 +32,6 @@ app.whenReady().then(async () => {
   log.info('[App] Ready. Initializing...');
 
   // Initialize platform-specific dependencies asynchronously
-  initializeCursorDependencies();
   initializeMouseTrackerDependencies();
   
   // Register custom protocol for media files
