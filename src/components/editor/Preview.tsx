@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, memo, useState, useCallback } from 'react';
 import { useEditorStore, usePlaybackState } from '../../store/editorStore';
-import { Film, Play, Pause, Fullscreen, Shrink } from 'lucide-react';
+import { Film, Fullscreen, Shrink } from 'lucide-react';
+import { PauseIcon, PlayIcon } from '../ui/icons';
 import { useShallow } from 'zustand/react/shallow';
 import { formatTime } from '../../lib/utils';
 import { Slider } from '../ui/slider';
@@ -299,7 +300,7 @@ export const Preview = memo(({ videoRef }: { videoRef: React.RefObject<HTMLVideo
               onClick={togglePlay}
               className="flex-shrink-0 text-foreground hover:text-foreground hover:bg-accent h-10 w-10 rounded-xl transition-all duration-150 border border-border/30 shadow-sm hover:shadow"
             >
-              {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+              {isPlaying ? <PauseIcon className="w-4 h-4" /> : <PlayIcon className="w-4 h-4" />}
             </Button>
             <div className="flex items-baseline gap-2 text-xs font-mono tabular-nums text-muted-foreground min-w-[130px]">
               <span className="text-foreground font-semibold">{formatTime(currentTime, true)}</span>
