@@ -58,7 +58,16 @@ export interface CutRegion {
   zIndex: number
 }
 
-export type TimelineRegion = ZoomRegion | CutRegion
+export interface SpeedRegion {
+  id: string
+  type: 'speed'
+  startTime: number
+  duration: number
+  speed: number // e.g., 1.5 for 1.5x speed
+  zIndex: number
+}
+
+export type TimelineRegion = ZoomRegion | CutRegion | SpeedRegion
 
 export interface MetaDataItem {
   timestamp: number
@@ -177,6 +186,7 @@ export interface FrameActions {
 export interface TimelineState {
   zoomRegions: Record<string, ZoomRegion>
   cutRegions: Record<string, CutRegion>
+  speedRegions: Record<string, SpeedRegion>
   previewCutRegion: CutRegion | null
   selectedRegionId: string | null
   activeZoomRegionId: string | null
@@ -186,12 +196,14 @@ export interface TimelineState {
 export interface TimelineActions {
   addZoomRegion: () => void
   addCutRegion: (regionData?: Partial<CutRegion>) => void
+  addSpeedRegion: () => void
   updateRegion: (id: string, updates: Partial<TimelineRegion>) => void
   deleteRegion: (id: string) => void
   setSelectedRegionId: (id: string | null) => void
   setPreviewCutRegion: (region: CutRegion | null) => void
   setTimelineZoom: (zoom: number) => void
   applyAnimationSettingsToAll: (settings: { transitionDuration: number; easing: string; zoomLevel: number }) => void
+  applySpeedToAll: (speed: number) => void
 }
 
 export interface PresetState {

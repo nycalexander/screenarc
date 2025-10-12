@@ -1,6 +1,6 @@
 // Main control bar for video playback and timeline editing
 import React from 'react'
-import { Scissors, ZoomIn, Trash2, Undo2, Redo2 } from 'lucide-react'
+import { Scissors, ZoomIn, Trash2, Undo2, Redo2, FastForward } from 'lucide-react'
 import { useEditorStore } from '../../store/editorStore'
 import type { AspectRatio } from '../../types'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
@@ -78,6 +78,7 @@ export function PreviewControls({
     setAspectRatio,
     addZoomRegion,
     addCutRegion,
+    addSpeedRegion,
     timelineZoom,
     setTimelineZoom,
     selectedRegionId,
@@ -113,6 +114,10 @@ export function PreviewControls({
           <ToolbarButton title="Add Cut Region" onClick={() => addCutRegion()} disabled={!!selectedRegionId}>
             <Scissors className="w-4 h-4" />
             <span>Trim</span>
+          </ToolbarButton>
+          <ToolbarButton title="Add Speed Region" onClick={() => addSpeedRegion()} disabled={!!selectedRegionId}>
+            <FastForward className="w-4 h-4" />
+            <span>Speed</span>
           </ToolbarButton>
           <ToolbarButton
             variant="icon"

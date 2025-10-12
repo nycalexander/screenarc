@@ -13,6 +13,7 @@ export const Preview = memo(({ videoRef }: { videoRef: React.RefObject<HTMLVideo
   const {
     videoUrl,
     cutRegions,
+    speedRegions,
     webcamVideoUrl,
     duration,
     currentTime,
@@ -31,6 +32,7 @@ export const Preview = memo(({ videoRef }: { videoRef: React.RefObject<HTMLVideo
     useShallow((state) => ({
       videoUrl: state.videoUrl,
       cutRegions: state.cutRegions,
+      speedRegions: state.speedRegions,
       webcamVideoUrl: state.webcamVideoUrl,
       duration: state.duration,
       currentTime: state.currentTime,
@@ -182,6 +184,9 @@ export const Preview = memo(({ videoRef }: { videoRef: React.RefObject<HTMLVideo
     } else {
       video.pause()
       webcamVideo?.pause()
+      // When pausing, reset playbackRate to 1 so scrubbing is at normal speed
+      video.playbackRate = 1
+      if (webcamVideo) webcamVideo.playbackRate = 1
     }
   }, [isPlaying, videoRef])
 
@@ -211,15 +216,25 @@ export const Preview = memo(({ videoRef }: { videoRef: React.RefObject<HTMLVideo
 
   const handleTimeUpdate = () => {
     if (!videoRef.current) return
+    const video = videoRef.current
+    const newTime = video.currentTime
+
+    // Handle speed regions
+    const activeSpeedRegion = Object.values(speedRegions).find(
+      (r) => newTime >= r.startTime && newTime < r.startTime + r.duration,
+    )
+    video.playbackRate = activeSpeedRegion ? activeSpeedRegion.speed : 1
+
     const endTrimRegion = Object.values(cutRegions).find((r) => r.trimType === 'end')
-    if (endTrimRegion && videoRef.current.currentTime >= endTrimRegion.startTime) {
-      videoRef.current.currentTime = endTrimRegion.startTime
-      videoRef.current.pause()
+    if (endTrimRegion && newTime >= endTrimRegion.startTime) {
+      video.currentTime = endTrimRegion.startTime
+      video.pause()
     }
     if (webcamVideoRef.current) {
-      webcamVideoRef.current.currentTime = videoRef.current.currentTime
+      webcamVideoRef.current.currentTime = newTime
+      webcamVideoRef.current.playbackRate = video.playbackRate // Sync webcam speed
     }
-    setCurrentTime(videoRef.current.currentTime)
+    setCurrentTime(newTime)
   }
 
   // --- Start of Bug Fix for Rewind on Fullscreen ---

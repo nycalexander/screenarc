@@ -64,6 +64,7 @@ export const useEditorStore = create(
           aspectRatio,
           zoomRegions,
           cutRegions,
+          speedRegions,
           presets,
           activePresetId,
           webcamPosition,
@@ -76,6 +77,7 @@ export const useEditorStore = create(
           aspectRatio,
           zoomRegions,
           cutRegions,
+          speedRegions,
           presets,
           activePresetId,
           webcamPosition,
@@ -116,5 +118,6 @@ export const useAllRegions = () =>
     useShallow((state) => ({
       zoomRegions: state.zoomRegions,
       cutRegions: state.cutRegions,
+      speedRegions: state.speedRegions,
     })),
   )

@@ -1,10 +1,11 @@
 import { TIMELINE, ZOOM } from '../../lib/constants'
 import type { TimelineState, TimelineActions, Slice } from '../../types'
-import type { CutRegion, ZoomRegion } from '../../types'
+import type { CutRegion, ZoomRegion, SpeedRegion } from '../../types'
 
 export const initialTimelineState: TimelineState = {
   zoomRegions: {},
   cutRegions: {},
+  speedRegions: {},
   previewCutRegion: null,
   selectedRegionId: null,
   activeZoomRegionId: null,
@@ -21,8 +22,13 @@ export const initialTimelineState: TimelineState = {
 const recalculateZIndices = (state: {
   zoomRegions: Record<string, ZoomRegion>
   cutRegions: Record<string, CutRegion>
+  speedRegions: Record<string, SpeedRegion>
 }) => {
-  const allRegions = [...Object.values(state.zoomRegions), ...Object.values(state.cutRegions)]
+  const allRegions = [
+    ...Object.values(state.zoomRegions),
+    ...Object.values(state.cutRegions),
+    ...Object.values(state.speedRegions),
+  ]
   allRegions.sort((a, b) => a.duration - b.duration)
 
   const regionCount = allRegions.length
@@ -32,6 +38,8 @@ const recalculateZIndices = (state: {
       state.zoomRegions[region.id].zIndex = newZIndex
     } else if (state.cutRegions[region.id]) {
       state.cutRegions[region.id].zIndex = newZIndex
+    } else if (state.speedRegions[region.id]) {
+      state.speedRegions[region.id].zIndex = newZIndex
     }
   })
 }
@@ -96,9 +104,33 @@ export const createTimelineSlice: Slice<TimelineState, TimelineActions> = (set, 
       recalculateZIndices(state)
     })
   },
+  addSpeedRegion: () => {
+    const { currentTime, duration } = get()
+    if (duration === 0) return
+
+    const id = `speed-${Date.now()}`
+    const newRegion: SpeedRegion = {
+      id,
+      type: 'speed',
+      startTime: currentTime,
+      duration: 3.0, // default duration
+      speed: 1.5, // default speed
+      zIndex: 0,
+    }
+
+    if (newRegion.startTime + newRegion.duration > duration) {
+      newRegion.duration = Math.max(TIMELINE.MINIMUM_REGION_DURATION, duration - newRegion.startTime)
+    }
+
+    set((state) => {
+      state.speedRegions[id] = newRegion
+      state.selectedRegionId = id
+      recalculateZIndices(state)
+    })
+  },
   updateRegion: (id, updates) => {
     set((state) => {
-      const region = state.zoomRegions[id] || state.cutRegions[id]
+      const region = state.zoomRegions[id] || state.cutRegions[id] || state.speedRegions[id]
       if (region) {
         const oldDuration = region.duration
         Object.assign(region, updates)
@@ -112,6 +144,7 @@ export const createTimelineSlice: Slice<TimelineState, TimelineActions> = (set, 
     set((state) => {
       delete state.zoomRegions[id]
       delete state.cutRegions[id]
+      delete state.speedRegions[id]
       if (state.selectedRegionId === id) {
         state.selectedRegionId = null
       }
@@ -136,6 +169,13 @@ export const createTimelineSlice: Slice<TimelineState, TimelineActions> = (set, 
         region.transitionDuration = transitionDuration
         region.easing = easing
         region.zoomLevel = zoomLevel
+      })
+    })
+  },
+  applySpeedToAll: (speed) => {
+    set((state) => {
+      Object.values(state.speedRegions).forEach((region) => {
+        region.speed = speed
       })
     })
   },

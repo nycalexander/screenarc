@@ -3,6 +3,7 @@ import { useShallow } from 'zustand/react/shallow'
 import { useEditorStore, useAllRegions } from '../../store/editorStore'
 import { ZoomRegionBlock } from './timeline/ZoomRegionBlock'
 import { CutRegionBlock } from './timeline/CutRegionBlock'
+import { SpeedRegionBlock } from './timeline/SpeedRegionBlock'
 import { Playhead } from './timeline/Playhead'
 import { cn } from '../../lib/utils'
 import { Scissors } from 'lucide-react'
@@ -140,15 +141,15 @@ export function Timeline({ videoRef }: { videoRef: React.RefObject<HTMLVideoElem
     }
   }, [currentTime, isPlaying, timeToPx])
 
-  const { zoomRegions, cutRegions } = useAllRegions()
+  const { zoomRegions, cutRegions, speedRegions } = useAllRegions()
 
   const allRegionsToRender = useMemo(() => {
-    const combined = [...Object.values(zoomRegions), ...Object.values(cutRegions)]
+    const combined = [...Object.values(zoomRegions), ...Object.values(cutRegions), ...Object.values(speedRegions)]
     if (previewCutRegion) {
       combined.push(previewCutRegion)
     }
     return combined
-  }, [zoomRegions, cutRegions, previewCutRegion])
+  }, [zoomRegions, cutRegions, speedRegions, previewCutRegion])
 
   return (
     <div className="h-full flex flex-col bg-background/50 p-3">
@@ -178,42 +179,58 @@ export function Timeline({ videoRef }: { videoRef: React.RefObject<HTMLVideoElem
           >
             <Ruler ticks={rulerTicks} timeToPx={timeToPx} formatTime={formatTime} />
 
-            <div className="absolute top-14 left-0 w-full" style={{ height: 'calc(100% - 3.5rem)' }}>
+            <div className="absolute top-12 left-0 w-full" style={{ height: 'calc(100% - 3rem)' }}>
               {allRegionsToRender.map((region) => {
                 const isSelected = selectedRegionId === region.id
-                const zIndex = isSelected ? 100 : (region.zIndex ?? 1)
+                const zIndex = isSelected ? 100 : region.zIndex ?? 1
 
-                return (
-                  <div
-                    key={region.id}
-                    className="absolute top-0 h-full"
-                    style={{
-                      left: `${timeToPx(region.startTime)}px`,
-                      width: `${timeToPx(region.duration)}px`,
-                      zIndex: zIndex,
-                    }}
-                  >
-                    {region.type === 'zoom' && (
-                      <ZoomRegionBlock
+                // Common style
+                const regionStyle: React.CSSProperties = {
+                  left: `${timeToPx(region.startTime)}px`,
+                  width: `${timeToPx(region.duration)}px`,
+                  zIndex: zIndex,
+                }
+
+                if (region.type === 'zoom' || region.type === 'cut') {
+                  return (
+                    <div key={region.id} className="absolute top-0 h-1/2" style={regionStyle}>
+                      {region.type === 'zoom' && (
+                        <ZoomRegionBlock
+                          region={region}
+                          isSelected={isSelected}
+                          isBeingDragged={draggingRegionId === region.id}
+                          onMouseDown={handleRegionMouseDown}
+                          setRef={(el) => regionRefs.current.set(region.id, el)}
+                        />
+                      )}
+                      {region.type === 'cut' && (
+                        <CutRegionBlock
+                          region={region}
+                          isSelected={isSelected}
+                          isDraggable={region.id !== previewCutRegion?.id}
+                          isBeingDragged={draggingRegionId === region.id}
+                          onMouseDown={handleRegionMouseDown}
+                          setRef={(el) => regionRefs.current.set(region.id, el)}
+                        />
+                      )}
+                    </div>
+                  )
+                }
+
+                if (region.type === 'speed') {
+                  return (
+                    <div key={region.id} className="absolute bottom-0 h-1/2" style={regionStyle}>
+                      <SpeedRegionBlock
                         region={region}
                         isSelected={isSelected}
                         isBeingDragged={draggingRegionId === region.id}
                         onMouseDown={handleRegionMouseDown}
                         setRef={(el) => regionRefs.current.set(region.id, el)}
                       />
-                    )}
-                    {region.type === 'cut' && (
-                      <CutRegionBlock
-                        region={region}
-                        isSelected={isSelected}
-                        isDraggable={region.id !== previewCutRegion?.id}
-                        isBeingDragged={draggingRegionId === region.id}
-                        onMouseDown={handleRegionMouseDown}
-                        setRef={(el) => regionRefs.current.set(region.id, el)}
-                      />
-                    )}
-                  </div>
-                )
+                    </div>
+                  )
+                }
+                return null
               })}
             </div>
 

@@ -1,7 +1,7 @@
 import log from 'electron-log/renderer'
 import { useEffect, useRef } from 'react'
 import { useEditorStore } from '../store/editorStore'
-import { EditorState, EditorActions, CursorTheme, CursorFrame, CursorImageBitmap } from '../types'
+import { EditorState, EditorActions, CursorTheme, CursorFrame, CursorImageBitmap, SpeedRegion } from '../types'
 import { ExportSettings } from '../components/editor/ExportModal'
 import { RESOLUTIONS } from '../lib/constants'
 import { drawScene } from '../lib/renderer'
@@ -192,25 +192,37 @@ export function RendererPage() {
         }
         await Promise.all(loadPromises)
 
-        log.info('[RendererPage] Starting frame-by-frame rendering...')
-        const totalDuration = projectStateWithCursorBitmaps.duration
-        const totalFrames = Math.floor(totalDuration * fps)
+        let exportDuration = projectState.duration
+        Object.values(projectState.cutRegions).forEach((region) => {
+          exportDuration -= region.duration
+        })
+        Object.values(projectState.speedRegions).forEach((region) => {
+          exportDuration -= region.duration
+          exportDuration += region.duration / region.speed
+        })
+        exportDuration = Math.max(0, exportDuration)
+
+        log.info(
+          `[RendererPage] Starting frame-by-frame rendering. Original: ${projectState.duration.toFixed(2)}s, Export: ${exportDuration.toFixed(2)}s`,
+        )
+
+        const totalFrames = Math.floor(exportDuration * fps)
         let framesSent = 0
+        let sourceVideoTime = 0
+        const timePerFrame = 1 / fps
 
         for (let i = 0; i < totalFrames; i++) {
-          const currentTime = i / fps
+          const currentTimeForDrawing = sourceVideoTime
 
-          // Add logic to check cut/trim region
-          const isInCutRegion = Object.values(projectStateWithCursorBitmaps.cutRegions).some(
-            (r) => currentTime >= r.startTime && currentTime < r.startTime + r.duration,
-          )
-          if (isInCutRegion) continue // Skip this frame
+          if (currentTimeForDrawing > projectState.duration) {
+            log.warn(`[RendererPage] Attempted to draw past source duration. Stopping.`)
+            break
+          }
 
-          // Optimize video seeking - much faster than waiting for 'seeked' event
+          // Draw the scene at the current source time
           await new Promise<void>((resolve) => {
-            video.currentTime = currentTime
-            if (webcamVideo) webcamVideo.currentTime = currentTime
-            // Use requestAnimationFrame to ensure the video has updated the frame before drawing
+            video.currentTime = currentTimeForDrawing
+            if (webcamVideo) webcamVideo.currentTime = currentTimeForDrawing
             requestAnimationFrame(() => resolve())
           })
 
@@ -219,17 +231,42 @@ export function RendererPage() {
             projectStateWithCursorBitmaps,
             video,
             webcamVideo,
-            currentTime,
+            currentTimeForDrawing,
             outputWidth,
             outputHeight,
             bgImage,
           )
 
+          // Send the frame
           const imageData = ctx.getImageData(0, 0, outputWidth, outputHeight)
           const frameBuffer = Buffer.from(imageData.data.buffer)
           const progress = Math.round((i / totalFrames) * 100)
           window.electronAPI.sendFrameToMain({ frame: frameBuffer, progress })
           framesSent++
+
+          // Now, calculate the source time for the *next* frame
+          // Determine speed at current source time
+          const activeSpeedRegion = Object.values(projectState.speedRegions).find(
+            (r) => sourceVideoTime >= r.startTime && sourceVideoTime < r.startTime + r.duration,
+          )
+          const currentSpeed = activeSpeedRegion ? activeSpeedRegion.speed : 1
+
+          // Advance source time by one output frame's worth, adjusted for speed
+          sourceVideoTime += timePerFrame * currentSpeed
+
+          // Handle cut regions. If the new source time is inside one, jump to its end.
+          // This needs to be a loop in case of adjacent cut regions.
+          let inCutRegion = true
+          while (inCutRegion) {
+            const activeCutRegion = Object.values(projectState.cutRegions).find(
+              (r) => sourceVideoTime >= r.startTime && sourceVideoTime < r.startTime + r.duration,
+            )
+            if (activeCutRegion) {
+              sourceVideoTime = activeCutRegion.startTime + activeCutRegion.duration
+            } else {
+              inCutRegion = false
+            }
+          }
         }
 
         log.info(`[RendererPage] Render finished. Sent ${framesSent} frames. Sending "finishRender" signal.`)

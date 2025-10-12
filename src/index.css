@@ -160,6 +160,26 @@
       opacity: 0;
     }
   }
+
+  /* --- Context Menu (macOS style) --- */
+  .context-menu-backdrop {
+    @apply fixed inset-0 z-[100]; /* Lớp nền trong suốt để bắt click */
+  }
+
+  .context-menu-panel {
+    @apply absolute min-w-[180px] rounded-lg border border-white/20 bg-neutral-800/60 p-1.5 text-sm font-medium text-neutral-100 shadow-2xl backdrop-blur-2xl;
+    animation: scaleIn 0.1s ease-out;
+  }
+
+  .context-menu-item {
+    @apply relative flex w-full cursor-default select-none items-center rounded-[5px] px-2.5 py-1.5 outline-none transition-colors duration-150;
+    @apply focus:bg-blue-500 focus:text-white data-[disabled]:pointer-events-none data-[disabled]:opacity-50;
+    @apply hover:bg-blue-500 hover:text-white; /* Dành cho tương tác chuột */
+  }
+
+  .context-menu-divider {
+    @apply -mx-1.5 my-1.5 h-px bg-white/15;
+  }
 }
 
 /* --- THEME: Monochrome Pro --- */
@@ -196,6 +216,7 @@
   --font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   --font-mono: 'SF Mono', 'Menlo', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', monospace;
   --timeline-tick: hsl(0 0% 32%);
+  --speed-accent: hsl(264, 84%, 58%); /* Added */
 }
 [data-theme='monochrome-pro'].dark {
   --background: hsl(0 0% 8%);
@@ -227,6 +248,7 @@
   --color-picker-input-bg: hsl(0 0% 15%);
   --color-picker-input-border: hsl(0 0% 26%);
   --timeline-tick: hsl(0 0% 72%);
+  --speed-accent: hsl(264, 80%, 70%); /* Added */
 }
 
 /* --- THEME: Ocean Slate (DEFAULT) --- */
@@ -263,6 +285,7 @@
   --font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   --font-mono: 'SF Mono', 'Menlo', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', monospace;
   --timeline-tick: hsl(215 18% 32%);
+  --speed-accent: hsl(158, 82%, 56%); /* Added */
 }
 [data-theme='ocean-slate'].dark {
   --background: hsl(215 20% 9%);
@@ -294,6 +317,7 @@
   --color-picker-input-bg: hsl(215 20% 16%);
   --color-picker-input-border: hsl(215 20% 28%);
   --timeline-tick: hsl(210 18% 72%);
+  --speed-accent: hsl(158, 78%, 54%); /* Added */
 }
 
 /* --- THEME: Warm Graphite --- */
@@ -330,6 +354,7 @@
   --font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   --font-mono: 'SF Mono', 'Menlo', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', monospace;
   --timeline-tick: hsl(24 10% 32%);
+  --speed-accent: hsl(168, 76%, 42%); /* Added */
 }
 [data-theme='warm-graphite'].dark {
   --background: hsl(24 10% 9%);
@@ -361,6 +386,7 @@
   --color-picker-input-bg: hsl(24 10% 16%);
   --color-picker-input-border: hsl(24 10% 28%);
   --timeline-tick: hsl(30 10% 72%);
+  --speed-accent: hsl(168, 72%, 50%); /* Added */
 }
 
 /* --- THEME: Nordic Night (NEW) --- */
@@ -397,6 +423,7 @@
   --font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   --font-mono: 'SF Mono', 'Menlo', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', monospace;
   --timeline-tick: hsl(220 11% 40%);
+  --speed-accent: hsl(21 65% 57%); /* Added - nord12 */
 }
 [data-theme='nordic-night'].dark {
   --background: hsl(220 13% 18%); /* nord0 */
@@ -428,6 +455,7 @@
   --color-picker-input-bg: hsl(220 14% 28%);
   --color-picker-input-border: hsl(220 14% 40%);
   --timeline-tick: hsl(220 14% 75%);
+  --speed-accent: hsl(21 65% 57%); /* Added - nord12 */
 }
 
 /* --- THEME: Solarized Sand (NEW) --- */
@@ -464,6 +492,7 @@
   --font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   --font-mono: 'SF Mono', 'Menlo', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', monospace;
   --timeline-tick: hsl(196 15% 43%);
+  --speed-accent: hsl(333 70% 55%); /* Added - magenta */
 }
 [data-theme='solarized-sand'].dark {
   --background: hsl(195 100% 11%); /* base03 */
@@ -495,6 +524,7 @@
   --color-picker-input-bg: hsl(196 16% 25%);
   --color-picker-input-border: hsl(196 16% 30%);
   --timeline-tick: hsl(196 8% 75%);
+  --speed-accent: hsl(333 70% 55%); /* Added - magenta */
 }
 
 @theme inline {

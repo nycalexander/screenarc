@@ -1,11 +1,12 @@
 // Modal for configuring export settings and showing export progress
-import type React from 'react'
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState, useMemo } from 'react'
 import { Button } from '../ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
 import { Upload, Loader2, CheckCircle2, XCircle, Folder } from 'lucide-react'
 import { Input } from '../ui/input'
 import { cn } from '../../lib/utils'
+import { useEditorStore } from '../../store/editorStore'
+import { formatTime } from '../../lib/utils'
 
 export type ExportSettings = {
   format: 'mp4' | 'gif'
@@ -45,6 +46,32 @@ const SettingsView = ({
     quality: 'medium',
   })
   const [outputPath, setOutputPath] = useState('')
+  const { duration, cutRegions, speedRegions } = useEditorStore((state) => ({
+    duration: state.duration,
+    cutRegions: state.cutRegions,
+    speedRegions: state.speedRegions,
+  }))
+
+  const estimatedDuration = useMemo(() => {
+    if (duration === 0) return 0
+
+    let finalDuration = duration
+
+    // Subtract cut regions
+    Object.values(cutRegions).forEach((region) => {
+      finalDuration -= region.duration
+    })
+
+    // Adjust for speed regions
+    Object.values(speedRegions).forEach((region) => {
+      // Subtract the original duration of the segment
+      finalDuration -= region.duration
+      // Add the new duration of the segment
+      finalDuration += region.duration / region.speed
+    })
+
+    return Math.max(0, finalDuration)
+  }, [duration, cutRegions, speedRegions])
 
   const handleValueChange = (key: keyof ExportSettings, value: string) => {
     setSettings((prev) => ({ ...prev, [key]: value }))
@@ -158,6 +185,10 @@ const SettingsView = ({
               </Button>
             </div>
           </SettingRow>
+          <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg border border-border mt-4">
+            <span className="text-sm font-medium text-foreground">Estimated Duration</span>
+            <span className="text-sm font-bold text-primary tabular-nums">{formatTime(estimatedDuration, true)}</span>
+          </div>
         </div>
       </div>
 
