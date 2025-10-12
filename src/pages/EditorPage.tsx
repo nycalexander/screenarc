@@ -21,7 +21,7 @@ import { useShallow } from 'zustand/react/shallow'
 export function EditorPage() {
   const {
     loadProject,
-    toggleTheme,
+    toggleMode,
     deleteRegion,
     initializePresets,
     initializeSettings,
@@ -32,12 +32,12 @@ export function EditorPage() {
     seekBackward,
     seekForward,
   } = useEditorStore.getState()
-  const { presetSaveStatus, duration, isPreviewFullScreen, currentTheme } = useEditorStore(
+  const { presetSaveStatus, duration, isPreviewFullScreen, currentMode } = useEditorStore(
     useShallow((state) => ({
       presetSaveStatus: state.presetSaveStatus,
       duration: state.duration,
       isPreviewFullScreen: state.isPreviewFullScreen,
-      currentTheme: state.theme,
+      currentMode: state.mode,
     })),
   )
   const { undo, redo } = useEditorStore.temporal.getState()
@@ -199,13 +199,13 @@ export function EditorPage() {
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={toggleTheme}
+                onClick={toggleMode}
                 aria-label="Toggle theme"
                 className={cn(
                   'h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-accent/50 rounded-lg transition-all duration-200',
                 )}
               >
-                {currentTheme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+                {currentMode === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
               </Button>
               <Button
                 variant="ghost"
@@ -226,7 +226,7 @@ export function EditorPage() {
                 className={cn(
                   'transition-all duration-300 w-[110px] h-8 font-medium shadow-sm',
                   presetSaveStatus === 'saved' &&
-                    'bg-green-500/15 border border-green-500/30 text-green-600 dark:text-green-400 shadow-green-500/10',
+                  'bg-green-500/15 border border-green-500/30 text-green-600 dark:text-green-400 shadow-green-500/10',
                 )}
               >
                 {getPresetButtonContent()}

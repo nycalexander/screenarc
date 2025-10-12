@@ -1,25 +1,39 @@
 import type { UIState, UIActions, Slice } from '../../types'
 
 export const initialUIState: UIState = {
-  theme: 'light',
+  theme: 'ocean-slate', // Default theme
+  mode: 'light',
   isPreviewFullScreen: false,
 }
 
 export const createUISlice: Slice<UIState, UIActions> = (set, get) => ({
   ...initialUIState,
-  toggleTheme: () => {
-    const newTheme = get().theme === 'dark' ? 'light' : 'dark'
+  setTheme: (theme: string) => {
     set((state) => {
-      state.theme = newTheme
+      state.theme = theme
     })
-    window.electronAPI.setSetting('appearance.theme', newTheme)
+    window.electronAPI.setSetting('appearance.themeName', theme)
+  },
+  toggleMode: () => {
+    const newMode = get().mode === 'dark' ? 'light' : 'dark'
+    set((state) => {
+      state.mode = newMode
+    })
+    window.electronAPI.setSetting('appearance.mode', newMode)
   },
   initializeSettings: async () => {
     try {
-      const appearance = await window.electronAPI.getSetting<{ theme: 'light' | 'dark' }>('appearance')
-      if (appearance?.theme) {
+      const appearance = await window.electronAPI.getSetting<{ themeName: string; mode: 'light' | 'dark' }>(
+        'appearance',
+      )
+      if (appearance?.themeName) {
         set((state) => {
-          state.theme = appearance.theme
+          state.theme = appearance.themeName
+        })
+      }
+      if (appearance?.mode) {
+        set((state) => {
+          state.mode = appearance.mode
         })
       }
     } catch (error) {

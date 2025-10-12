@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useShallow } from 'zustand/react/shallow'
 import { EditorPage } from './pages/EditorPage'
 import { RecorderPage } from './pages/RecorderPage'
 import { RendererPage } from './pages/RendererPage'
@@ -6,7 +7,12 @@ import { useEditorStore } from './store/editorStore'
 
 function App() {
   const [route, setRoute] = useState(window.location.hash)
-  const theme = useEditorStore((state) => state.theme)
+  const { theme, mode } = useEditorStore(
+    useShallow((state) => ({
+      theme: state.theme,
+      mode: state.mode,
+    })),
+  )
   const { initializeSettings } = useEditorStore.getState()
 
   useEffect(() => {
@@ -15,14 +21,14 @@ function App() {
 
   useEffect(() => {
     const root = document.documentElement
-    if (theme === 'dark') {
+    root.setAttribute('data-theme', theme)
+
+    if (mode === 'dark') {
       root.classList.add('dark')
-      root.setAttribute('data-theme', 'dark')
     } else {
       root.classList.remove('dark')
-      root.setAttribute('data-theme', 'light')
     }
-  }, [theme])
+  }, [theme, mode])
 
   useEffect(() => {
     const handleHashChange = () => {

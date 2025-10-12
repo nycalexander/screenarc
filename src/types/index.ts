@@ -96,14 +96,14 @@ export interface CursorImageBitmap extends CursorImageBase {
 
 export interface WebcamPosition {
   pos:
-    | 'top-left'
-    | 'top-center'
-    | 'top-right'
-    | 'bottom-left'
-    | 'bottom-center'
-    | 'bottom-right'
-    | 'left-center'
-    | 'right-center'
+  | 'top-left'
+  | 'top-center'
+  | 'top-right'
+  | 'bottom-left'
+  | 'bottom-center'
+  | 'bottom-right'
+  | 'left-center'
+  | 'right-center'
 }
 
 export interface WebcamStyles {
@@ -225,11 +225,13 @@ export interface WebcamActions {
 }
 
 export interface UIState {
-  theme: 'light' | 'dark'
+  theme: string
+  mode: 'light' | 'dark'
   isPreviewFullScreen: boolean
 }
 export interface UIActions {
-  toggleTheme: () => void
+  setTheme: (theme: string) => void
+  toggleMode: () => void
   initializeSettings: () => Promise<void>
   togglePreviewFullScreen: () => void
 }
