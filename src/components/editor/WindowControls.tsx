@@ -1,31 +1,36 @@
 // src/components/editor/WindowControls.tsx
 
-import { Minus, Maximize2, X } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Minus, Maximize2, X, Minimize2 } from 'lucide-react'
 
-// Component giờ sẽ nhận prop 'platform' để render giao diện phù hợp
 export function WindowControls({ platform }: { platform: NodeJS.Platform | null }) {
+  const [isMaximized, setIsMaximized] = useState(false)
+
   const handleMinimize = () => window.electronAPI.minimizeWindow()
   const handleMaximize = () => window.electronAPI.maximizeWindow()
   const handleClose = () => window.electronAPI.closeWindow()
 
-  // Render giao diện cho Windows
+  useEffect(() => {
+    // Get initial state when component is mounted
+    const getInitialState = async () => {
+      const maximized = await window.electronAPI.windowIsMaximized()
+      setIsMaximized(maximized)
+    }
+    getInitialState()
+
+    // Listen for state changes from main process
+    const cleanup = window.electronAPI.onWindowStateChange(({ isMaximized: newIsMaximized }) => {
+      setIsMaximized(newIsMaximized)
+    })
+
+    // Cleanup listener when component unmounts
+    return () => cleanup()
+  }, [])
+
+  // Render for Windows
   if (platform === 'win32') {
     return (
       <div className="flex items-center h-full" style={{ WebkitAppRegion: 'no-drag' }}>
-        <button
-          onClick={handleMinimize}
-          className="w-12 h-8 flex justify-center items-center transition-colors duration-150 hover:bg-accent"
-          aria-label="Minimize"
-        >
-          <Minus className="w-4 h-4 text-foreground" />
-        </button>
-        <button
-          onClick={handleMaximize}
-          className="w-12 h-8 flex justify-center items-center transition-colors duration-150 hover:bg-accent"
-          aria-label="Maximize"
-        >
-          <Maximize2 className="w-4 h-4 text-foreground" />
-        </button>
         <button
           onClick={handleClose}
           className="w-12 h-8 flex justify-center items-center transition-colors duration-150 hover:bg-destructive hover:text-destructive-foreground"
@@ -33,11 +38,29 @@ export function WindowControls({ platform }: { platform: NodeJS.Platform | null 
         >
           <X className="w-4 h-4" />
         </button>
+        <button
+          onClick={handleMaximize}
+          className="w-12 h-8 flex justify-center items-center transition-colors duration-150 hover:bg-accent"
+          aria-label={isMaximized ? 'Restore' : 'Maximize'}
+        >
+          {isMaximized ? (
+            <Minimize2 className="w-4 h-4 text-foreground" />
+          ) : (
+            <Maximize2 className="w-4 h-4 text-foreground" />
+          )}
+        </button>
+        <button
+          onClick={handleMinimize}
+          className="w-12 h-8 flex justify-center items-center transition-colors duration-150 hover:bg-accent"
+          aria-label="Minimize"
+        >
+          <Minus className="w-4 h-4 text-foreground" />
+        </button>
       </div>
     )
   }
 
-  // Render giao diện "traffic light" cho macOS và Linux
+  // Render for Linux
   return (
     <div className="flex items-center gap-2" style={{ WebkitAppRegion: 'no-drag' }}>
       <button
@@ -57,9 +80,13 @@ export function WindowControls({ platform }: { platform: NodeJS.Platform | null 
       <button
         onClick={handleMaximize}
         className="group w-3 h-3 bg-green-400 rounded-full flex justify-center items-center transition-colors duration-200 hover:bg-green-600"
-        aria-label="Maximize"
+        aria-label={isMaximized ? 'Restore' : 'Maximize'}
       >
-        <Maximize2 className="w-1.5 h-1.5 text-green-900/60 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+        {isMaximized ? (
+          <Minimize2 className="w-1.5 h-1.5 text-green-900/60 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+        ) : (
+          <Maximize2 className="w-1.5 h-1.5 text-green-900/60 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+        )}
       </button>
     </div>
   )

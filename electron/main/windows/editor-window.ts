@@ -1,3 +1,5 @@
+// electron/main/windows/editor-window.ts
+
 // Logic to create and manage the editor window.
 
 import log from 'electron-log/main'
@@ -39,6 +41,15 @@ export function createEditorWindow(videoPath: string, metadataPath: string, webc
       webSecurity: !VITE_DEV_SERVER_URL,
     },
   })
+
+  // Add listeners for maximize/unmaximize
+  appState.editorWin.on('maximize', () => {
+    appState.editorWin?.webContents.send('window:state-changed', { isMaximized: true })
+  })
+  appState.editorWin.on('unmaximize', () => {
+    appState.editorWin?.webContents.send('window:state-changed', { isMaximized: false })
+  })
+
   appState.editorWin.maximize()
 
   // Cleanup orphaned recordings
@@ -47,7 +58,7 @@ export function createEditorWindow(videoPath: string, metadataPath: string, webc
   // Save bounds logic
   let resizeTimeout: NodeJS.Timeout
   const saveBounds = () => {
-    if (appState.editorWin && !appState.editorWin.isDestroyed()) {
+    if (appState.editorWin && !appState.editorWin.isDestroyed() && !appState.editorWin.isMaximized()) {
       store.set('windowBounds', appState.editorWin.getBounds())
     }
   }

@@ -1,3 +1,5 @@
+// electron/main/ipc/index.ts
+
 import { ipcMain } from 'electron'
 import * as appHandlers from './handlers/app'
 import * as desktopHandlers from './handlers/desktop'
@@ -15,6 +17,7 @@ export function registerIpcHandlers() {
   ipcMain.on('window:minimize', appHandlers.minimizeWindow)
   ipcMain.on('window:maximize', appHandlers.maximizeWindow)
   ipcMain.on('window:close', appHandlers.closeWindow)
+  ipcMain.handle('window:isMaximized', appHandlers.handleIsMaximized)
 
   // Desktop
   ipcMain.handle('desktop:get-displays', desktopHandlers.getDisplays)

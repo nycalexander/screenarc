@@ -1,3 +1,5 @@
+// electron/preload.ts
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron'
 
@@ -178,6 +180,14 @@ export const electronAPI = {
   maximizeWindow: () => ipcRenderer.send('window:maximize'),
   closeWindow: () => ipcRenderer.send('window:close'),
   recorderClickThrough: () => ipcRenderer.send('recorder:click-through'),
+  windowIsMaximized: (): Promise<boolean> => ipcRenderer.invoke('window:isMaximized'),
+  onWindowStateChange: (callback: (payload: { isMaximized: boolean }) => void) => {
+    const listener = (_event: IpcRendererEvent, payload: { isMaximized: boolean }) => callback(payload)
+    ipcRenderer.on('window:state-changed', listener)
+    return () => {
+      ipcRenderer.removeListener('window:state-changed', listener)
+    }
+  },
   getVersion: (): Promise<string> => ipcRenderer.invoke('app:getVersion'),
   getPlatform: (): Promise<NodeJS.Platform> => ipcRenderer.invoke('app:getPlatform'),
   getVideoFrame: (options: { videoPath: string; time: number }): Promise<string> =>

@@ -1,3 +1,5 @@
+// electron/main/ipc/handlers/app.ts
+
 // Handlers for app-related IPC (app, window controls).
 
 import { app, BrowserWindow, IpcMainEvent, IpcMainInvokeEvent } from 'electron'
@@ -39,4 +41,9 @@ export function recorderClickThrough(event: IpcMainEvent) {
   setTimeout(() => {
     window?.setIgnoreMouseEvents(false)
   }, 100)
+}
+
+export function handleIsMaximized(event: IpcMainInvokeEvent): boolean {
+  const window = BrowserWindow.fromWebContents(event.sender)
+  return window?.isMaximized() ?? false
 }
