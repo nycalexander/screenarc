@@ -5,7 +5,7 @@ import log from 'electron-log/main'
 import { spawn } from 'node:child_process'
 import path from 'node:path'
 import fsPromises from 'node:fs/promises'
-import { app, Menu, Tray, nativeImage, screen, ipcMain, dialog } from 'electron'
+import { app, Menu, Tray, nativeImage, screen, ipcMain, dialog, systemPreferences } from 'electron'
 import { appState } from '../state'
 import { getFFmpegPath, ensureDirectoryExists } from '../lib/utils'
 import { VITE_PUBLIC } from '../lib/constants'
@@ -114,7 +114,14 @@ async function startActualRecording(
       }
       appState.recordedMouseEvents.push(relativeEvent)
     })
-    appState.mouseTracker.start(appState.runtimeCursorImageMap)
+    // Check if tracker started successfully
+    const trackerStarted = await appState.mouseTracker.start(appState.runtimeCursorImageMap)
+    if (!trackerStarted) {
+      log.error('[RecordingManager] Mouse tracker failed to start, likely due to permissions. Aborting recording.')
+      appState.recorderWin?.show()
+      await cleanupAndDiscard()
+      return { canceled: true }
+    }
   }
 
   const finalArgs = buildFfmpegArgs(inputArgs, hasWebcam, hasMic, screenVideoPath, webcamVideoPath)
@@ -243,6 +250,43 @@ function createTray() {
 export async function startRecording(options: any) {
   const { source, displayId, mic, webcam } = options
   log.info('[RecordingManager] Received start recording request with options:', options)
+
+  // macOS Permissions Check
+  if (process.platform === 'darwin') {
+    // 1. Check Screen Recording Permissions
+    let screenAccess = systemPreferences.getMediaAccessStatus('screen')
+    if (screenAccess === 'not-determined') {
+      try {
+        const iohook = require('iohook-macos')
+        const permissions = iohook.checkAccessibilityPermissions()
+        screenAccess = permissions.hasPermissions ? 'granted' : 'denied'
+      } catch (e) {
+        log.error('[MouseTracker] Failed to load macOS-specific modules. Mouse tracking on macOS will be disabled.', e)
+      }
+    }
+    if (screenAccess !== 'granted') {
+      dialog.showErrorBox(
+        'Screen Recording Permission Required',
+        'ScreenArc does not have permission to record the screen. Please grant access in System Settings > Privacy & Security > Screen Recording.',
+      )
+      return { canceled: true }
+    }
+
+    // 2. Check Microphone Permissions (if requested)
+    if (mic) {
+      let micAccess = systemPreferences.getMediaAccessStatus('microphone')
+      if (micAccess === 'not-determined') {
+        micAccess = (await systemPreferences.askForMediaAccess('microphone')) ? 'granted' : 'denied'
+      }
+      if (micAccess !== 'granted') {
+        dialog.showErrorBox(
+          'Microphone Permission Required',
+          'ScreenArc does not have permission to access the microphone. Please grant access in System Settings > Privacy & Security > Microphone.',
+        )
+        return { canceled: true }
+      }
+    }
+  }
 
   const display = process.env.DISPLAY || ':0.0'
   const baseFfmpegArgs: string[] = []

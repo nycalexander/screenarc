@@ -54,7 +54,7 @@ export function initializeMouseTrackerDependencies() {
 
 // --- Interfaces and Classes ---
 export interface IMouseTracker extends EventEmitter {
-  start(cursorImageMap: Map<string, any>): void
+  start(cursorImageMap: Map<string, any>): Promise<boolean>
   stop(): void
 }
 
@@ -65,11 +65,11 @@ class LinuxMouseTracker extends EventEmitter implements IMouseTracker {
   private cursorImageMap: Map<string, any> | null = null
   private lastButtonMask = 0
 
-  async start(cursorImageMap: Map<string, any>) {
+  async start(cursorImageMap: Map<string, any>): Promise<boolean> {
     this.cursorImageMap = cursorImageMap
     if (!X11Module) {
       log.error('[MouseTracker-Linux] Cannot start, x11 module not loaded.')
-      return
+      return false
     }
     try {
       const display = await this.createClient()
@@ -86,8 +86,10 @@ class LinuxMouseTracker extends EventEmitter implements IMouseTracker {
       })
 
       this.X.on('error', (err: any) => log.error('[MouseTracker-Linux] X11 client error:', err))
+      return true
     } catch (err) {
       log.error('[MouseTracker-Linux] Failed to start:', err)
+      return false
     }
   }
 
@@ -183,16 +185,17 @@ class WindowsMouseTracker extends EventEmitter implements IMouseTracker {
   private currentCursorName = ''
   private currentAniFrame = 0
 
-  async start() {
+  async start(): Promise<boolean> {
     // Listen for position/click events
     mouseEvents.on('mousemove', this.handleMouseEvent('move'))
     mouseEvents.on('mousedown', this.handleMouseEvent('click', true))
     mouseEvents.on('mouseup', this.handleMouseEvent('click', false))
 
     // Poll for cursor shape changes
-    this.pollIntervalId = setInterval(() => this.pollCursorState(), 1000 / MOUSE_RECORDING_FPS) // 30 FPS polling for shape
+    this.pollIntervalId = setInterval(() => this.pollCursorState(), 1000 / MOUSE_RECORDING_FPS)
 
     log.info('[MouseTracker-Windows] Started.')
+    return true
   }
 
   stop() {
@@ -245,10 +248,10 @@ class MacOSMouseTracker extends EventEmitter implements IMouseTracker {
   private currentCursorName = 'arrow'
   private currentAniFrame = 0
 
-  async start() {
+  async start(): Promise<boolean> {
     if (!iohook) {
       log.error('[MouseTracker-macOS] Cannot start, iohook-macos module not loaded.')
-      return
+      return false
     }
 
     // Check accessibility permissions
@@ -257,10 +260,10 @@ class MacOSMouseTracker extends EventEmitter implements IMouseTracker {
       log.warn('[MouseTracker-macOS] Accessibility permissions not granted. Requesting...')
       dialog.showErrorBox(
         'Permissions Required',
-        'ScreenArc needs Accessibility permissions to track mouse clicks. Please grant access in System Settings > Privacy & Security > Accessibility.',
+        'ScreenArc needs Accessibility permissions to track mouse clicks. Please grant access in System Settings > Privacy & Security > Accessibility, then restart the recording.',
       )
       iohook.requestAccessibilityPermissions()
-      return // Stop if permissions are not granted
+      return false // MODIFIED: Signal failure if permissions are not granted
     }
 
     iohook.on('mousemove', this.handleMouseEvent('move'))
@@ -271,6 +274,7 @@ class MacOSMouseTracker extends EventEmitter implements IMouseTracker {
 
     this.pollIntervalId = setInterval(() => this.pollCursorState(), 1000 / MOUSE_RECORDING_FPS)
     log.info('[MouseTracker-macOS] Started.')
+    return true
   }
 
   stop() {
