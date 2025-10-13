@@ -6,7 +6,7 @@ interface PlayheadProps {
   onMouseDown?: (e: React.MouseEvent<HTMLDivElement>) => void
 }
 
-export const Playhead: React.FC<PlayheadProps> = React.memo(({ height, isDragging, onMouseDown }) => {
+export const Playhead: React.FC<PlayheadProps> = React.memo(({ height, isDragging, onMouseDown }: PlayheadProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
   // Memoize playhead styles
@@ -91,3 +91,5 @@ export const Playhead: React.FC<PlayheadProps> = React.memo(({ height, isDraggin
     </div>
   )
 })
+
+Playhead.displayName = 'Playhead'
