@@ -29,7 +29,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "preview": "vite preview",
-    "postinstall": "electron-rebuild"
+    "postinstall": "electron-builder install-app-deps"
   },
   "dependencies": {
     "@radix-ui/react-collapsible": "^1.1.12",
@@ -165,13 +165,11 @@
       "buildResources": "public"
     }
   },
-  "publish": [
-    {
-      "provider": "github",
-      "owner": "tamnguyenvan",
-      "repo": "screenarc",
-      "draft": false,
-      "releaseType": "release"
-    }
-  ]
+  "publish": {
+    "provider": "github",
+    "owner": "tamnguyenvan",
+    "repo": "screenarc",
+    "releaseType": "release",
+    "draft": false
+  }
 }
