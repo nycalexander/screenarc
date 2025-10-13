@@ -384,7 +384,11 @@ export async function startRecording(options: any) {
     })
     if (!selectedGeometry) return { canceled: true }
 
-    scaleFactor = screen.getPrimaryDisplay().scaleFactor
+    // Determine the correct display and scale factor for the selected area,
+    // instead of always using the primary display's scale factor.
+    const targetDisplay = screen.getDisplayMatching(selectedGeometry)
+    scaleFactor = targetDisplay.scaleFactor
+
     const safeWidth = Math.floor(selectedGeometry.width / 2) * 2
     const safeHeight = Math.floor(selectedGeometry.height / 2) * 2
     recordingGeometry = { x: selectedGeometry.x, y: selectedGeometry.y, width: safeWidth, height: safeHeight }

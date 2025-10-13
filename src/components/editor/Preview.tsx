@@ -1,38 +1,21 @@
 import React, { useEffect, useRef, memo, useState, useCallback } from 'react'
 import { useEditorStore, usePlaybackState } from '../../store/editorStore'
-import { Film, Fullscreen, Shrink } from 'lucide-react'
-import { PauseIcon, PlayIcon, RewindIcon, StepBackIcon, StepForwardIcon } from '../ui/icons'
+import { Film } from 'lucide-react'
+import {
+  PauseIcon,
+  PlayIcon,
+  RewindIcon,
+  StepBackIcon,
+  StepForwardIcon,
+  FullscreenIcon,
+  ExitFullscreenIcon,
+} from '../ui/icons'
 import { useShallow } from 'zustand/react/shallow'
 import { formatTime } from '../../lib/utils'
 import { Slider } from '../ui/slider'
 import { Button } from '../ui/button'
 import { drawScene } from '../../lib/renderer'
 import { cn } from '../../lib/utils'
-
-interface PlayButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  children: React.ReactNode
-}
-
-const PlayButton = React.forwardRef<HTMLButtonElement, PlayButtonProps>(
-  ({ className = '', children, ...props }, ref) => {
-    return (
-      <button
-        ref={ref}
-        className={cn(
-          'inline-flex items-center justify-center h-10 w-10 rounded-full font-medium',
-          'shadow-md hover:shadow-lg transition-colors duration-150',
-          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
-          'bg-primary text-primary-foreground',
-          className,
-        )}
-        {...props}
-      >
-        {children}
-      </button>
-    )
-  },
-)
-PlayButton.displayName = 'PlayButton'
 
 export const Preview = memo(
   ({
@@ -386,9 +369,15 @@ export const Preview = memo(
                 minWidth: isPreviewFullScreen ? 'auto' : 420,
               }}
             >
-              <PlayButton title="Play/Pause (Space)" onClick={togglePlay}>
-                {isPlaying ? <PauseIcon className="w-5 h-5" /> : <PlayIcon className="w-5 h-5 ml-0.5" />}
-              </PlayButton>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={togglePlay}
+                title="Play/Pause (Space)"
+                className="flex-shrink-0 text-foreground hover:text-foreground hover:bg-accent h-10 w-10 rounded-xl transition-all duration-150"
+              >
+                {isPlaying ? <PauseIcon className="w-4 h-4" /> : <PlayIcon className="w-4 h-4 ml-0.5" />}
+              </Button>
               <Button
                 variant="ghost"
                 size="icon"
@@ -437,7 +426,11 @@ export const Preview = memo(
                 onClick={togglePreviewFullScreen}
                 className="flex-shrink-0 text-foreground hover:text-foreground hover:bg-accent h-10 w-10 rounded-xl transition-all duration-150"
               >
-                {isPreviewFullScreen ? <Shrink className="w-4 h-4" /> : <Fullscreen className="w-4 h-4" />}
+                {isPreviewFullScreen ? (
+                  <ExitFullscreenIcon className="w-4 h-4" />
+                ) : (
+                  <FullscreenIcon className="w-4 h-4" />
+                )}
               </Button>
             </div>
           </div>
