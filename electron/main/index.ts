@@ -1,6 +1,6 @@
 // Entry point of the Electron application.
 
-import { app, BrowserWindow, protocol, ProtocolRequest, ProtocolResponse } from 'electron'
+import { app, BrowserWindow, protocol, ProtocolRequest, ProtocolResponse, Menu, screen, dialog } from 'electron'
 import log from 'electron-log/main'
 import path from 'node:path'
 import fsSync from 'node:fs'
@@ -8,8 +8,9 @@ import { VITE_PUBLIC } from './lib/constants'
 import { setupLogging } from './lib/logging'
 import { registerIpcHandlers } from './ipc'
 import { createRecorderWindow } from './windows/recorder-window'
-import { onAppQuit } from './features/recording-manager'
+import { onAppQuit, startRecording, loadVideoFromFile } from './features/recording-manager'
 import { initializeMouseTrackerDependencies } from './features/mouse-tracker'
+import { appState } from './state'
 
 // --- Initialization ---
 setupLogging()
@@ -30,6 +31,63 @@ app.on('activate', () => {
 
 app.whenReady().then(async () => {
   log.info('[App] Ready. Initializing...')
+
+  // Set Dock Menu on macOS
+  if (process.platform === 'darwin') {
+    const dockMenu = Menu.buildFromTemplate([
+      {
+        label: 'New Default Recording',
+        click: () => {
+          if (appState.editorWin && !appState.editorWin.isDestroyed()) {
+            dialog.showErrorBox(
+              'Action Not Allowed',
+              'Please close the current editor session to start a new recording.',
+            )
+            appState.editorWin.focus()
+            return
+          }
+          if (appState.currentRecordingSession) {
+            dialog.showErrorBox('Recording in Progress', 'A recording is already in progress.')
+            return
+          }
+
+          if (!appState.recorderWin || appState.recorderWin.isDestroyed()) {
+            createRecorderWindow()
+          }
+          appState.recorderWin?.show()
+
+          const primaryDisplay = screen.getPrimaryDisplay()
+          startRecording({
+            source: 'fullscreen',
+            displayId: primaryDisplay.id,
+            mic: undefined,
+            webcam: undefined,
+          })
+        },
+      },
+      {
+        label: 'Import Video File...',
+        click: () => {
+          if (appState.editorWin && !appState.editorWin.isDestroyed()) {
+            dialog.showErrorBox('Action Not Allowed', 'Please close the current editor session to import a new video.')
+            appState.editorWin.focus()
+            return
+          }
+          if (appState.currentRecordingSession) {
+            dialog.showErrorBox('Recording in Progress', 'A recording is already in progress.')
+            return
+          }
+
+          if (!appState.recorderWin || appState.recorderWin.isDestroyed()) {
+            createRecorderWindow()
+          }
+          appState.recorderWin?.show()
+          loadVideoFromFile()
+        },
+      },
+    ])
+    app.dock.setMenu(dockMenu)
+  }
 
   // Initialize platform-specific dependencies asynchronously
   initializeMouseTrackerDependencies()

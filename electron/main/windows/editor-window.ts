@@ -13,6 +13,7 @@ import { appState } from '../state'
 import { cleanupOrphanedRecordings } from '../features/recording-manager'
 import { checkForUpdates } from '../features/update-checker'
 import { VITE_DEV_SERVER_URL, RENDERER_DIST, PRELOAD_SCRIPT } from '../lib/constants'
+import { createEditorMenu, clearMenu } from '../features/app-menu'
 
 const store = new Store() // Can be configured with schema if needed
 
@@ -41,6 +42,9 @@ export function createEditorWindow(videoPath: string, metadataPath: string, webc
       webSecurity: !VITE_DEV_SERVER_URL,
     },
   })
+
+  // Set the application menu for the editor window
+  createEditorMenu()
 
   // Add listeners for maximize/unmaximize
   appState.editorWin.on('maximize', () => {
@@ -75,6 +79,8 @@ export function createEditorWindow(videoPath: string, metadataPath: string, webc
   // }
 
   appState.editorWin.on('closed', () => {
+    // Clear the application menu when the editor window is closed
+    clearMenu()
     if (appState.currentEditorSessionFiles) {
       cleanupEditorFiles(appState.currentEditorSessionFiles)
       appState.currentEditorSessionFiles = null
