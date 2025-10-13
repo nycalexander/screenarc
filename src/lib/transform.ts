@@ -98,6 +98,7 @@ export const calculateZoomTransform = (
 
   // --- PAN ---
   else if (effectiveTime >= zoomInEndTime && effectiveTime < zoomOutStartTime) {
+    void frameContentDimensions
     currentScale = zoomLevel
     void frameContentDimensions
 
