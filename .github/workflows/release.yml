@@ -130,7 +130,7 @@ jobs:
           tag: ${{ needs.release.outputs.new_release_tag }}
           overwrite: true
           file_glob: true
-          files: |
+          file: |
             dist/*.AppImage
             dist/*.deb
             dist/*.rpm
