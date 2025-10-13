@@ -1,11 +1,9 @@
-// Main control bar for video playback and timeline editing
 import React from 'react'
 import { Scissors, ZoomIn, Trash2, Undo2, Redo2, FastForward } from 'lucide-react'
 import { useEditorStore } from '../../store/editorStore'
 import type { AspectRatio } from '../../types'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
 import { Slider } from '../ui/slider'
-import { StepBackIcon, StepForwardIcon, RewindIcon, PlayIcon, PauseIcon } from '../ui/icons'
 import { cn } from '../../lib/utils'
 
 interface ToolbarButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -38,44 +36,8 @@ const ToolbarButton = React.forwardRef<HTMLButtonElement, ToolbarButtonProps>(
 )
 ToolbarButton.displayName = 'ToolbarButton'
 
-interface PlayButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  children: React.ReactNode
-}
-
-const PlayButton = React.forwardRef<HTMLButtonElement, PlayButtonProps>(
-  ({ className = '', children, ...props }, ref) => {
-    return (
-      <button
-        ref={ref}
-        className={cn(
-          'inline-flex items-center justify-center h-12 w-12 rounded-full font-medium',
-          'shadow-md hover:shadow-lg transition-colors duration-150',
-          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
-          'bg-primary text-primary-foreground',
-          className,
-        )}
-        {...props}
-      >
-        {children}
-      </button>
-    )
-  },
-)
-PlayButton.displayName = 'PlayButton'
-
-export function PreviewControls({
-  videoRef,
-  onSeekFrame,
-}: {
-  videoRef: React.RefObject<HTMLVideoElement>
-  onSeekFrame: (direction: 'next' | 'prev') => void
-}) {
+export function PreviewControls() {
   const {
-    isPlaying,
-    togglePlay,
-    setCurrentTime,
-    aspectRatio,
-    setAspectRatio,
     addZoomRegion,
     addCutRegion,
     addSpeedRegion,
@@ -83,19 +45,11 @@ export function PreviewControls({
     setTimelineZoom,
     selectedRegionId,
     deleteRegion,
+    aspectRatio,
+    setAspectRatio,
   } = useEditorStore()
 
   const { undo, redo, pastStates, futureStates } = useEditorStore.temporal.getState()
-
-  const handleRewind = () => {
-    const cutRegionsMap = useEditorStore.getState().cutRegions
-    const startTrimRegion = Object.values(cutRegionsMap).find((r) => r.trimType === 'start')
-    const rewindTime = startTrimRegion ? startTrimRegion.startTime + startTrimRegion.duration : 0
-    setCurrentTime(rewindTime)
-    if (videoRef.current) {
-      videoRef.current.currentTime = rewindTime
-    }
-  }
 
   const handleDelete = () => {
     if (selectedRegionId) {
@@ -104,7 +58,7 @@ export function PreviewControls({
   }
 
   return (
-    <div className="relative h-18 bg-card/95 backdrop-blur-xl border-t border-border/60 flex items-center justify-between px-6 shadow-lg">
+    <div className="h-18 bg-card/95 backdrop-blur-xl border-t border-border/60 flex items-center justify-between px-6 shadow-lg">
       <div className="flex items-center gap-4">
         <div className="flex items-center gap-2">
           <ToolbarButton title="Add Zoom Region" onClick={() => addZoomRegion()} disabled={!!selectedRegionId}>
@@ -153,24 +107,6 @@ export function PreviewControls({
             <Slider min={1} max={4} step={0.5} value={timelineZoom} onChange={setTimelineZoom} />
           </div>
         </div>
-      </div>
-
-      {/* Center Playback Controls - spacing lớn hơn */}
-      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center gap-3">
-        <ToolbarButton variant="icon" title="Rewind to Start" onClick={handleRewind}>
-          <RewindIcon className="w-4 h-4" />
-        </ToolbarButton>
-        <ToolbarButton variant="icon" title="Previous Frame (J)" onClick={() => onSeekFrame('prev')}>
-          <StepBackIcon className="w-4 h-4" />
-        </ToolbarButton>
-
-        <PlayButton title="Play/Pause (Space)" onClick={togglePlay}>
-          {isPlaying ? <PauseIcon className="w-5 h-5" /> : <PlayIcon className="w-5 h-5 ml-0.5" />}
-        </PlayButton>
-
-        <ToolbarButton variant="icon" title="Next Frame (K)" onClick={() => onSeekFrame('next')}>
-          <StepForwardIcon className="w-4 h-4" />
-        </ToolbarButton>
       </div>
 
       {/* Right Controls */}

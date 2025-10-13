@@ -1,4 +1,5 @@
-// Main editor page layout with preview, timeline, and controls
+// src/pages/EditorPage.tsx
+
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { useEditorStore } from '../store/editorStore'
 import { Preview } from '../components/editor/Preview'
@@ -179,7 +180,7 @@ export function EditorPage() {
     <main className="h-screen w-screen bg-background flex flex-col overflow-hidden select-none">
       {isPreviewFullScreen ? (
         <div className="w-full h-full flex items-center justify-center bg-black">
-          <Preview videoRef={videoRef} />
+          <Preview videoRef={videoRef} onSeekFrame={handleSeekFrame} />
         </div>
       ) : (
         <>
@@ -240,10 +241,10 @@ export function EditorPage() {
             </div>
             <div className="flex-1 flex flex-col overflow-hidden bg-background">
               <div className="flex-1 flex items-center justify-center p-6 overflow-hidden min-h-0">
-                <Preview videoRef={videoRef} />
+                <Preview videoRef={videoRef} onSeekFrame={handleSeekFrame} />
               </div>
               <div className="flex-shrink-0">
-                <PreviewControls videoRef={videoRef} onSeekFrame={handleSeekFrame} />
+                <PreviewControls />
               </div>
               <div className="h-56 flex-shrink-0 bg-card/60 border-t border-border/50 backdrop-blur-sm overflow-hidden">
                 <Timeline videoRef={videoRef} />

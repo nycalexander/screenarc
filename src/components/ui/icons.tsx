@@ -153,20 +153,19 @@ export const InfoIcon = (props: IconProps) => (
 export const RewindIcon = (props: IconProps) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
-    width={props.size}
-    height={props.size}
+    width={24}
+    height={24}
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"
     strokeWidth={2}
     strokeLinecap="round"
     strokeLinejoin="round"
-    className="icon icon-tabler icons-tabler-outline icon-tabler-player-track-prev"
+    className="lucide lucide-fast-backward-icon"
     {...props}
   >
-    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-    <path d="M21 5v14l-8 -7z" />
-    <path d="M10 5v14l-8 -7z" />
+    <path d="M12 18a2 2 0 0 1-3.414 1.414l-6-6a2 2 0 0 1 0-2.828l6-6A2 2 0 0 1 12 6z" />
+    <path d="M22 18a2 2 0 0 1-3.414 1.414l-6-6a2 2 0 0 1 0-2.828l6-6A2 2 0 0 1 22 6z" />
   </svg>
 )
 
@@ -181,11 +180,10 @@ export const PlayIcon = (props: IconProps) => (
     strokeWidth={2}
     strokeLinecap="round"
     strokeLinejoin="round"
-    className="icon icon-tabler icons-tabler-outline icon-tabler-player-play"
+    className="lucide lucide-play-icon lucide-play"
     {...props}
   >
-    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-    <path d="M7 4v16l13 -8z" />
+    <path d="M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z" />
   </svg>
 )
 
@@ -245,12 +243,11 @@ export const StepBackIcon = (props: IconProps) => (
     strokeWidth={2}
     strokeLinecap="round"
     strokeLinejoin="round"
-    className="icon icon-tabler icons-tabler-outline icon-tabler-player-skip-back"
+    className="lucide lucide-skip-back-icon lucide-skip-back"
     {...props}
   >
-    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-    <path d="M20 5v14l-12 -7z" />
-    <path d="M4 5l0 14" />
+    <path d="M17.971 4.285A2 2 0 0 1 21 6v12a2 2 0 0 1-3.029 1.715l-9.997-5.998a2 2 0 0 1-.003-3.432z" />
+    <path d="M3 20V4" />
   </svg>
 )
 
@@ -265,12 +262,11 @@ export const StepForwardIcon = (props: IconProps) => (
     strokeWidth={2}
     strokeLinecap="round"
     strokeLinejoin="round"
-    className="icon icon-tabler icons-tabler-outline icon-tabler-player-skip-forward"
+    className="lucide lucide-skip-forward-icon lucide-skip-forward"
     {...props}
   >
-    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-    <path d="M4 5v14l12 -7z" />
-    <path d="M20 5l0 14" />
+    <path d="M21 4v16" />
+    <path d="M6.029 4.285A2 2 0 0 0 3 6v12a2 2 0 0 0 3.029 1.715l9.997-5.998a2 2 0 0 0 .003-3.432z" />
   </svg>
 )
 
