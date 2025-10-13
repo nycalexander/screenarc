@@ -99,8 +99,6 @@ export function PreviewControls() {
           </ToolbarButton>
         </div>
 
-        <div className="h-8 w-px bg-border" />
-
         <div className="flex items-center gap-2.5">
           <ZoomIn className="w-4 h-4 text-muted-foreground" />
           <div className="w-24">
