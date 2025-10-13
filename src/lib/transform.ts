@@ -100,6 +100,7 @@ export const calculateZoomTransform = (
   else if (effectiveTime >= zoomInEndTime && effectiveTime < zoomOutStartTime) {
     void frameContentDimensions
     currentScale = zoomLevel
+    void frameContentDimensions
 
     if (mode === 'auto' && metadata.length > 0 && originalVideoDimensions.width > 0) {
       //
