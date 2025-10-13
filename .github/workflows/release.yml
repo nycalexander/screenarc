@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  # --- JOB 1: Create Release using Semantic Release ---
+  # --- JOB 1: Create Release using Semantic Release (KHÔNG THAY ĐỔI) ---
   release:
     name: Semantic Release
     runs-on: ubuntu-latest
@@ -43,7 +43,7 @@ jobs:
 
   # --- JOB 2: Build and Upload Artifacts ---
   build:
-    name: Build, Publish & Upload Artifacts
+    name: Build & Upload Artifacts
     needs: release
     if: needs.release.outputs.new_release_published == 'true'
     strategy:
@@ -63,8 +63,7 @@ jobs:
         with:
           node-version: 22
           cache: 'npm'
-
-      # --- Linux Specific Setup ---
+      
       - name: Install Linux dependencies (Xvfb)
         if: runner.os == 'Linux'
         run: sudo apt-get update && sudo apt-get install -y xvfb
@@ -75,7 +74,6 @@ jobs:
           Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
           echo "DISPLAY=:99" >> $GITHUB_ENV
 
-      # --- Platform Specific Setup ---
       - name: Download and setup FFmpeg (Linux)
         if: runner.os == 'Linux'
         run: |
@@ -94,8 +92,7 @@ jobs:
       - name: Install node-gyp globally (Windows)
         if: runner.os == 'Windows'
         run: npm install -g node-gyp
-
-      # --- Platform Specific Setup ---
+        
       - name: Download and setup FFmpeg (macOS)
         if: runner.os == 'macOS'
         run: |
@@ -107,19 +104,33 @@ jobs:
 
       - name: Install all dependencies
         run: npm ci
-      
+
       - name: Set package.json version
         run: npm version ${{ needs.release.outputs.new_release_version }} --no-git-tag-version
 
-      - name: Build and Publish Application
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build Application
         run: |
           if [ "${{ runner.os }}" == "Linux" ]; then
-            npm run publish-linux-app
+            npm run dist:linux
           elif [ "${{ runner.os }}" == "Windows" ]; then
-            npm run publish-win-app
+            npm run dist:win
           elif [ "${{ runner.os }}" == "macOS" ]; then
-            npm run publish-mac-universal-app
+            npm run dist:mac
           fi
         shell: bash
+
+      - name: Upload Release Assets
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ needs.release.outputs.new_release_tag }}
+          overwrite: true
+          file_glob: true
+          files: |
+            dist/*.AppImage
+            dist/*.deb
+            dist/*.rpm
+            dist/*.zip
+            dist/*.dmg
+            dist/*.exe
+            dist/*.yml
