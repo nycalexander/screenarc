@@ -9,10 +9,8 @@ interface ContextMenuProps {
 }
 
 export function ContextMenu({ isOpen, onClose, position, children }: ContextMenuProps) {
-  // Loại bỏ: if (!isOpen) { return null; }
-
   React.useEffect(() => {
-    // Chỉ thêm listener khi menu được mở để tối ưu hiệu suất
+    // Only add listener when menu is open
     if (!isOpen) {
       return
     }
@@ -24,12 +22,12 @@ export function ContextMenu({ isOpen, onClose, position, children }: ContextMenu
     }
     window.addEventListener('keydown', handleEscape)
 
-    // Cleanup function sẽ chạy khi `isOpen` thay đổi hoặc component unmount
+    // Cleanup function will run when `isOpen` changes or component unmount
     return () => window.removeEventListener('keydown', handleEscape)
-  }, [isOpen, onClose]) // Thêm `isOpen` vào dependency array
+  }, [isOpen, onClose]) // Add `isOpen` to dependency array
 
   return (
-    // Sử dụng class `hidden` để ẩn component thay vì trả về `null`
+    // Use class `hidden` to hide component instead of returning `null`
     <div
       className={cn('context-menu-backdrop', { hidden: !isOpen })}
       onClick={onClose}
@@ -41,7 +39,7 @@ export function ContextMenu({ isOpen, onClose, position, children }: ContextMenu
       <div
         className="context-menu-panel"
         style={{ top: position.y, left: position.x }}
-        onClick={(e) => e.stopPropagation()} // Ngăn click bên trong menu làm đóng menu
+        onClick={(e) => e.stopPropagation()} // Prevent click inside menu from closing it
       >
         {children}
       </div>
@@ -49,10 +47,9 @@ export function ContextMenu({ isOpen, onClose, position, children }: ContextMenu
   )
 }
 
-// Các component con để xây dựng cấu trúc menu
 export const ContextMenuItem = React.forwardRef<
   HTMLButtonElement,
-  React.ButtonHTMLAttributes<HTMLButtonElement> & { inset?: boolean }
+  React.ButtonHTMLAttributes<HTMLButtonElement> & { inset?: boolean; className?: string }
 >(({ className, inset, ...props }, ref) => (
   <button ref={ref} className={cn('context-menu-item', inset && 'pl-8', className)} {...props} />
 ))

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { EASING_MAP } from './easing'
 import { ZoomRegion, MetaDataItem } from '../types'
 
@@ -100,8 +101,8 @@ export const calculateZoomTransform = (
   const transformOrigin = `${fixedOrigin.x * 100}% ${fixedOrigin.y * 100}%`
 
   let currentScale = 1
-  let currentTranslateX = 0
-  let currentTranslateY = 0
+  const currentTranslateX = 0
+  const currentTranslateY = 0
 
   // --- ZOOM-IN ---
   if (effectiveTime >= startTime && effectiveTime < zoomInEndTime) {

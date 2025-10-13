@@ -63,7 +63,7 @@ function FrameSettingsPanel() {
           </div>
           <div>
             <h2 className="text-lg font-semibold text-sidebar-foreground">General Settings</h2>
-            <p className="text-sm text-muted-foreground">Customize your video's appearance</p>
+            <p className="text-sm text-muted-foreground">Customize your video&apos;s appearance</p>
           </div>
         </div>
       </div>

@@ -241,6 +241,7 @@ export async function startRecording(options: any) {
     let screenAccess = systemPreferences.getMediaAccessStatus('screen')
     if (screenAccess === 'not-determined') {
       try {
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
         const iohook = require('iohook-macos')
         const permissions = iohook.checkAccessibilityPermissions()
         screenAccess = permissions.hasPermissions ? 'granted' : 'denied'

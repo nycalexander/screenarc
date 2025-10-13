@@ -37,8 +37,8 @@ export function useKeyboardShortcuts(shortcuts: ShortcutMap, deps: React.Depende
         event.preventDefault()
         shortcuts[shortcutKey](event)
       }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [shortcuts, ...deps],
   )
 
