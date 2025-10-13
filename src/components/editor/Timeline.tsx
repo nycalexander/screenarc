@@ -182,7 +182,7 @@ export function Timeline({ videoRef }: { videoRef: React.RefObject<HTMLVideoElem
             <div className="absolute top-12 left-0 w-full" style={{ height: 'calc(100% - 3rem)' }}>
               {allRegionsToRender.map((region) => {
                 const isSelected = selectedRegionId === region.id
-                const zIndex = isSelected ? 100 : region.zIndex ?? 1
+                const zIndex = isSelected ? 100 : (region.zIndex ?? 1)
 
                 // Common style
                 const regionStyle: React.CSSProperties = {

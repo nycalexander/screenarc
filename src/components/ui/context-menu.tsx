@@ -33,7 +33,10 @@ export function ContextMenu({ isOpen, onClose, position, children }: ContextMenu
     <div
       className={cn('context-menu-backdrop', { hidden: !isOpen })}
       onClick={onClose}
-      onContextMenu={(e) => { e.preventDefault(); onClose(); }}
+      onContextMenu={(e) => {
+        e.preventDefault()
+        onClose()
+      }}
     >
       <div
         className="context-menu-panel"
@@ -56,8 +59,6 @@ export const ContextMenuItem = React.forwardRef<
 ContextMenuItem.displayName = 'ContextMenuItem'
 
 export const ContextMenuDivider = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
-  ({ className, ...props }, ref) => (
-    <div ref={ref} className={cn('context-menu-divider', className)} {...props} />
-  ),
+  ({ className, ...props }, ref) => <div ref={ref} className={cn('context-menu-divider', className)} {...props} />,
 )
 ContextMenuDivider.displayName = 'ContextMenuDivider'

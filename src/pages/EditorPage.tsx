@@ -226,7 +226,7 @@ export function EditorPage() {
                 className={cn(
                   'transition-all duration-300 w-[110px] h-8 font-medium shadow-sm',
                   presetSaveStatus === 'saved' &&
-                  'bg-green-500/15 border border-green-500/30 text-green-600 dark:text-green-400 shadow-green-500/10',
+                    'bg-green-500/15 border border-green-500/30 text-green-600 dark:text-green-400 shadow-green-500/10',
                 )}
               >
                 {getPresetButtonContent()}

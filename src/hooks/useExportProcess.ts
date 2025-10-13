@@ -44,6 +44,7 @@ export const useExportProcess = () => {
       aspectRatio: fullState.aspectRatio,
       zoomRegions: fullState.zoomRegions,
       cutRegions: fullState.cutRegions,
+      speedRegions: fullState.speedRegions, // <-- DÒNG NÀY ĐÃ ĐƯỢC THÊM
       webcamVideoPath: fullState.webcamVideoPath,
       webcamPosition: fullState.webcamPosition,
       webcamStyles: fullState.webcamStyles,

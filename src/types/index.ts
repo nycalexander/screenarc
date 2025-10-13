@@ -105,14 +105,14 @@ export interface CursorImageBitmap extends CursorImageBase {
 
 export interface WebcamPosition {
   pos:
-  | 'top-left'
-  | 'top-center'
-  | 'top-right'
-  | 'bottom-left'
-  | 'bottom-center'
-  | 'bottom-right'
-  | 'left-center'
-  | 'right-center'
+    | 'top-left'
+    | 'top-center'
+    | 'top-right'
+    | 'bottom-left'
+    | 'bottom-center'
+    | 'bottom-right'
+    | 'left-center'
+    | 'right-center'
 }
 
 export interface WebcamStyles {

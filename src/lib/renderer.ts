@@ -14,6 +14,8 @@ type RenderableState = Pick<
   | 'webcamStyles'
   | 'isWebcamVisible'
   | 'zoomRegions'
+  | 'cutRegions'
+  | 'speedRegions'
   | 'metadata'
   | 'recordingGeometry'
   | 'cursorImages'

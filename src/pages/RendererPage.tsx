@@ -1,7 +1,7 @@
 import log from 'electron-log/renderer'
 import { useEffect, useRef } from 'react'
 import { useEditorStore } from '../store/editorStore'
-import { EditorState, EditorActions, CursorTheme, CursorFrame, CursorImageBitmap, SpeedRegion } from '../types'
+import { EditorState, EditorActions, CursorTheme, CursorFrame, CursorImageBitmap } from '../types'
 import { ExportSettings } from '../components/editor/ExportModal'
 import { RESOLUTIONS } from '../lib/constants'
 import { drawScene } from '../lib/renderer'
@@ -100,6 +100,26 @@ const loadBackgroundImage = (
   })
 }
 
+// Create a helper function to wait for the 'seeked' event
+const seekVideo = (video: HTMLVideoElement, time: number): Promise<void> => {
+  return new Promise((resolve, reject) => {
+    const onSeeked = () => {
+      video.removeEventListener('seeked', onSeeked)
+      video.removeEventListener('error', onError)
+      resolve()
+    }
+    const onError = (e: Event) => {
+      video.removeEventListener('seeked', onSeeked)
+      video.removeEventListener('error', onError)
+      reject(new Error(`Video seek failed: ${e}`))
+    }
+
+    video.addEventListener('seeked', onSeeked, { once: true })
+    video.addEventListener('error', onError, { once: true })
+    video.currentTime = time
+  })
+}
+
 export function RendererPage() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
@@ -132,7 +152,6 @@ export function RendererPage() {
 
         useEditorStore.setState(projectState)
 
-        // Regenerate cursor bitmaps within the worker context
         let finalCursorBitmaps = new Map<string, CursorImageBitmap>()
         if (projectState.platform === 'win32' || projectState.platform === 'darwin') {
           if (projectState.cursorTheme) {
@@ -141,7 +160,6 @@ export function RendererPage() {
             if (projectState.platform === 'win32') {
               finalCursorBitmaps = await prepareWindowsCursorBitmaps(projectState.cursorTheme, scale)
             } else {
-              // darwin
               finalCursorBitmaps = await prepareMacOSCursorBitmaps(projectState.cursorTheme, scale)
             }
           } else {
@@ -150,7 +168,6 @@ export function RendererPage() {
             )
           }
         } else {
-          // Linux
           log.info('[RendererPage] Preparing Linux bitmaps from project state.')
           finalCursorBitmaps = await prepareCursorBitmaps(projectState.cursorImages)
         }
@@ -168,15 +185,14 @@ export function RendererPage() {
               reject(new Error(`Failed to load ${source}.`))
             }
 
-            const onCanPlay = () => {
-              const onSeeked = () => {
-                videoElement.removeEventListener('seeked', onSeeked)
+            const onCanPlay = async () => {
+              try {
+                await seekVideo(videoElement, 0)
                 log.info(`[RendererPage] ${source} video is ready and seeked to frame 0.`)
                 resolve()
+              } catch (seekError) {
+                reject(seekError)
               }
-
-              videoElement.addEventListener('seeked', onSeeked, { once: true })
-              videoElement.currentTime = 0
             }
 
             videoElement.addEventListener('canplaythrough', onCanPlay, { once: true })
@@ -214,17 +230,18 @@ export function RendererPage() {
         for (let i = 0; i < totalFrames; i++) {
           const currentTimeForDrawing = sourceVideoTime
 
-          if (currentTimeForDrawing > projectState.duration) {
-            log.warn(`[RendererPage] Attempted to draw past source duration. Stopping.`)
+          if (currentTimeForDrawing > projectState.duration + 0.1) {
+            log.warn(
+              `[RendererPage] Attempted to draw past source duration (${currentTimeForDrawing.toFixed(3)}s > ${projectState.duration.toFixed(3)}s). Stopping.`,
+            )
             break
           }
 
-          // Draw the scene at the current source time
-          await new Promise<void>((resolve) => {
-            video.currentTime = currentTimeForDrawing
-            if (webcamVideo) webcamVideo.currentTime = currentTimeForDrawing
-            requestAnimationFrame(() => resolve())
-          })
+          const seekPromises: Promise<void>[] = [seekVideo(video, currentTimeForDrawing)]
+          if (webcamVideo) {
+            seekPromises.push(seekVideo(webcamVideo, currentTimeForDrawing))
+          }
+          await Promise.all(seekPromises)
 
           await drawScene(
             ctx,
@@ -237,25 +254,19 @@ export function RendererPage() {
             bgImage,
           )
 
-          // Send the frame
           const imageData = ctx.getImageData(0, 0, outputWidth, outputHeight)
           const frameBuffer = Buffer.from(imageData.data.buffer)
           const progress = Math.round((i / totalFrames) * 100)
           window.electronAPI.sendFrameToMain({ frame: frameBuffer, progress })
           framesSent++
 
-          // Now, calculate the source time for the *next* frame
-          // Determine speed at current source time
           const activeSpeedRegion = Object.values(projectState.speedRegions).find(
             (r) => sourceVideoTime >= r.startTime && sourceVideoTime < r.startTime + r.duration,
           )
           const currentSpeed = activeSpeedRegion ? activeSpeedRegion.speed : 1
 
-          // Advance source time by one output frame's worth, adjusted for speed
           sourceVideoTime += timePerFrame * currentSpeed
 
-          // Handle cut regions. If the new source time is inside one, jump to its end.
-          // This needs to be a loop in case of adjacent cut regions.
           let inCutRegion = true
           while (inCutRegion) {
             const activeCutRegion = Object.values(projectState.cutRegions).find(
