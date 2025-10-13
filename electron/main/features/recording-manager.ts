@@ -13,7 +13,7 @@ import { createMouseTracker } from './mouse-tracker'
 import { getCursorScale, restoreOriginalCursorScale, resetCursorScale } from './cursor-manager'
 import { createEditorWindow, cleanupEditorFiles } from '../windows/editor-window'
 import { createSavingWindow, createSelectionWindow } from '../windows/temporary-windows'
-import type { RecordingSession } from '../state'
+import type { RecordingSession, RecordingGeometry } from '../state'
 
 const FFMPEG_PATH = getFFmpegPath()
 
@@ -56,27 +56,18 @@ async function validateRecordingFiles(session: RecordingSession): Promise<boolea
   return true
 }
 
-interface RecordingGeometry {
-  x: number
-  y: number
-  width: number
-  height: number
-}
-
 /**
  * The core function that spawns FFmpeg and the mouse tracker to begin recording.
  * @param inputArgs - Platform-specific FFmpeg input arguments.
  * @param hasWebcam - Flag indicating if webcam recording is enabled.
  * @param hasMic - Flag indicating if microphone recording is enabled.
  * @param recordingGeometry - The logical dimensions and position of the recording area.
- * @param scaleFactor - The display scale factor for coordinate conversion.
  */
 async function startActualRecording(
   inputArgs: string[],
   hasWebcam: boolean,
   hasMic: boolean,
   recordingGeometry: RecordingGeometry,
-  scaleFactor: number,
 ) {
   const recordingDir = path.join(process.env.HOME || process.env.USERPROFILE || '.', '.screenarc')
   await ensureDirectoryExists(recordingDir)
@@ -86,7 +77,8 @@ async function startActualRecording(
   const webcamVideoPath = hasWebcam ? path.join(recordingDir, `${baseName}-webcam.mp4`) : undefined
   const metadataPath = path.join(recordingDir, `${baseName}.json`)
 
-  appState.currentRecordingSession = { screenVideoPath, webcamVideoPath, metadataPath }
+  // Store recordingGeometry in the session
+  appState.currentRecordingSession = { screenVideoPath, webcamVideoPath, metadataPath, recordingGeometry }
   appState.recorderWin?.hide()
 
   // Reset state for the new session
@@ -98,18 +90,10 @@ async function startActualRecording(
 
   if (appState.mouseTracker) {
     appState.mouseTracker.on('data', (data: any) => {
-      // Coordinate Conversion:
-      // 1. Native APIs (macOS, Windows) provide physical pixel coordinates.
-      // 2. Electron and FFmpeg operate on logical (scaled) coordinates.
-      // 3. We must divide by the scaleFactor to normalize the coordinates.
-      // 4. We then make the coordinates relative to the recording area's top-left corner.
-      const scaledX = data.x / scaleFactor
-      const scaledY = data.y / scaleFactor
-
       const relativeEvent = {
         ...data,
-        x: scaledX - recordingGeometry.x,
-        y: scaledY - recordingGeometry.y,
+        x: data.x - recordingGeometry.x,
+        y: data.y - recordingGeometry.y,
         timestamp: data.timestamp - appState.recordingStartTime,
       }
       appState.recordedMouseEvents.push(relativeEvent)
@@ -291,7 +275,6 @@ export async function startRecording(options: any) {
   const display = process.env.DISPLAY || ':0.0'
   const baseFfmpegArgs: string[] = []
   let recordingGeometry: RecordingGeometry
-  let scaleFactor = 1
 
   // --- Add Microphone and Webcam inputs first ---
   if (mic) {
@@ -325,7 +308,6 @@ export async function startRecording(options: any) {
   if (source === 'fullscreen') {
     const allDisplays = screen.getAllDisplays()
     const targetDisplay = allDisplays.find((d) => d.id === displayId) || screen.getPrimaryDisplay()
-    scaleFactor = targetDisplay.scaleFactor
     const { x, y, width, height } = targetDisplay.bounds
     const safeWidth = Math.floor(width / 2) * 2
     const safeHeight = Math.floor(height / 2) * 2
@@ -384,11 +366,6 @@ export async function startRecording(options: any) {
     })
     if (!selectedGeometry) return { canceled: true }
 
-    // Determine the correct display and scale factor for the selected area,
-    // instead of always using the primary display's scale factor.
-    const targetDisplay = screen.getDisplayMatching(selectedGeometry)
-    scaleFactor = targetDisplay.scaleFactor
-
     const safeWidth = Math.floor(selectedGeometry.width / 2) * 2
     const safeHeight = Math.floor(selectedGeometry.height / 2) * 2
     recordingGeometry = { x: selectedGeometry.x, y: selectedGeometry.y, width: safeWidth, height: safeHeight }
@@ -431,8 +408,8 @@ export async function startRecording(options: any) {
   if (process.platform === 'linux') {
     appState.originalCursorScale = await getCursorScale()
   }
-  log.info('[RecordingManager] Starting actual recording with args:', baseFfmpegArgs, 'scaleFactor:', scaleFactor)
-  return startActualRecording(baseFfmpegArgs, !!webcam, !!mic, recordingGeometry, scaleFactor)
+  log.info('[RecordingManager] Starting actual recording with args:', baseFfmpegArgs)
+  return startActualRecording(baseFfmpegArgs, !!webcam, !!mic, recordingGeometry)
 }
 
 /**
@@ -496,7 +473,7 @@ async function cleanupAndSave(): Promise<void> {
   }
 
   if (appState.currentRecordingSession) {
-    const { metadataPath } = appState.currentRecordingSession
+    const { metadataPath, recordingGeometry } = appState.currentRecordingSession
     const primaryDisplay = screen.getPrimaryDisplay()
 
     // Calculate the sync offset: the time between recording start and FFmpeg's first frame.
@@ -516,7 +493,7 @@ async function cleanupAndSave(): Promise<void> {
     const finalMetadata = {
       platform: process.platform,
       screenSize: primaryDisplay.size,
-      geometry: { width: primaryDisplay.bounds.width, height: primaryDisplay.bounds.height },
+      geometry: recordingGeometry,
       syncOffset: 0,
       cursorImages: Object.fromEntries(appState.runtimeCursorImageMap || []),
       events: finalEvents,
@@ -592,7 +569,7 @@ export async function cleanupOrphanedRecordings() {
     Object.values(appState.currentEditorSessionFiles).forEach((file) => file && protectedFiles.add(file))
   }
   if (appState.currentRecordingSession) {
-    Object.values(appState.currentRecordingSession).forEach((file) => file && protectedFiles.add(file))
+    Object.values(appState.currentRecordingSession).forEach((file) => file && protectedFiles.add(String(file)))
   }
 
   try {
@@ -682,7 +659,13 @@ export async function loadVideoFromFile() {
       'utf-8',
     )
 
-    const session: RecordingSession = { screenVideoPath, metadataPath, webcamVideoPath: undefined }
+    // A "fake" geometry is needed for imported videos. It will match the video dimensions.
+    const session: RecordingSession = {
+      screenVideoPath,
+      metadataPath,
+      webcamVideoPath: undefined,
+      recordingGeometry: { x: 0, y: 0, width: 0, height: 0 },
+    }
     const isValid = await validateRecordingFiles(session)
     if (!isValid) {
       await cleanupEditorFiles(session)

@@ -5,10 +5,19 @@ import { BrowserWindow, Tray } from 'electron'
 import { ChildProcessWithoutNullStreams } from 'node:child_process'
 import type { IMouseTracker } from './features/mouse-tracker'
 
+// ADDED: Define RecordingGeometry type here for better reusability
+export interface RecordingGeometry {
+  x: number
+  y: number
+  width: number
+  height: number
+}
+
 export interface RecordingSession {
   screenVideoPath: string
   metadataPath: string
   webcamVideoPath?: string
+  recordingGeometry: RecordingGeometry
 }
 
 interface AppState {
@@ -53,7 +62,8 @@ export const appState: AppState = {
   recordedMouseEvents: [],
   runtimeCursorImageMap: new Map(),
   recordingStartTime: 0,
-  ffmpegFirstFrameTime: null, // ADDED: Initial value
+  ffmpegFirstFrameTime: null,
+
   originalCursorScale: null,
   currentRecordingSession: null,
   currentEditorSessionFiles: null,
