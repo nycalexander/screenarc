@@ -33,13 +33,7 @@ export function CursorSettings() {
     setPostProcessingCursorScale(value)
   }
 
-  if (platform !== 'win32' && platform !== 'darwin') {
-    return (
-      <div className="p-6 text-center text-sm text-muted-foreground">
-        <p>Cursor scaling is only available on Windows and macOS in the editor.</p>
-      </div>
-    )
-  }
+  const isLinux = platform !== 'win32' && platform !== 'darwin'
 
   return (
     <div className="h-full flex flex-col">
@@ -64,17 +58,31 @@ export function CursorSettings() {
           defaultOpen={true}
         >
           <div className="space-y-3">
-            <label className="text-sm font-medium text-sidebar-foreground">Scale</label>
-            <div className="grid grid-cols-3 gap-1 p-1 bg-muted/50 rounded-lg">
+            {isLinux && (
+              <div className="bg-yellow-500/10 border border-yellow-500/30 text-yellow-600 dark:text-yellow-400 text-sm p-3 rounded-md mb-3">
+                Cursor scaling is only available on Windows and macOS. These settings will not affect the exported video on Linux.
+              </div>
+            )}
+            <label className="text-sm font-medium text-sidebar-foreground flex items-center gap-2">
+              Scale
+              {isLinux && <span className="text-xs px-2 py-0.5 bg-muted text-muted-foreground rounded-md">Not available</span>}
+            </label>
+            <div className={cn(
+              'grid grid-cols-3 gap-1 p-1 rounded-lg',
+              isLinux ? 'opacity-50 cursor-not-allowed' : 'bg-muted/50'
+            )}>
               {POST_PROCESSING_SCALES.map((scale) => (
                 <button
                   key={scale.value}
-                  onClick={() => handleCursorScaleChange(scale.value)}
+                  onClick={isLinux ? undefined : () => handleCursorScaleChange(scale.value)}
+                  disabled={isLinux}
                   className={cn(
-                    'py-2 text-sm font-medium rounded-md transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+                    'py-2 text-sm font-medium rounded-md transition-colors duration-200',
+                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
                     cursorScale === scale.value
                       ? 'bg-background shadow-sm text-foreground'
                       : 'text-muted-foreground hover:text-foreground',
+                    isLinux && 'cursor-not-allowed hover:text-muted-foreground',
                   )}
                 >
                   {scale.label}
@@ -82,7 +90,9 @@ export function CursorSettings() {
               ))}
             </div>
             <p className="text-xs text-muted-foreground pt-2">
-              This only affects the final exported video, not your system cursor.
+              {isLinux 
+                ? 'Cursor scaling is not available on Linux. The cursor will be captured at its default size.'
+                : 'This only affects the final exported video, not your system cursor.'}
             </p>
           </div>
         </Collapse>
