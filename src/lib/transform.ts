@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { EASING_MAP } from './easing'
 import { ZoomRegion, MetaDataItem } from '../types'
 
