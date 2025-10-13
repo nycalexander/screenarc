@@ -19,7 +19,6 @@ jobs:
       new_release_published: ${{ steps.semantic.outputs.new_release_published }}
       new_release_version: ${{ steps.semantic.outputs.new_release_version }}
       new_release_tag: ${{ steps.semantic.outputs.new_release_tag }}
-      upload_url: ${{ steps.get_release.outputs.upload_url }}
 
     steps:
       - name: Checkout
@@ -31,6 +30,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: 'npm'
 
       - name: Install dependencies
         run: npm ci
@@ -38,15 +38,6 @@ jobs:
       - name: Run Semantic Release
         id: semantic
         uses: cycjimmy/semantic-release-action@v4
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Get release upload URL
-        if: steps.semantic.outputs.new_release_published == 'true'
-        id: get_release
-        run: |
-          release_url=$(gh api repos/${{ github.repository }}/releases/tags/${{ steps.semantic.outputs.new_release_tag }} --jq '.upload_url')
-          echo "upload_url=${release_url}" >> $GITHUB_OUTPUT
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -85,6 +76,7 @@ jobs:
           Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
           echo "DISPLAY=:99" >> $GITHUB_ENV
 
+      # --- Platform Specific Setup ---
       - name: Download and setup FFmpeg (Linux)
         if: runner.os == 'Linux'
         run: |
@@ -93,7 +85,6 @@ jobs:
           chmod +x binaries/linux/ffmpeg
         shell: bash
 
-      # --- Windows Specific Setup ---
       - name: Download and setup FFmpeg (Windows)
         if: runner.os == 'Windows'
         run: |
@@ -105,7 +96,6 @@ jobs:
         if: runner.os == 'Windows'
         run: npm install -g node-gyp
 
-      # --- macOS Specific Setup ---
       - name: Download and setup FFmpeg (macOS)
         if: runner.os == 'macOS'
         run: |
@@ -119,54 +109,42 @@ jobs:
         run: npm ci
 
       # --- Build Step (Platform-specific) ---
-      - name: Build App (Linux)
-        if: runner.os == 'Linux'
-        run: npm run dist:linux
+      - name: Build App
+        run: |
+          if [ "${{ runner.os }}" == "Linux" ]; then
+            npm run dist:linux
+          elif [ "${{ runner.os }}" == "Windows" ]; then
+            npm run dist:win
+          elif [ "${{ runner.os }}" == "macOS" ]; then
+            npm run dist:mac
+          fi
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
 
-      - name: Build App (Windows)
-        if: runner.os == 'Windows'
-        run: npm run dist:win
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Prepare asset information
+        id: prep_asset
+        shell: bash
+        run: |
+          VERSION=${{ needs.release.outputs.new_release_version }}
+          if [ "${{ runner.os }}" == "Linux" ]; then
+            ASSET_PATH="./dist/ScreenArc-${VERSION}-linux-x64.AppImage"
+            ASSET_NAME="ScreenArc-${VERSION}-linux-x64.AppImage"
+          elif [ "${{ runner.os }}" == "Windows" ]; then
+            # Chuẩn hóa tên file, thay khoảng trắng bằng gạch ngang
+            ASSET_PATH="./dist/ScreenArc Setup ${VERSION}.exe"
+            ASSET_NAME="ScreenArc-Setup-${VERSION}.exe"
+          elif [ "${{ runner.os }}" == "macOS" ]; then
+            ASSET_PATH="./dist/ScreenArc-${VERSION}.dmg"
+            ASSET_NAME="ScreenArc-${VERSION}-macOS-Universal.dmg"
+          fi
+          echo "ASSET_PATH=${ASSET_PATH}" >> $GITHUB_OUTPUT
+          echo "ASSET_NAME=${ASSET_NAME}" >> $GITHUB_OUTPUT
 
-      - name: Build App (macOS)
-        if: runner.os == 'macOS'
-        run: npm run dist:mac
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      # --- Upload Step (Platform-specific) ---
-      - name: Upload Linux Asset
-        if: runner.os == 'Linux'
-        uses: actions/upload-release-asset@v1
-        with:
-          upload_url: ${{ needs.release.outputs.upload_url }}
-          asset_path: ./dist/ScreenArc-${{ needs.release.outputs.new_release_version }}-linux-x64.AppImage
-          asset_name: ScreenArc-${{ needs.release.outputs.new_release_version }}-linux-x64.AppImage
-          asset_content_type: application/octet-stream
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Upload Windows Asset
-        if: runner.os == 'Windows'
-        uses: actions/upload-release-asset@v1
-        with:
-          upload_url: ${{ needs.release.outputs.upload_url }}
-          asset_path: ./dist/ScreenArc Setup ${{ needs.release.outputs.new_release_version }}.exe
-          asset_name: ScreenArc-Setup-${{ needs.release.outputs.new_release_version }}.exe
-          asset_content_type: application/octet-stream
+      - name: Upload Release Asset
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Upload macOS Asset
-        if: runner.os == 'macOS'
-        uses: actions/upload-release-asset@v1
-        with:
-          upload_url: ${{ needs.release.outputs.upload_url }}
-          asset_path: ./dist/ScreenArc-${{ needs.release.outputs.new_release_version }}.dmg
-          asset_name: ScreenArc-${{ needs.release.outputs.new_release_version }}-macOS-Universal.dmg
-          asset_content_type: application/x-apple-diskimage
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: >
+          gh release upload ${{ needs.release.outputs.new_release_tag }}
+          "${{ steps.prep_asset.outputs.ASSET_PATH }}"
+          --clobber
