@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { EASING_MAP } from './easing'
 import { ZoomRegion, MetaDataItem } from '../types'
 
@@ -98,6 +97,7 @@ export const calculateZoomTransform = (
 
   // --- PAN ---
   else if (effectiveTime >= zoomInEndTime && effectiveTime < zoomOutStartTime) {
+    void frameContentDimensions
     currentScale = zoomLevel
     void frameContentDimensions
 
