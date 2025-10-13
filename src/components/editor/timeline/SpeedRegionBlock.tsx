@@ -97,10 +97,7 @@ export const SpeedRegionBlock = memo(
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none px-3">
             <div className="flex items-center gap-2 overflow-hidden">
               <FastForward
-                className={cn(
-                  'w-4 h-4 shrink-0 transition-colors text-speed-accent',
-                  !isSelected && 'opacity-70',
-                )}
+                className={cn('w-4 h-4 shrink-0 transition-colors text-speed-accent', !isSelected && 'opacity-70')}
               />
               <span
                 className={cn(

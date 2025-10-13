@@ -1,8 +1,10 @@
 // Handlers for desktop-related IPC (displays, sources, cursor).
 
-import { IpcMainEvent, IpcMainInvokeEvent, screen, dialog } from 'electron'
+import { IpcMainEvent, IpcMainInvokeEvent, screen, dialog, app } from 'electron'
 import { exec } from 'node:child_process'
 import log from 'electron-log/main'
+import fs from 'node:fs/promises'
+import path from 'node:path'
 import { getFFmpegPath, getBinaryPath } from '../../lib/utils'
 import { getCursorScale, setCursorScale } from '../../features/cursor-manager'
 import { loadCursorThemeFromFile } from '../../lib/cursor-theme-parser'
@@ -94,14 +96,47 @@ export async function getDshowDevices(): Promise<{
   })
 }
 
-export async function loadCursorTheme(_event: IpcMainInvokeEvent): Promise<CursorTheme | null> {
-  log.info('[IPC] Received request to parse cursor.theme')
+export async function getCursorThemes(): Promise<string[]> {
+  if (process.platform !== 'win32' && process.platform !== 'darwin') {
+    return []
+  }
+  log.info('[IPC] Received request to get cursor themes')
   try {
-    const cursorThemePath = getBinaryPath('cursor.theme')
+    const platform = process.platform === 'win32' ? 'windows' : 'darwin'
+    let themesDir: string
+
+    if (app.isPackaged) {
+      themesDir = path.join(process.resourcesPath, 'app.asar.unpacked', 'binaries', platform, 'cursor-themes')
+    } else {
+      themesDir = path.join(process.env.APP_ROOT!, 'binaries', platform, 'cursor-themes')
+    }
+
+    const files = await fs.readdir(themesDir)
+    const themeNames = files.filter((file) => file.endsWith('.theme')).map((file) => path.parse(file).name)
+    log.info(`[IPC] Found cursor themes: ${themeNames.join(', ')}`)
+    return themeNames
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
+      log.error('[IPC] Failed to list cursor themes:', error)
+    } else {
+      log.warn('[IPC] Cursor themes directory not found.')
+    }
+    return ['default'] // Always return at least default if an error occurs
+  }
+}
+
+export async function loadCursorTheme(
+  _event: IpcMainInvokeEvent,
+  themeName: string | undefined,
+): Promise<CursorTheme | null> {
+  const themeToLoad = themeName || 'default'
+  log.info(`[IPC] Received request to parse cursor theme: ${themeToLoad}`)
+  try {
+    const cursorThemePath = getBinaryPath(path.join('cursor-themes', `${themeToLoad}.theme`))
     const cursorTheme = await loadCursorThemeFromFile(cursorThemePath)
     return cursorTheme
   } catch (error) {
-    log.error('[IPC] Failed to parse cursor theme file:', error)
+    log.error(`[IPC] Failed to parse cursor theme file '${themeToLoad}.theme':`, error)
     return null
   }
 }

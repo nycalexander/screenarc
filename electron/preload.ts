@@ -72,6 +72,9 @@ type DshowDevice = {
   alternativeName: string
 }
 
+// --- Cursor Theme ---
+type CursorTheme = any
+
 // Define API to be exposed to window object
 export const electronAPI = {
   // --- Recording ---
@@ -172,7 +175,9 @@ export const electronAPI = {
   getSetting: <T = any>(key: string): Promise<T> => ipcRenderer.invoke('settings:get', key),
   setSetting: (key: string, value: unknown): void => ipcRenderer.send('settings:set', key, value),
   getPath: (name: 'home' | 'userData' | 'desktop'): Promise<string> => ipcRenderer.invoke('app:getPath', name),
-  loadCursorTheme: (): Promise<any | null> => ipcRenderer.invoke('desktop:load-cursor-theme'),
+  getCursorThemes: (): Promise<string[]> => ipcRenderer.invoke('desktop:get-cursor-themes'),
+  loadCursorTheme: (themeName?: string): Promise<CursorTheme | null> =>
+    ipcRenderer.invoke('desktop:load-cursor-theme', themeName),
   mapCursorNameToIDC: (name: string): Promise<string> => ipcRenderer.invoke('desktop:map-cursor-name-to-idc', name),
 
   // --- Window Controls ---

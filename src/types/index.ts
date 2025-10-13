@@ -157,6 +157,7 @@ export interface ProjectActions {
   setDuration: (duration: number) => void
   resetProjectState: () => void
   setPostProcessingCursorScale: (scale: number) => Promise<void>
+  reloadCursorTheme: (themeName: string) => Promise<void>
 }
 
 export interface PlaybackState {
@@ -240,12 +241,14 @@ export interface UIState {
   theme: string
   mode: 'light' | 'dark'
   isPreviewFullScreen: boolean
+  cursorThemeName: string
 }
 export interface UIActions {
   setTheme: (theme: string) => void
   toggleMode: () => void
   initializeSettings: () => Promise<void>
   togglePreviewFullScreen: () => void
+  setCursorThemeName: (themeName: string) => void
 }
 
 export interface AudioState {

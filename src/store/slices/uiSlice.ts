@@ -4,6 +4,7 @@ export const initialUIState: UIState = {
   theme: 'ocean-slate', // Default theme
   mode: 'light',
   isPreviewFullScreen: false,
+  cursorThemeName: 'default',
 }
 
 export const createUISlice: Slice<UIState, UIActions> = (set, get) => ({
@@ -23,9 +24,11 @@ export const createUISlice: Slice<UIState, UIActions> = (set, get) => ({
   },
   initializeSettings: async () => {
     try {
-      const appearance = await window.electronAPI.getSetting<{ themeName: string; mode: 'light' | 'dark' }>(
-        'appearance',
-      )
+      const appearance = await window.electronAPI.getSetting<{
+        themeName: string
+        mode: 'light' | 'dark'
+        cursorThemeName: string
+      }>('appearance')
       if (appearance?.themeName) {
         set((state) => {
           state.theme = appearance.themeName
@@ -36,6 +39,11 @@ export const createUISlice: Slice<UIState, UIActions> = (set, get) => ({
           state.mode = appearance.mode
         })
       }
+      if (appearance?.cursorThemeName) {
+        set((state) => {
+          state.cursorThemeName = appearance.cursorThemeName
+        })
+      }
     } catch (error) {
       console.error('Could not load app settings:', error)
     }
@@ -44,4 +52,10 @@ export const createUISlice: Slice<UIState, UIActions> = (set, get) => ({
     set((state) => {
       state.isPreviewFullScreen = !state.isPreviewFullScreen
     }),
+  setCursorThemeName: (themeName: string) => {
+    set((state) => {
+      state.cursorThemeName = themeName
+    })
+    window.electronAPI.setSetting('appearance.cursorThemeName', themeName)
+  },
 })

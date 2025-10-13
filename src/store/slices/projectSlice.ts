@@ -217,8 +217,10 @@ export const createProjectSlice: Slice<ProjectState, ProjectActions> = (set, get
         recalculateCanvasDimensions(state)
       })
 
+      const themeNameToLoad = get().cursorThemeName || 'default'
+
       if (platform === 'win32') {
-        const cursorTheme = await window.electronAPI.loadCursorTheme()
+        const cursorTheme = await window.electronAPI.loadCursorTheme(themeNameToLoad)
         if (cursorTheme) {
           const scale = (await window.electronAPI.getSetting<number>('recorder.cursorScale')) || 2
           const bitmaps = await prepareWindowsCursorBitmaps(cursorTheme, scale)
@@ -228,7 +230,7 @@ export const createProjectSlice: Slice<ProjectState, ProjectActions> = (set, get
           })
         }
       } else if (platform === 'darwin') {
-        const cursorTheme = await window.electronAPI.loadCursorTheme()
+        const cursorTheme = await window.electronAPI.loadCursorTheme(themeNameToLoad)
         if (cursorTheme) {
           const scale = (await window.electronAPI.getSetting<number>('recorder.cursorScale')) || 2
           const bitmaps = await prepareMacOSCursorBitmaps(cursorTheme, scale)
@@ -280,6 +282,29 @@ export const createProjectSlice: Slice<ProjectState, ProjectActions> = (set, get
       state.currentTime = 0
       state.isPlaying = false
     })
+  },
+  reloadCursorTheme: async (themeName: string) => {
+    const { platform } = get()
+    if (platform !== 'win32' && platform !== 'darwin') return
+
+    set((state) => {
+      state.cursorBitmapsToRender = new Map() // Clear old bitmaps
+    })
+
+    const cursorTheme = await window.electronAPI.loadCursorTheme(themeName)
+    if (cursorTheme) {
+      const scale = (await window.electronAPI.getSetting<number>('recorder.cursorScale')) || 2
+      let bitmaps: Map<string, CursorImageBitmap>
+      if (platform === 'win32') {
+        bitmaps = await prepareWindowsCursorBitmaps(cursorTheme, scale)
+      } else {
+        bitmaps = await prepareMacOSCursorBitmaps(cursorTheme, scale)
+      }
+      set((state) => {
+        state.cursorTheme = cursorTheme
+        state.cursorBitmapsToRender = bitmaps
+      })
+    }
   },
   setPostProcessingCursorScale: async (scale) => {
     const { platform, cursorTheme } = get()

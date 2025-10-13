@@ -40,21 +40,12 @@ export const ZoomRegionBlock = memo(
           className="absolute left-0 top-0 w-5 h-full cursor-ew-resize rounded-l-xl flex items-center justify-center z-10 group"
           onMouseDown={(e) => handleResizeMouseDown(e, 'resize-left')}
         >
-          <div
-            className={cn(
-              'w-1 h-8 rounded-full transition-all duration-150 bg-primary group-hover:h-10',
-            )}
-          />
+          <div className={cn('w-1 h-8 rounded-full transition-all duration-150 bg-primary group-hover:h-10')} />
         </div>
 
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none px-3">
           <div className="flex items-center gap-2.5 overflow-hidden">
-            <Search
-              className={cn(
-                'w-5 h-5 shrink-0 transition-colors',
-                'text-primary',
-              )}
-            />
+            <Search className={cn('w-5 h-5 shrink-0 transition-colors', 'text-primary')} />
             <span
               className={cn(
                 'text-xs font-semibold tracking-wide select-none whitespace-nowrap overflow-hidden text-ellipsis transition-colors',
@@ -70,11 +61,7 @@ export const ZoomRegionBlock = memo(
           className="absolute right-0 top-0 w-5 h-full cursor-ew-resize rounded-xl flex items-center justify-center z-10 group"
           onMouseDown={(e) => handleResizeMouseDown(e, 'resize-right')}
         >
-          <div
-            className={cn(
-              'w-1 h-8 rounded-full transition-all duration-150 bg-primary group-hover:h-10',
-            )}
-          />
+          <div className={cn('w-1 h-8 rounded-full transition-all duration-150 bg-primary group-hover:h-10')} />
         </div>
       </div>
     )

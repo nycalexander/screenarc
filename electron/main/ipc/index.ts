@@ -27,6 +27,7 @@ export function registerIpcHandlers() {
   ipcMain.handle('dialog:showSaveDialog', desktopHandlers.showSaveDialog)
   ipcMain.handle('video:get-frame', desktopHandlers.getVideoFrame)
 
+  ipcMain.handle('desktop:get-cursor-themes', desktopHandlers.getCursorThemes)
   ipcMain.handle('desktop:load-cursor-theme', desktopHandlers.loadCursorTheme)
   ipcMain.handle('desktop:map-cursor-name-to-idc', desktopHandlers.handleMapCursorNameToIDC)
 
