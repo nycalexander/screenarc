@@ -22,13 +22,20 @@ export function getBinaryPath(name: string): string {
 
 export function getFFmpegPath(): string {
   const name = 'ffmpeg'
-  const platform = process.platform === 'win32' ? 'windows' : process.platform === 'darwin' ? 'darwin' : 'linux'
 
-  // On Windows, most binaries have a .exe, but DLLs don't.
-  const executableName = platform === 'windows' ? `${name}.exe` : name
-  const finalName = platform === 'linux' ? name.replace(/\..*$/, '') : executableName
+  if (process.platform === 'darwin') {
+    const arch = process.arch // Will be 'arm64' for Apple Silicon or 'x64' for Intel
+    const archSpecificName = arch === 'arm64' ? `${name}-arm64` : `${name}-x64`
+    log.info(`[FFmpeg] Selecting macOS binary for ${arch} architecture: ${archSpecificName}`)
+    return getBinaryPath(archSpecificName)
+  }
 
-  return getBinaryPath(finalName)
+  if (process.platform === 'win32') {
+    return getBinaryPath(`${name}.exe`)
+  }
+
+  // Default for Linux
+  return getBinaryPath(name)
 }
 
 export async function ensureDirectoryExists(dirPath: string) {
