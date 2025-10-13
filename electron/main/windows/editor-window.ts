@@ -31,7 +31,7 @@ export function createEditorWindow(
     height: number
   }
 
-  appState.currentEditorSessionFiles = { screenVideoPath: videoPath, metadataPath, webcamVideoPath, recordingGeometry }
+  appState.currentEditorSessionFiles = { screenVideoPath: videoPath, metadataPath, recordingGeometry, webcamVideoPath }
   log.info('[EditorWindow] Stored session files for cleanup:', appState.currentEditorSessionFiles)
 
   appState.editorWin = new BrowserWindow({

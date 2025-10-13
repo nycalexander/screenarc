@@ -1,3 +1,5 @@
+// START OF FILE electron_main_features_recording-manager.ts
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // Contains core business logic for recording, stopping, and cleanup.
 
