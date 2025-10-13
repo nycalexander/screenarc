@@ -19,7 +19,7 @@ jobs:
       new_release_published: ${{ steps.semantic.outputs.new_release_published }}
       new_release_version: ${{ steps.semantic.outputs.new_release_version }}
       new_release_tag: ${{ steps.semantic.outputs.new_release_tag }}
-      upload_url: ${{ steps.semantic.outputs.upload_url }}
+      upload_url: ${{ steps.get_release.outputs.upload_url }}
 
     steps:
       - name: Checkout
@@ -38,6 +38,15 @@ jobs:
       - name: Run Semantic Release
         id: semantic
         uses: cycjimmy/semantic-release-action@v4
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Get release upload URL
+        if: steps.semantic.outputs.new_release_published == 'true'
+        id: get_release
+        run: |
+          release_url=$(gh api repos/${{ github.repository }}/releases/tags/${{ steps.semantic.outputs.new_release_tag }} --jq '.upload_url')
+          echo "upload_url=${release_url}" >> $GITHUB_OUTPUT
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
