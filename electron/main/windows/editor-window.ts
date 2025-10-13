@@ -14,10 +14,16 @@ import { cleanupOrphanedRecordings } from '../features/recording-manager'
 import { checkForUpdates } from '../features/update-checker'
 import { VITE_DEV_SERVER_URL, RENDERER_DIST, PRELOAD_SCRIPT } from '../lib/constants'
 import { createEditorMenu, clearMenu } from '../features/app-menu'
+import { RecordingGeometry } from '../state'
 
 const store = new Store() // Can be configured with schema if needed
 
-export function createEditorWindow(videoPath: string, metadataPath: string, webcamVideoPath?: string) {
+export function createEditorWindow(
+  videoPath: string,
+  metadataPath: string,
+  recordingGeometry: RecordingGeometry,
+  webcamVideoPath?: string,
+) {
   const bounds = store.get('windowBounds', { width: 1280, height: 800 }) as {
     x?: number
     y?: number
@@ -25,7 +31,7 @@ export function createEditorWindow(videoPath: string, metadataPath: string, webc
     height: number
   }
 
-  appState.currentEditorSessionFiles = { screenVideoPath: videoPath, metadataPath, webcamVideoPath }
+  appState.currentEditorSessionFiles = { screenVideoPath: videoPath, metadataPath, recordingGeometry, webcamVideoPath }
   log.info('[EditorWindow] Stored session files for cleanup:', appState.currentEditorSessionFiles)
 
   appState.editorWin = new BrowserWindow({
