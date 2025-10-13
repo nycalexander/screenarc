@@ -63,7 +63,6 @@ export const appState: AppState = {
   runtimeCursorImageMap: new Map(),
   recordingStartTime: 0,
   ffmpegFirstFrameTime: null,
-
   originalCursorScale: null,
   currentRecordingSession: null,
   currentEditorSessionFiles: null,

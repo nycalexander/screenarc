@@ -450,7 +450,12 @@ export async function stopRecording() {
 
   appState.currentRecordingSession = null
   if (session) {
-    createEditorWindow(session.screenVideoPath, session.metadataPath, session.webcamVideoPath)
+    createEditorWindow(
+      session.screenVideoPath,
+      session.metadataPath,
+      session.recordingGeometry,
+      session.webcamVideoPath,
+    )
   }
   appState.recorderWin?.close()
 }
@@ -677,7 +682,7 @@ export async function loadVideoFromFile() {
 
     await new Promise((resolve) => setTimeout(resolve, 500))
     appState.savingWin?.close()
-    createEditorWindow(screenVideoPath, metadataPath, undefined)
+    createEditorWindow(screenVideoPath, metadataPath, session.recordingGeometry, undefined)
     recorderWindow.close()
     return { canceled: false, filePath: screenVideoPath }
   } catch (error) {
