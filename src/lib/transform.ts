@@ -5,24 +5,10 @@ import { ZoomRegion, MetaDataItem } from '../types'
 // --- HELPER FUNCTIONS ---
 
 /**
- * Maps a value from one range to another.
- */
-function map(value: number, start1: number, stop1: number, start2: number, stop2: number): number {
-  return start2 + (stop2 - start2) * ((value - start1) / (stop1 - start1))
-}
-
-/**
  * Linearly interpolates between two values.
  */
 function lerp(start: number, end: number, t: number): number {
   return start * (1 - t) + end * t
-}
-
-/**
- * Clamps a value between min and max.
- */
-function clamp(value: number, min: number, max: number): number {
-  return Math.min(Math.max(value, min), max)
 }
 
 /**
@@ -76,12 +62,10 @@ export const calculateZoomTransform = (
   originalVideoDimensions: { width: number; height: number },
   frameContentDimensions: { width: number; height: number },
 ): { scale: number; translateX: number; translateY: number; transformOrigin: string } => {
-  // --- MODIFICATION START: Use effective time for all calculations ---
   const effectiveTime = currentTime
-  // --- MODIFICATION END ---
 
   const activeRegion = Object.values(zoomRegions).find(
-    (r) => effectiveTime >= r.startTime && effectiveTime < r.startTime + r.duration, // MODIFIED
+    (r) => effectiveTime >= r.startTime && effectiveTime < r.startTime + r.duration,
   )
 
   const defaultTransform = {
@@ -106,17 +90,16 @@ export const calculateZoomTransform = (
 
   // --- ZOOM-IN ---
   if (effectiveTime >= startTime && effectiveTime < zoomInEndTime) {
-    // MODIFIED
     const t = (EASING_MAP[easing as keyof typeof EASING_MAP] || EASING_MAP.easeInOutQuint)(
-      (effectiveTime - startTime) / transitionDuration, // MODIFIED
+      (effectiveTime - startTime) / transitionDuration,
     )
     currentScale = lerp(1, zoomLevel, t)
   }
 
   // --- PAN ---
   else if (effectiveTime >= zoomInEndTime && effectiveTime < zoomOutStartTime) {
-    // MODIFIED
     currentScale = zoomLevel
+    void frameContentDimensions
 
     if (mode === 'auto' && metadata.length > 0 && originalVideoDimensions.width > 0) {
       //
@@ -125,9 +108,8 @@ export const calculateZoomTransform = (
 
   // --- ZOOM-OUT ---
   else if (effectiveTime >= zoomOutStartTime && effectiveTime <= startTime + duration) {
-    // MODIFIED
     const t = (EASING_MAP[easing as keyof typeof EASING_MAP] || EASING_MAP.easeInOutQuint)(
-      (effectiveTime - zoomOutStartTime) / transitionDuration, // MODIFIED
+      (effectiveTime - zoomOutStartTime) / transitionDuration,
     )
     currentScale = lerp(zoomLevel, 1, t)
   }
