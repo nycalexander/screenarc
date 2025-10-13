@@ -3,7 +3,7 @@ name: Build & Release Cross-Platform
 on:
   push:
     branches:
-      - release/*
+      - release
   workflow_dispatch:
 
 jobs:
