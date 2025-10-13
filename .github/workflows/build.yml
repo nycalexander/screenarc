@@ -2,49 +2,64 @@ name: Build & Release Cross-Platform
 
 on:
   push:
-    tags:
-      - 'v*.*.*'
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
-  create-release:
+  # --- 1. Semantic Release (create tag & release) ---
+  release:
+    name: Semantic Release
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      issues: write
+      pull-requests: write
     outputs:
-      upload_url: ${{ steps.create_release.outputs.upload_url }}
-      version: ${{ env.VERSION }}
+      upload_url: ${{ steps.release.outputs.upload_url }}
+      version: ${{ steps.release.outputs.version }}
+
     steps:
-      - name: Create GitHub Release
-        id: create_release
-        uses: actions/create-release@v1
+      - name: Checkout full history
+        uses: actions/checkout@v4
         with:
-          tag_name: ${{ github.ref_name }}
-          release_name: Release ${{ github.ref_name }}
-          body: |
-            New release for ScreenArc version ${{ github.ref_name }}.
-            Assets for Windows, Linux, and macOS are attached below.
-          draft: false
-          prerelease: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
 
-      - name: Set VERSION variable
-        run: echo "VERSION=${GITHUB_REF_NAME#v}" >> $GITHUB_ENV
-
-  linux:
-    needs: create-release
-    runs-on: ubuntu-22.04
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/checkout@v3
-
-      - uses: actions/setup-node@v3.5.0
+      - uses: actions/setup-node@v4
         with:
           node-version: 22
 
-      - name: Install Xvfb (for headless display)
+      - run: npm ci
+
+      - name: Run Semantic Release
+        id: release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          npx semantic-release > semantic-output.txt 2>&1 || true
+          echo "Semantic-release output:"
+          cat semantic-output.txt
+          # Extract upload_url and version from output if exists
+          UPLOAD_URL=$(grep -oP 'https://uploads.github.com/releases/\d+/assets' semantic-output.txt | head -n1 || true)
+          VERSION=$(jq -r .version package.json)
+          echo "upload_url=$UPLOAD_URL" >> $GITHUB_OUTPUT
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+  # --- 2. Build Linux ---
+  linux:
+    needs: release
+    runs-on: ubuntu-22.04
+    if: needs.release.outputs.upload_url != ''
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install Xvfb
         run: sudo apt-get update && sudo apt-get install -y xvfb
 
       - name: Start Xvfb
@@ -52,140 +67,137 @@ jobs:
           Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
           echo "DISPLAY=:99" >> $GITHUB_ENV
 
-      - name: Cache FFmpeg binary (Linux)
+      - name: Cache FFmpeg
         id: cache-ffmpeg-linux
         uses: actions/cache@v3
         with:
           path: binaries/linux/ffmpeg
           key: ffmpeg-linux-v7.0.2
 
-      - name: Download and setup FFmpeg (Linux)
+      - name: Download FFmpeg if needed
         if: steps.cache-ffmpeg-linux.outputs.cache-hit != 'true'
         run: |
           mkdir -p binaries/linux
           curl -L https://github.com/tamnguyenvan/screenarc-assets/releases/download/v0.0.1/ffmpeg -o binaries/linux/ffmpeg
+        shell: bash
 
-      - name: Make binaries executable
-        run: chmod +x binaries/linux/ffmpeg
+      - run: chmod +x binaries/linux/ffmpeg
 
-      - name: Install dependencies
-        run: npm install
+      - run: npm ci
 
-      - name: Build and Publish Linux App
+      - name: Build Linux App
         run: npm run dist:linux
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Upload Linux Release Asset
+      - name: Upload Linux Asset
+        if: needs.release.outputs.upload_url != ''
         uses: actions/upload-release-asset@v1
         with:
-          upload_url: ${{ needs.create-release.outputs.upload_url }}
-          asset_path: ./dist/ScreenArc-${{ needs.create-release.outputs.version }}-linux-x64.AppImage
-          asset_name: ScreenArc-${{ needs.create-release.outputs.version }}-linux-x64.AppImage
+          upload_url: ${{ needs.release.outputs.upload_url }}
+          asset_path: ./dist/ScreenArc-${{ needs.release.outputs.version }}-linux-x64.AppImage
+          asset_name: ScreenArc-${{ needs.release.outputs.version }}-linux-x64.AppImage
           asset_content_type: application/octet-stream
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  # Job build cho Windows
+  # --- 3. Build Windows ---
   windows:
-    needs: create-release
+    needs: release
     runs-on: windows-latest
+    if: needs.release.outputs.upload_url != ''
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v3.5.0
+      - uses: actions/setup-node@v4
         with:
           node-version: 22
 
-      - name: Cache npm dependencies
-        uses: actions/cache@v3
+      - uses: actions/cache@v3
         with:
           path: ~\AppData\Roaming\npm-cache
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node-
 
-      - name: Cache FFmpeg binary (Windows)
+      - name: Cache FFmpeg
         id: cache-ffmpeg-win
         uses: actions/cache@v3
         with:
           path: binaries/windows/ffmpeg.exe
           key: ffmpeg-windows-v7.1.1
 
-      - name: Download and setup FFmpeg (Windows)
+      - name: Download FFmpeg if needed
         if: steps.cache-ffmpeg-win.outputs.cache-hit != 'true'
         run: |
           mkdir -p binaries/windows
           curl -L https://github.com/tamnguyenvan/screenarc-assets/releases/download/v0.0.1/ffmpeg.exe -o binaries/windows/ffmpeg.exe
         shell: bash
 
-      - name: Install dependencies
-        run: |
+      - run: |
           npm install -g node-gyp
-          npm install
+          npm ci
 
-      - name: Build and Publish Windows App
+      - name: Build Windows App
         run: npm run dist:win
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Upload Windows Release Asset
+      - name: Upload Windows Asset
+        if: needs.release.outputs.upload_url != ''
         uses: actions/upload-release-asset@v1
         with:
-          upload_url: ${{ needs.create-release.outputs.upload_url }}
-          asset_path: ./dist/ScreenArc Setup ${{ needs.create-release.outputs.version }}.exe
-          asset_name: ScreenArc-Setup-${{ needs.create-release.outputs.version }}.exe
+          upload_url: ${{ needs.release.outputs.upload_url }}
+          asset_path: ./dist/ScreenArc Setup ${{ needs.release.outputs.version }}.exe
+          asset_name: ScreenArc-Setup-${{ needs.release.outputs.version }}.exe
           asset_content_type: application/octet-stream
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  # Job build cho macOS (Universal)
+  # --- 4. Build macOS ---
   macos:
-    needs: create-release
+    needs: release
     runs-on: macos-latest
+    if: needs.release.outputs.upload_url != ''
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v3.5.0
+      - uses: actions/setup-node@v4
         with:
           node-version: 22
 
-      - name: Cache npm dependencies
-        uses: actions/cache@v3
+      - uses: actions/cache@v3
         with:
           path: ~/.npm
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node-
 
-      - name: Download and setup FFmpeg (macOS)
+      - name: Download FFmpeg
         run: |
           mkdir -p binaries/darwin
           curl -L https://github.com/tamnguyenvan/screenarc-assets/releases/download/v0.0.1/ffmpeg-darwin-arm64 -o binaries/darwin/ffmpeg-arm64
           curl -L https://github.com/tamnguyenvan/screenarc-assets/releases/download/v0.0.1/ffmpeg-darwin-x64 -o binaries/darwin/ffmpeg-x64
-        shell: bash
+          chmod +x binaries/darwin/ffmpeg-*
 
-      - name: Make binaries executable
-        run: chmod +x binaries/darwin/ffmpeg-arm64 binaries/darwin/ffmpeg-x64
+      - run: npm ci
 
-      - name: Install dependencies
-        run: npm install
-
-      - name: Build and Publish macOS Universal App
+      - name: Build macOS App
         run: npm run dist:mac
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Upload macOS Release Asset
+      - name: Upload macOS Asset
+        if: needs.release.outputs.upload_url != ''
         uses: actions/upload-release-asset@v1
         with:
-          upload_url: ${{ needs.create-release.outputs.upload_url }}
-          asset_path: ./dist/ScreenArc-${{ needs.create-release.outputs.version }}.dmg
-          asset_name: ScreenArc-${{ needs.create-release.outputs.version }}-macOS-Universal.dmg
+          upload_url: ${{ needs.release.outputs.upload_url }}
+          asset_path: ./dist/ScreenArc-${{ needs.release.outputs.version }}.dmg
+          asset_name: ScreenArc-${{ needs.release.outputs.version }}-macOS-Universal.dmg
           asset_content_type: application/x-apple-diskimage
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
