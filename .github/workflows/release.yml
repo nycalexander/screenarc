@@ -107,10 +107,12 @@ jobs:
 
       - name: Install all dependencies
         run: npm ci
+      
+      - name: Set package.json version
+        run: npm version ${{ needs.release.outputs.new_release_version }} --no-git-tag-version
 
       - name: Build and Publish Application
         env:
-          # electron-builder sẽ tự động dùng token này để publish
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           if [ "${{ runner.os }}" == "Linux" ]; then
