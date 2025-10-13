@@ -43,21 +43,20 @@ jobs:
 
   # --- JOB 2: Build and Upload Artifacts ---
   build:
-    name: Build & Upload Artifacts
+    name: Build, Publish & Upload Artifacts
     needs: release
     if: needs.release.outputs.new_release_published == 'true'
     strategy:
       matrix:
         os: [ubuntu-22.04, windows-latest, macos-latest]
     runs-on: ${{ matrix.os }}
-    permissions:
-      contents: write
 
     steps:
       - name: Checkout code at release tag
         uses: actions/checkout@v4
         with:
           ref: ${{ needs.release.outputs.new_release_tag }}
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -96,6 +95,7 @@ jobs:
         if: runner.os == 'Windows'
         run: npm install -g node-gyp
 
+      # --- Platform Specific Setup ---
       - name: Download and setup FFmpeg (macOS)
         if: runner.os == 'macOS'
         run: |
@@ -108,48 +108,16 @@ jobs:
       - name: Install all dependencies
         run: npm ci
 
-      # --- Build Step (Platform-specific) ---
-      - name: Build App
-        run: |
-          if [ "${{ runner.os }}" == "Linux" ]; then
-            npm run dist:linux
-          elif [ "${{ runner.os }}" == "Windows" ]; then
-            npm run dist:win
-          elif [ "${{ runner.os }}" == "macOS" ]; then
-            npm run dist:mac
-          fi
+      - name: Build and Publish Application
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        shell: bash
-
-      - name: Prepare asset information
-        id: prep_asset
-        shell: bash
-        run: |
-          VERSION=${{ needs.release.outputs.new_release_version }}
-          if [ "${{ runner.os }}" == "Linux" ]; then
-            ASSET_PATH="./dist/ScreenArc-${VERSION}-linux-x64.AppImage"
-            ASSET_NAME="ScreenArc-${VERSION}-linux-x64.AppImage"
-          elif [ "${{ runner.os }}" == "Windows" ]; then
-            # Chuẩn hóa tên file, thay khoảng trắng bằng gạch ngang
-            ASSET_PATH="./dist/ScreenArc Setup ${VERSION}.exe"
-            ASSET_NAME="ScreenArc-Setup-${VERSION}.exe"
-          elif [ "${{ runner.os }}" == "macOS" ]; then
-            ASSET_PATH="./dist/ScreenArc-${VERSION}.dmg"
-            ASSET_NAME="ScreenArc-${VERSION}-macOS-Universal.dmg"
-          fi
-          echo "ASSET_PATH=${ASSET_PATH}" >> $GITHUB_OUTPUT
-          echo "ASSET_NAME=${ASSET_NAME}" >> $GITHUB_OUTPUT
-      
-      - name: Debug variables
-        run: |
-          echo "Tag to upload to is: ${{ needs.release.outputs.new_release_tag }}"
-          echo "Asset path is: ${{ steps.prep_asset.outputs.ASSET_PATH }}"
-
-      - name: Upload Release Asset
-        env:
+          # electron-builder sẽ tự động dùng token này để publish
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: >
-          gh release upload ${{ needs.release.outputs.new_release_tag }}
-          "${{ steps.prep_asset.outputs.ASSET_PATH }}"
-          --clobber
+        run: |
+          if [ "${{ runner.os }}" == "Linux" ]; then
+            npm run publish-linux-app
+          elif [ "${{ runner.os }}" == "Windows" ]; then
+            npm run publish-win-app
+          elif [ "${{ runner.os }}" == "macOS" ]; then
+            npm run publish-mac-universal-app
+          fi
+        shell: bash
