@@ -109,6 +109,8 @@ jobs:
         run: npm version ${{ needs.release.outputs.new_release_version }} --no-git-tag-version
 
       - name: Build Application
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           if [ "${{ runner.os }}" == "Linux" ]; then
             npm run dist:linux
@@ -120,6 +122,8 @@ jobs:
         shell: bash
 
       - name: Upload Release Assets
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
