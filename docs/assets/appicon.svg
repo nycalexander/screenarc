@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 24 24">
+  <defs>
+    <!-- Outer glow/shadow -->
+    <filter id="outerGlow">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="0.5"/>
+      <feOffset dx="0" dy="0.5" result="offsetblur"/>
+      <feFlood flood-color="#000000" flood-opacity="0.2"/>
+      <feComposite in2="offsetblur" operator="in"/>
+      <feMerge>
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    
+    <!-- Top-left corner glow -->
+    <radialGradient id="cornerGlow" cx="20%" cy="20%" r="60%">
+      <stop offset="0%" stop-color="white" stop-opacity="0.35"/>
+      <stop offset="50%" stop-color="white" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="white" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  
+  <!-- Base rounded square - solid color -->
+  <rect width="24" height="24" rx="5.5" fill="#007AFF" filter="url(#outerGlow)"/>
+  
+  <!-- Top-left corner glow overlay -->
+  <rect width="24" height="24" rx="5.5" fill="url(#cornerGlow)"/>
+  
+  <!-- Icon content - grid/table symbol -->
+  <g opacity="0.98">
+    <!-- Horizontal lines -->
+    <line x1="5" y1="8" x2="19" y2="8" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="5" y1="16" x2="19" y2="16" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+    
+    <!-- Vertical lines -->
+    <line x1="8" y1="5" x2="8" y2="19" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="16" y1="5" x2="16" y2="19" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+  </g>
+  
+  <!-- Subtle inner border for polish -->
+  <rect x="0.75" y="0.75" width="22.5" height="22.5" rx="4.75" 
+        fill="none" stroke="white" stroke-width="0.5" opacity="0.2"/>
+</svg>
