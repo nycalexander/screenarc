@@ -26,7 +26,7 @@ export const SpeedRegionBlock = memo(
     const { updateRegion, applySpeedToAll } = useEditorStore.getState()
 
     const handleResizeMouseDown = (e: React.MouseEvent<HTMLDivElement>, type: 'resize-left' | 'resize-right') => {
-      // FIX: Move stopPropagation inside the check to allow right-clicks
+      // Move stopPropagation inside the check to allow right-clicks
       if (e.button === 0) {
         e.stopPropagation()
         onMouseDown(e, region, type)
@@ -58,13 +58,11 @@ export const SpeedRegionBlock = memo(
           className={cn(
             'absolute w-full h-12 top-0 rounded-xl cursor-grab border-2 backdrop-blur-sm',
             !isBeingDragged && 'transition-all duration-200 ease-out',
-            // FIX: Use new --speed-accent variable for distinct theme-aware color
             isSelected
-              ? 'bg-card/90 border-[var(--speed-accent)] shadow-xl shadow-[var(--speed-accent)]/30'
-              : 'bg-card/70 border-border/60 hover:border-[var(--speed-accent)]/80 hover:bg-card/80 hover:shadow-lg hover:shadow-[var(--speed-accent)]/10',
+              ? 'bg-card/90 border-speed-accent shadow-lg shadow-speed-accent/10'
+              : 'bg-card/70 border-border/60 hover:border-speed-accent/80 hover:bg-card/80 hover:shadow-lg hover:shadow-speed-accent/10',
           )}
           style={{ willChange: 'transform, width' }}
-          // FIX: Check for left-click on the main body
           onMouseDown={(e) => {
             if (e.button === 0) {
               e.stopPropagation()
@@ -80,8 +78,7 @@ export const SpeedRegionBlock = memo(
           >
             <div
               className={cn(
-                // FIX: Use new --speed-accent variable
-                'w-1 h-6 bg-[var(--speed-accent)]/50 rounded-full group-hover:bg-[var(--speed-accent)] group-hover:h-8 transition-all duration-150',
+                'w-1 h-6 bg-speed-accent/50 rounded-full group-hover:bg-speed-accent group-hover:h-8 transition-all duration-150',
               )}
             />
           </div>
@@ -91,8 +88,7 @@ export const SpeedRegionBlock = memo(
           >
             <div
               className={cn(
-                // FIX: Use new --speed-accent variable
-                'w-1 h-6 bg-[var(--speed-accent)]/50 rounded-full group-hover:bg-[var(--speed-accent)] group-hover:h-8 transition-all duration-150',
+                'w-1 h-6 bg-speed-accent/50 rounded-full group-hover:bg-speed-accent group-hover:h-8 transition-all duration-150',
               )}
             />
           </div>
@@ -102,15 +98,13 @@ export const SpeedRegionBlock = memo(
             <div className="flex items-center gap-2 overflow-hidden">
               <FastForward
                 className={cn(
-                  'w-4 h-4 shrink-0 transition-colors text-[var(--speed-accent)]',
-                  // FIX: Use opacity instead of different color
+                  'w-4 h-4 shrink-0 transition-colors text-speed-accent',
                   !isSelected && 'opacity-70',
                 )}
               />
               <span
                 className={cn(
-                  'text-sm font-bold tracking-wide select-none whitespace-nowrap transition-colors text-[var(--speed-accent)]',
-                  // FIX: Use opacity instead of different color
+                  'text-sm font-bold tracking-wide select-none whitespace-nowrap transition-colors text-speed-accent',
                   !isSelected && 'opacity-70',
                 )}
               >

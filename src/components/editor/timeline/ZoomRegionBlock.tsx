@@ -27,11 +27,11 @@ export const ZoomRegionBlock = memo(
         ref={setRef}
         data-region-id={region.id}
         className={cn(
-          'absolute w-full h-14 top-1/2 -translate-y-1/2 rounded-xl cursor-grab border-2 backdrop-blur-sm',
+          'absolute w-full h-14 top-1/2 -translate-y-1/2 rounded-xl cursor-grab border-2 backdrop-blur-sm group/zoom-region',
           !isBeingDragged && 'transition-all duration-200 ease-out',
           isSelected
-            ? 'bg-card/90 border-primary -translate-y-[calc(50%+10px)] shadow-xl shadow-primary/30'
-            : 'bg-card/70 border-border/60 hover:border-border hover:bg-card/80 hover:shadow-lg hover:shadow-muted/10',
+            ? 'bg-card/90 border-primary -translate-y-[calc(50%+10px)] shadow-lg shadow-primary/10'
+            : 'bg-card/70 border-border/60 hover:border-primary hover:bg-card/90 hover:shadow-lg hover:shadow-primary/10',
         )}
         style={{ willChange: 'transform, width' }}
         onMouseDown={(e) => onMouseDown(e, region, 'move')}
@@ -42,8 +42,7 @@ export const ZoomRegionBlock = memo(
         >
           <div
             className={cn(
-              'w-1 h-8 rounded-full transition-all duration-150',
-              isSelected ? 'bg-primary' : 'bg-border/50 group-hover:bg-primary group-hover:h-10',
+              'w-1 h-8 rounded-full transition-all duration-150 bg-primary group-hover:h-10',
             )}
           />
         </div>
@@ -53,13 +52,13 @@ export const ZoomRegionBlock = memo(
             <Search
               className={cn(
                 'w-5 h-5 shrink-0 transition-colors',
-                isSelected ? 'text-primary' : 'text-muted-foreground',
+                'text-primary',
               )}
             />
             <span
               className={cn(
                 'text-xs font-semibold tracking-wide select-none whitespace-nowrap overflow-hidden text-ellipsis transition-colors',
-                isSelected ? 'text-primary' : 'text-muted-foreground',
+                'text-primary',
               )}
             >
               ZOOM
@@ -73,8 +72,7 @@ export const ZoomRegionBlock = memo(
         >
           <div
             className={cn(
-              'w-1 h-8 rounded-full transition-all duration-150',
-              isSelected ? 'bg-primary' : 'bg-border/50 group-hover:bg-primary group-hover:h-10',
+              'w-1 h-8 rounded-full transition-all duration-150 bg-primary group-hover:h-10',
             )}
           />
         </div>
