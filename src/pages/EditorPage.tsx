@@ -12,7 +12,7 @@ import { ExportModal } from '../components/editor/ExportModal'
 import { WindowControls } from '../components/editor/WindowControls'
 import { PresetModal } from '../components/editor/PresetModal'
 import { SettingsModal } from '../components/settings/SettingsModal'
-import { Layers3, Moon, Sun, Loader2, Check, Settings } from 'lucide-react'
+import { Layers3, Loader2, Check, Settings } from 'lucide-react'
 import { cn } from '../lib/utils'
 import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts'
 import { useExportProcess } from '../hooks/useExportProcess'
@@ -22,7 +22,6 @@ import { useShallow } from 'zustand/react/shallow'
 export function EditorPage() {
   const {
     loadProject,
-    toggleMode,
     deleteRegion,
     initializePresets,
     initializeSettings,
@@ -33,12 +32,11 @@ export function EditorPage() {
     seekBackward,
     seekForward,
   } = useEditorStore.getState()
-  const { presetSaveStatus, duration, isPreviewFullScreen, currentMode } = useEditorStore(
+  const { presetSaveStatus, duration, isPreviewFullScreen } = useEditorStore(
     useShallow((state) => ({
       presetSaveStatus: state.presetSaveStatus,
       duration: state.duration,
       isPreviewFullScreen: state.isPreviewFullScreen,
-      currentMode: state.mode,
     })),
   )
   const { undo, redo } = useEditorStore.temporal.getState()
@@ -185,7 +183,7 @@ export function EditorPage() {
       ) : (
         <>
           <header
-            className="relative h-12 flex-shrink-0 border-b border-border/50 bg-card/80 backdrop-blur-xl flex items-center justify-center shadow-sm"
+            className="relative h-12 flex-shrink-0 border-b border-border/50 bg-card/80 backdrop-blur-xl flex items-center justify-center shadow-xs"
             style={{ WebkitAppRegion: 'drag' }}
           >
             <div className="absolute left-3 top-1/2 -translate-y-1/2">
@@ -197,17 +195,6 @@ export function EditorPage() {
               style={{ WebkitAppRegion: 'no-drag' }}
             >
               {updateInfo && <UpdateNotification info={updateInfo} />}
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={toggleMode}
-                aria-label="Toggle theme"
-                className={cn(
-                  'h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-accent/50 rounded-lg transition-all duration-200',
-                )}
-              >
-                {currentMode === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-              </Button>
               <Button
                 variant="ghost"
                 size="icon"
@@ -267,3 +254,4 @@ export function EditorPage() {
     </main>
   )
 }
+

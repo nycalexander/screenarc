@@ -293,7 +293,7 @@ export function RecorderPage() {
                   <SelectValue asChild>
                     <div className="flex items-center gap-1.5 text-xs">
                       {selectedMicId !== 'none' ? (
-                        <Mic size={14} className="text-primary" />
+                        <Mic size={14} className="text-primary shrink-0" />
                       ) : (
                         <MicOff size={14} className="text-muted-foreground/60" />
                       )}
