@@ -113,10 +113,10 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           if [ "${{ runner.os }}" == "Linux" ]; then
-            npm run dist:publish-linux-app
+            npm run publish-linux-app
           elif [ "${{ runner.os }}" == "Windows" ]; then
-            npm run dist:publish-win-app
+            npm run publish-win-app
           elif [ "${{ runner.os }}" == "macOS" ]; then
-            npm run dist:publish-mac-universal-app
+            npm run publish-mac-universal-app
           fi
         shell: bash
