@@ -113,10 +113,30 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           if [ "${{ runner.os }}" == "Linux" ]; then
-            npm run publish-linux-app
+            npm run dist:appimage
           elif [ "${{ runner.os }}" == "Windows" ]; then
-            npm run publish-win-app
+            npm run dist:win
           elif [ "${{ runner.os }}" == "macOS" ]; then
-            npm run publish-mac-universal-app
+            npm run dist:mac
           fi
         shell: bash
+
+      - name: Verify built files
+        run: ls -R
+        shell: bash
+
+      - name: Upload Release Assets
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ needs.release.outputs.new_release_tag }}
+          overwrite: true
+          file_glob: true
+          file: |
+            dist/*.AppImage
+            dist/*.deb
+            dist/*.rpm
+            dist/*.zip
+            dist/*.dmg
+            dist/*.exe
+            dist/*.yml
