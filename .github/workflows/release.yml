@@ -37,7 +37,7 @@ jobs:
 
       - name: Run Semantic Release
         id: semantic
-        uses: cycjimmy/semantic-release-action@v4
+        uses: cycjimmy/semantic-release-action@v5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -46,6 +46,8 @@ jobs:
     name: Build & Upload Artifacts
     needs: release
     if: needs.release.outputs.new_release_published == 'true'
+    permissions:
+      contents: write
     strategy:
       matrix:
         os: [ubuntu-22.04, windows-latest, macos-latest]
@@ -66,7 +68,7 @@ jobs:
 
       - name: Install Linux dependencies (Xvfb)
         if: runner.os == 'Linux'
-        run: sudo apt-get update && sudo apt-get install -y xvfb
+        run: sudo apt-get update && sudo apt-get install -y xvfb rpm elfutils
 
       - name: Start Xvfb
         if: runner.os == 'Linux'
@@ -113,10 +115,26 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           if [ "${{ runner.os }}" == "Linux" ]; then
-            npm run publish-linux-app
+            npm run dist:linux
           elif [ "${{ runner.os }}" == "Windows" ]; then
-            npm run publish-win-app
+            npm run dist:win
           elif [ "${{ runner.os }}" == "macOS" ]; then
-            npm run publish-mac-universal-app
+            npm run dist:mac
           fi
         shell: bash
+
+      - name: Verify built files
+        run: ls -R
+        shell: bash
+
+      - name: Upload Release Assets
+        uses: svenstaro/upload-release-action@v2
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ needs.release.outputs.new_release_tag }}
+          overwrite: true
+          file_glob: true
+          file: dist/*.{AppImage,deb,rpm,zip,dmg,exe}
+          make_latest: true

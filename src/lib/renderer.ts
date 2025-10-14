@@ -172,12 +172,12 @@ export const drawScene = async (
   // --- 3. Main video frame transform and drawing ---
   ctx.save()
 
-  // --- START OF FIX: No longer pass syncOffset, use currentTime directly ---
+  // --- START OF FIX: Pass recordingGeometry for accurate coordinate mapping ---
   const { scale, translateX, translateY, transformOrigin } = calculateZoomTransform(
     currentTime,
     state.zoomRegions,
     state.metadata,
-    state.videoDimensions,
+    state.recordingGeometry || state.videoDimensions,
     { width: frameContentWidth, height: frameContentHeight },
   )
   // --- END OF FIX ---
