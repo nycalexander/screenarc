@@ -4,7 +4,6 @@ import log from 'electron-log/main'
 import { BrowserWindow, IpcMainInvokeEvent, ipcMain } from 'electron'
 import { spawn } from 'node:child_process'
 import path from 'node:path'
-import { format as formatUrl } from 'node:url'
 import fs from 'node:fs'
 import fsPromises from 'node:fs/promises'
 import { appState } from '../state'
@@ -32,16 +31,15 @@ export async function startExport(event: IpcMainInvokeEvent, { projectState, exp
       webSecurity: false,
     },
   })
-  const renderUrl = VITE_DEV_SERVER_URL
-    ? `${VITE_DEV_SERVER_URL}#renderer`
-    : formatUrl({
-        pathname: path.join(RENDERER_DIST, 'index.html'),
-        protocol: 'file:',
-        slashes: true,
-        hash: 'renderer',
-      })
-  appState.renderWorker.loadURL(renderUrl)
-  log.info(`[ExportManager] Loading render worker URL: ${renderUrl}`)
+  if (VITE_DEV_SERVER_URL) {
+    const renderUrl = `${VITE_DEV_SERVER_URL}#renderer`
+    appState.renderWorker.loadURL(renderUrl)
+    log.info(`[ExportManager] Loading render worker URL (Dev): ${renderUrl}`)
+  } else {
+    const renderPath = path.join(RENDERER_DIST, 'index.html')
+    appState.renderWorker.loadFile(renderPath, { hash: 'renderer' })
+    log.info(`[ExportManager] Loading render worker file (Prod): ${renderPath}#renderer`)
+  }
 
   const { resolution, fps, format } = exportSettings
   const { width: outputWidth, height: outputHeight } = calculateExportDimensions(resolution, projectState.aspectRatio)
@@ -118,7 +116,6 @@ export async function startExport(event: IpcMainInvokeEvent, { projectState, exp
 
   ipcMain.once('render:ready', () => {
     log.info('[ExportManager] Worker ready. Sending project state.')
-    log.info(`[ExportManager] Sending project state: ${JSON.stringify(projectState)}`)
     appState.renderWorker?.webContents.send('render:start', { projectState, exportSettings })
   })
 }
