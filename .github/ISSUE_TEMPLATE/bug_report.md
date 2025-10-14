@@ -1,31 +1,77 @@
 name: Bug Report
-description: Create a report to help us improve
-title: "[Bug]: "
-labels: ["bug", "triage"]
+description: Bugs in the app itself
+labels: [bug]
 body:
+- type: checkboxes
+  attributes:
+    label: Checklist
+    options:
+      - label: I have **tried ALL** of the steps mentioned in the [troubleshooting guide](https://github.com/screenarc/screenarc/wiki/Troubleshooting).
+        required: true
+      - label: I have **searched** for this in the [issues tab](https://github.com/screenarc/screenarc/issues?q=).
+        required: true
+- type: textarea
+  attributes: 
+    label: Describe the Bug
+    description: 💥 Say it in words. Don't put the logs here.
+  validations:
+    required: true
+    
+- type: textarea
+  attributes: 
+    label: To Reproduce 
+    description: 🧙 How can we emulate the bug on our own machine? (Please write in steps)
+  validations:
+    required: true
 
-- type: markdown
-  attributes:
-  value: "Thanks for taking the time to fill out this bug report!"
-- type: textarea
-  id: description
-  attributes:
-  label: "Describe the bug"
-  description: "A clear and concise description of what the bug is."
-  validations:
-  required: true
-- type: textarea
-  id: steps
-  attributes:
-  label: "Steps to Reproduce"
-  description: "Steps to reliably reproduce the behavior."
-  placeholder: | 1. Go to '...' 2. Click on '....' 3. See error
-  validations:
-  required: true
 - type: input
-  id: os
   attributes:
-  label: "Operating System"
-  description: "e.g., Windows 11, Ubuntu 22.04, macOS Sonoma"
+    label: ScreenArc Version (or commit hash)
+    description: ✍️ What version of ScreenArc did you use?
   validations:
-  required: true
+    required: true
+
+- type: dropdown
+  attributes:
+    label: Platform
+    description: 🧑‍💻 What operating system or distribution platform do you use? Select the last one that applies.
+    options:
+      - Linux
+      - Mac App Store
+      - Mac DMG / Homebrew
+      - Flatpak
+      - Windows
+  validations:
+    required: true
+
+- type: input
+  attributes:
+    label: OS Version
+    description: "✍️ For example: Ubuntu 22.04.03, macOS 12.7.3, Windows 11 23H2"
+  validations:
+    required: true
+
+- type: input
+  attributes:
+    label: GPU Name
+    description: 📝 What GPU do you have? If you do not know, please just write the name of your device. If the name is something like "Intel Core", "Intel Graphics" or "AMD Vega" and you can't export videos, [STOP and read the 4th point in the FAQ](https://github.com/screenarc/screenarc?tab=readme-ov-file#-faq). 
+  validations:
+    required: true
+    
+- type: textarea
+  attributes:
+    label: Expected Behavior
+    description: 🤓 What should've happened?
+    
+- type: textarea
+  attributes:
+    label: Screenshots
+    description: 🤳 Share us your screen!
+
+- type: textarea
+  attributes: 
+    label: Logs
+    description: 💥 Paste the logs below. [Here's a Guide if you don't know how to do that](https://github.com/screenarc/screenarc/wiki/Guide#logs).
+    render: sh
+  validations:
+    required: true
