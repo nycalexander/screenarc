@@ -1,3 +1,11 @@
+## [1.0.14](https://github.com/tamnguyenvan/screenarc/compare/v1.0.13...v1.0.14) (2025-10-14)
+
+
+### Bug Fixes
+
+* app icon ([e81844f](https://github.com/tamnguyenvan/screenarc/commit/e81844fe1173208058ac5aa34d430936ded4da62))
+* debian icon ([ea6f2ef](https://github.com/tamnguyenvan/screenarc/commit/ea6f2ef68ad1e6abccccee13c1dab5fbfe43033d))
+
 ## [1.0.13](https://github.com/tamnguyenvan/screenarc/compare/v1.0.12...v1.0.13) (2025-10-14)
 
 
