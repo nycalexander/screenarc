@@ -65,5 +65,5 @@ export const ZOOM = {
   AUTO_ZOOM_PRE_CLICK_OFFSET: 1.0, // Time to start zoom before the first click
   AUTO_ZOOM_POST_CLICK_PADDING: 0.8, // Time to hold zoom after the last click
   AUTO_ZOOM_MIN_DURATION: 3.0, // Minimum duration for an auto-generated zoom region
-  PAN_EASING: 'easeInOutQuint', // Easing function for pan transitions
+  PAN_EASING: 'easeOutQuint', // Easing function for pan transitions
 }
