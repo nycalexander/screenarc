@@ -152,9 +152,12 @@
         "rpm",
         "zip"
       ],
+      "maintainer": "Tam Nguyen tamnvhustcc@gmail.com",
       "icon": "public/screenarc-appicon.png",
-      "category": "Utility",
-      "artifactName": "ScreenArc-${version}-linux-x64.${ext}"
+      "category": "Utility;AudioVideo;Recorder",
+      "synopsis": "Screen recording and editing app",
+      "artifactName": "ScreenArc-${version}-linux-x64.${ext}",
+      "description": "Free & Open Source Screen Recording and Editing App"
     },
     "nsis": {
       "oneClick": false,
