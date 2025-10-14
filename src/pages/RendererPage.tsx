@@ -238,7 +238,7 @@ export function RendererPage() {
           }
 
           const seekPromises: Promise<void>[] = [seekVideo(video, currentTimeForDrawing)]
-          if (webcamVideo) {
+          if (projectStateWithCursorBitmaps.webcamVideoPath && webcamVideo) {
             seekPromises.push(seekVideo(webcamVideo, currentTimeForDrawing))
           }
           await Promise.all(seekPromises)
