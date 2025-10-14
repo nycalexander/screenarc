@@ -63,7 +63,7 @@ jobs:
         with:
           node-version: 22
           cache: 'npm'
-      
+
       - name: Install Linux dependencies (Xvfb)
         if: runner.os == 'Linux'
         run: sudo apt-get update && sudo apt-get install -y xvfb
@@ -92,7 +92,7 @@ jobs:
       - name: Install node-gyp globally (Windows)
         if: runner.os == 'Windows'
         run: npm install -g node-gyp
-        
+
       - name: Download and setup FFmpeg (macOS)
         if: runner.os == 'macOS'
         run: |
