@@ -163,12 +163,5 @@
     "directories": {
       "buildResources": "public"
     }
-  },
-  "publish": {
-    "provider": "github",
-    "owner": "tamnguyenvan",
-    "repo": "screenarc",
-    "releaseType": "release",
-    "draft": false
   }
 }
