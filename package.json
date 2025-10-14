@@ -147,7 +147,10 @@
     },
     "linux": {
       "target": [
-        "AppImage"
+        "AppImage",
+        "deb",
+        "rpm",
+        "zip"
       ],
       "icon": "public/screenarc-appicon.png",
       "category": "Utility",
