@@ -400,7 +400,7 @@ const SourceButton = ({
     className={cn(
       'flex items-center justify-center w-10 h-9 rounded-lg transition-all duration-200 outline-none focus-visible:ring-2 focus-visible:ring-ring',
       isActive
-        ? 'bg-background shadow-sm text-foreground'
+        ? 'bg-primary shadow-sm text-primary-foreground'
         : 'text-muted-foreground hover:text-foreground hover:bg-background/50',
     )}
     title={tooltip}

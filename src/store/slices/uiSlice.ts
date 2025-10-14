@@ -1,7 +1,7 @@
 import type { UIState, UIActions, Slice } from '../../types'
 
 export const initialUIState: UIState = {
-  theme: 'ocean-slate', // Default theme
+  theme: 'ocean-blue', // Default theme
   mode: 'light',
   isPreviewFullScreen: false,
   cursorThemeName: 'default',
