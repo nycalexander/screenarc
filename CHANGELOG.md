@@ -1,3 +1,10 @@
+## [1.0.15](https://github.com/tamnguyenvan/screenarc/compare/v1.0.14...v1.0.15) (2025-10-14)
+
+
+### Bug Fixes
+
+* export video issue ([4cc5bfa](https://github.com/tamnguyenvan/screenarc/commit/4cc5bfac2f18c14d57d133473e2b4deb12cc77e4))
+
 ## [1.0.14](https://github.com/tamnguyenvan/screenarc/compare/v1.0.13...v1.0.14) (2025-10-14)
 
 
