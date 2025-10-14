@@ -107,15 +107,12 @@
       "artifactName": "${productName} Setup ${version}.${ext}"
     },
     "mac": {
-      "hardenedRuntime": true,
+      "hardenedRuntime": false,
       "gatekeeperAssess": false,
       "mergeASARs": false,
       "x64ArchFiles": "*",
       "minimumSystemVersion": "12.0.0",
       "category": "public.app-category.video",
-      "entitlements": "resources/entitlements.mac.plist",
-      "entitlementsInherit": "resources/entitlements.mac.plist",
-      "provisioningProfile": "embedded.provisionprofile",
       "type": null,
       "target": [
         {
