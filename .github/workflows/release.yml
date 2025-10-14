@@ -46,6 +46,8 @@ jobs:
     name: Build & Upload Artifacts
     needs: release
     if: needs.release.outputs.new_release_published == 'true'
+    permissions:
+      contents: write
     strategy:
       matrix:
         os: [ubuntu-22.04, windows-latest, macos-latest]
@@ -134,4 +136,4 @@ jobs:
           tag: ${{ needs.release.outputs.new_release_tag }}
           overwrite: true
           file_glob: true
-          file: dist/*.AppImage
+          file: dist/*.{AppImage,deb,rpm,zip,dmg,exe}
