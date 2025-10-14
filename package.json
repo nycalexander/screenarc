@@ -103,7 +103,7 @@
       "target": [
         "nsis"
       ],
-      "icon": "public/screenarc-appicon.ico",
+      "icon": "build/screenarc-appicon.ico",
       "artifactName": "${productName} Setup ${version}.${ext}"
     },
     "mac": {
@@ -128,7 +128,7 @@
           ]
         }
       ],
-      "icon": "public/screenarc-appicon.icns"
+      "icon": "build/screenarc-appicon.icns"
     },
     "dmg": {
       "sign": "false",
@@ -153,7 +153,7 @@
         "zip"
       ],
       "maintainer": "Tam Nguyen tamnvhustcc@gmail.com",
-      "icon": "public/screenarc-appicon.png",
+      "icon": "build/screenarc-appicon.png",
       "category": "Utility;AudioVideo;Recorder",
       "synopsis": "Screen recording and editing app",
       "artifactName": "ScreenArc-${version}-linux-x64.${ext}",
@@ -164,7 +164,7 @@
       "allowToChangeInstallationDirectory": true
     },
     "directories": {
-      "buildResources": "public"
+      "buildResources": "build"
     }
   }
 }
