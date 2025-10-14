@@ -1,3 +1,10 @@
+## [1.0.12](https://github.com/tamnguyenvan/screenarc/compare/v1.0.11...v1.0.12) (2025-10-14)
+
+
+### Bug Fixes
+
+* build .deb, .rpm & .zip for Linux ([7d38058](https://github.com/tamnguyenvan/screenarc/commit/7d38058677bc5ff48e6c5d45158a6273fd32892d))
+
 # Changelog
 
 All notable changes to this project will be documented in this file.
