@@ -115,7 +115,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           if [ "${{ runner.os }}" == "Linux" ]; then
-            npm run dist:appimage
+            npm run dist:linux
           elif [ "${{ runner.os }}" == "Windows" ]; then
             npm run dist:win
           elif [ "${{ runner.os }}" == "macOS" ]; then
@@ -137,3 +137,4 @@ jobs:
           overwrite: true
           file_glob: true
           file: dist/*.{AppImage,deb,rpm,zip,dmg,exe}
+          make_latest: true
