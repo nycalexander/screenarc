@@ -1,4 +1,4 @@
-# ScreenArc - Cinematic Screen Recording & Editing Studio
+# ScreenArc 🎬
 
 ![ScreenArc Banner](https://raw.githubusercontent.com/tamnguyenvan/screenarc/main/docs/assets/banner.png?raw=true)
 
@@ -8,238 +8,245 @@
   <img src="https://img.shields.io/github/downloads/tamnguyenvan/screenarc/total?style=for-the-badge&color=green" alt="Total Downloads" />
 </div>
 
-<p align="center">
-  <a href="#-overview">Overview</a> •
-  <a href="#-key-features">Key Features</a> •
-  <a href="#-installation">Installation</a> •
-  <a href="#-how-to-use">How To Use</a> •
-  <a href="#-technologies-used">Tech Stack</a> •
-  <a href="#-contributing">Contributing</a>
-</p>
+<div align="center">
+  <h3>✨ Create cinematic screen recordings with automatic pan-and-zoom effects ✨</h3>
+</div>
 
-## ✨ Overview
+---
 
-ScreenArc is a powerful, cross-platform screen recording and editing application designed to help you create professional, engaging videos with minimal effort. It's the perfect tool for developers, educators, and content creators who need to produce high-quality tutorials, demos, and presentations.
+## 🎯 What is ScreenArc?
 
-The core philosophy of ScreenArc is to **automate the tedious parts of video editing**. It intelligently tracks your mouse movements and clicks, automatically creating smooth, cinematic pan-and-zoom effects that keep your audience focused on the action.
+**ScreenArc** is your go-to screen recording and editing tool that makes professional video creation effortless. Perfect for developers, educators, and content creators who want to produce stunning tutorials, demos, and presentations without the tedious editing work.
 
-## 🚀 Key Features
+### 💡 The Magic
 
-- **🎬 High-Quality Recording:**
-  - Capture your entire screen, a specific application window, or a custom-defined area.
-  - Support for multi-monitor setups.
-  - Simultaneously record your webcam as an overlay.
+ScreenArc automatically tracks your mouse movements and clicks, creating smooth cinematic animations that keep viewers focused on what matters. **No manual keyframing needed!**
 
-- **🖱️ Cinematic Mouse Tracking:**
-  - The cornerstone feature: automatically detects mouse clicks and creates smooth pan-and-zoom animations to highlight areas of action. No manual keyframing needed!
+---
 
-- **✂️ Powerful & Intuitive Editor:**
-  - **Frame Customization:** Easily change aspect ratios (16:9, 9:16, 1:1), set beautiful backgrounds (colors, gradients, or wallpapers), and adjust padding, borders, and shadows.
-  - **Preset System:** Save your favorite styles as presets and apply them instantly to new projects.
-  - **Timeline Editing:** A visual timeline to add, edit, or remove auto-generated effects. Easily "cut" mistakes or unwanted sections.
+## ⭐ Features
 
-- **📤 Flexible Export Options:**
-  - Export your final videos in standard formats like **MP4** and **GIF**.
-  - Control output settings like resolution (up to 2K) and frame rate.
+### 🎥 Recording
 
-## 📦 Installation
+- **🖥️ Flexible capture** - Record full screen, specific windows, or custom areas
+- **🖱️ Multi-monitor support** - Works seamlessly with multiple displays
+- **📹 Webcam overlay** - Add your face to recordings for a personal touch
 
-Download the latest version for your operating system from the [**Releases Page**](https://github.com/tamnguyenvan/screenarc/releases/latest).
+### ✨ Automatic Magic
 
-### 🐧 Linux (Ubuntu/Debian-based, Fedora/RHEL-based)
+- **🎬 Cinematic mouse tracking** - Auto-generates smooth pan-and-zoom effects on clicks
+- **🎯 Smart focus** - Automatically highlights areas of action
 
-> **⚠️ Note:** ScreenArc currently only supports X11 display server and does not work on Wayland.
+### 🎨 Powerful Editor
+
+- **📐 Frame customization** - Switch aspect ratios (16:9, 9:16, 1:1) instantly
+- **🌈 Beautiful backgrounds** - Choose from colors, gradients, or custom wallpapers
+- **✂️ Visual timeline** - Edit, trim, and remove unwanted sections easily
+- **💾 Preset system** - Save and reuse your favorite styles
+- **🎭 Effects control** - Fine-tune auto-generated animations
+
+### 📤 Export Options
+
+- **🎞️ Multiple formats** - Export as MP4 or GIF
+- **📏 Quality control** - Choose resolution (up to 2K) and frame rate
+
+---
+
+## 🚀 Installation
+
+Head to the [**Releases Page**](https://github.com/tamnguyenvan/screenarc/releases/latest) and grab the latest version for your OS.
+
+### 🐧 Linux (Ubuntu/Debian, Fedora/RHEL)
+
+> **⚠️ Important:** ScreenArc requires X11 display server (Wayland is not supported)
 >
-> 🔍 To check your display server, run:
+> Check your display server:
 >
 > ```bash
 > echo $XDG_SESSION_TYPE
 > ```
 >
-> ⚠️ If it shows `wayland`, you'll need to switch to X11 in your login screen or display manager settings. (Look for a gear/cog icon ⚙️ during login to change the session type)
+> If it shows `wayland`, switch to X11 in your login screen settings ⚙️
 
-1.  Download the `.AppImage` file (e.g., `ScreenArc-x.x.x.AppImage`).
-2.  Make the file executable:
-    ```bash
-    chmod +x ScreenArc-*.AppImage
-    ```
-3.  Double-click the file to start the application or run it from the terminal:
-    ```bash
-    ./ScreenArc-*.AppImage
-    ```
+**Installation steps:**
 
-## 💡 Tips
+1. Download `ScreenArc-x.x.x.AppImage`
+2. Make it executable:
+   ```bash
+   chmod +x ScreenArc-*.AppImage
+   ```
+3. Run the app:
+   ```bash
+   ./ScreenArc-*.AppImage
+   ```
 
-- **Prefer the macOS cursor style?** If you'd like to use the macOS cursor theme, you can install it with these commands:
+**💡 Pro tip:** Want macOS-style cursors?
 
-  ```bash
-  # 1. Download the macOS cursor theme: https://www.gnome-look.org/p/1408466
+```bash
+# Download from: https://www.gnome-look.org/p/1408466
+tar -xvf macOS.tar
+mv macOS* ~/.icons/
+```
 
-  # 2. Extract the theme
-  tar -xvf macOS.tar
-
-  # 3. Move the theme to the icons directory
-  mv macOS* ~/.icons/
-  ```
-
-  Then apply it through your system settings or using GNOME Tweaks.
-
-### Other Linux distributions
-
-Please check the [Development Setup](#development-setup) section for building from source.
+Then apply via system settings or GNOME Tweaks.
 
 ### 🪟 Windows
 
-> **⚠️ Windows Security Notice**
+> **🔒 Security Note**
 >
-> We're sorry for the extra steps! Since we're a small project, we can't afford code signing certificates yet. Here's what to expect:
+> We're a small open-source project and can't afford code signing certificates yet. You might see security warnings:
 >
-> 1. After downloading the installer, your browser might show a warning. Click "Keep" or "Keep anyway" to save the file.
-> 2. When running the installer, Windows may show a "Windows protected your PC" warning. To proceed:
->    1. Click "More info"
->    2. Click "Run anyway"
+> 1. Browser warning → Click "Keep" or "Keep anyway"
+> 2. Windows SmartScreen → Click "More info" → "Run anyway"
+>
+> Our code is fully open source on GitHub for your review! 🔍
 
-> 🔒 Your security is important to us. You can verify the source code in our GitHub repository before installing.
+**Installation steps:**
 
-1.  Download the `ScreenArc-x.x.x-Setup.exe` installer.
-2.  Run the installer and follow the on-screen instructions.
+1. Download `ScreenArc-x.x.x-Setup.exe`
+2. Run the installer and follow the prompts
 
 ### 🍏 macOS
 
-- Coming soon! Builds for macOS are planned for a future release.
+Coming soon! 🎉
 
-## 📖 How To Use
+---
 
-1.  **Record:**
-    - Launch ScreenArc.
-    - Choose your recording source: Full Screen, Area, or a specific Window.
-    - Select a display to record if you have multiple monitors.
-    - Optionally, enable your webcam.
-    - Click the record button. After a short countdown, the recording will begin.
-    - To stop, click the ScreenArc icon in your system tray and select "Stop Recording".
+## 📖 Quick Start
 
-2.  **Edit:**
-    - The editor will automatically open with your new recording.
-    - Use the right-hand **Side Panel** to adjust the background, padding, shadows, and other frame styles.
-    - Use the **Timeline** at the bottom to review the recording. Click and drag the automatically generated "Zoom" and "Cut" regions to adjust their timing and duration.
-    - Click the **"Presets"** button to save your current style for future use.
+### 1️⃣ Record
 
-3.  **Export:**
-    - Click the **"Export"** button in the top-right corner.
-    - Choose your desired format (MP4/GIF), resolution, and output location.
-    - Click "Start Export" and let ScreenArc do the rest!
+- Launch ScreenArc
+- Choose your recording source (Full Screen / Area / Window)
+- Select which display to record (if you have multiple)
+- Toggle webcam on/off
+- Hit the record button
+- Stop recording via the system tray icon
 
-## 🛠️ Technologies Used
+### 2️⃣ Edit
 
-- **Core:** [Electron](https://www.electronjs.org/), [Vite](https://vitejs.dev/), [TypeScript](https://www.typescriptlang.org/)
-- **UI:** [React](https://reactjs.org/), [TailwindCSS](https://tailwindcss.com/)
-- **State Management:** [Zustand](https://github.com/pmndrs/zustand)
-- **Video/System:** [Node.js](https://nodejs.org/), [FFmpeg](https://ffmpeg.org/)
-- **Packaging:** [Electron Builder](https://www.electron.build/)
+- The editor opens automatically with your recording
+- **Right panel** → Customize backgrounds, padding, shadows, borders
+- **Timeline** → Adjust auto-generated zoom effects and cut unwanted sections
+- **Presets** → Save your style for future projects
 
-## 🤝 Contributing
+### 3️⃣ Export
 
-Contributions are welcome! If you have ideas for new features, bug fixes, or improvements, please feel free to open an issue or submit a pull request.
+- Click **Export** (top-right corner)
+- Choose format (MP4/GIF), resolution, and save location
+- Click **Start Export**
+- Done! ✅
 
-### 🛠️ Development Setup
+---
 
-### Prerequisites
+## 🛠️ Tech Stack
 
-#### 🐧 Linux
+Built with modern, powerful technologies:
 
-- Make sure you're using X11 (not Wayland) as your display server. Check with:
+- **⚡ Core** - Electron, Vite, TypeScript
+- **💅 UI** - React, TailwindCSS
+- **📦 State** - Zustand
+- **🎥 Video** - Node.js, FFmpeg
+- **📦 Build** - Electron Builder
+
+---
+
+## 🤝 Contribute
+
+We love contributions! Whether it's bug fixes, new features, or improvements, feel free to:
+
+- 🐛 Open an issue
+- 🔧 Submit a pull request
+- 💬 Join the discussion
+
+### 🔧 Development Setup
+
+#### Prerequisites
+
+**🐧 Linux users:**
+
+- Ensure you're on X11 (not Wayland)
   ```bash
   echo $XDG_SESSION_TYPE
   ```
-  If it shows `wayland`, switch to X11 in your login screen settings.
 
-#### 🪟 Windows
+**🪟 Windows users:**
 
-1. **Install Build Tools**:
-   - Download [Build Tools for Visual Studio 2022](https://visualstudio.microsoft.com/visual-cpp-build-tools/)
-   - Run the installer and select "Desktop development with C++" workload
-   - In the Installation details (right panel), ensure these are checked:
+1. Install [Build Tools for Visual Studio 2022](https://visualstudio.microsoft.com/visual-cpp-build-tools/)
+   - Select "Desktop development with C++"
+   - Ensure these are checked:
      - MSVC v143 - VS 2022 C++ x64/x86 build tools
      - Windows 10/11 SDK
      - C++ CMake tools for Windows
-   - Click Install and wait for completion
 
-2. **Install Python 3.8 (other versions may work but are not tested)**:
-   - Download from [Python 3.8.x](https://www.python.org/downloads/release/python-3810/)
-   - During installation, check "Add Python 3.8 to PATH"
-   - Verify installation by running `python --version` in a new terminal
+2. Install [Python 3.8](https://www.python.org/downloads/release/python-3810/)
+   - Check "Add Python 3.8 to PATH" during installation
 
-#### Setup Instructions
+#### Setup
 
-1. **Clone the repository**:
+1. **Clone the repo:**
 
    ```bash
    git clone https://github.com/tamnguyenvan/screenarc.git
    cd screenarc
    ```
 
-2. **Install dependencies**:
+2. **Install dependencies:**
 
    ```bash
    npm install
    ```
 
-3. **Set up FFmpeg**:
+3. **Set up FFmpeg:**
 
-   **For Linux**:
+   **Linux:**
 
    ```bash
-   # Create binaries directory if it doesn't exist
    mkdir -p binaries/linux
-
-   # Download FFmpeg static binary
    wget https://github.com/tamnguyenvan/screenarc-assets/releases/download/v0.0.1/ffmpeg -O binaries/linux/ffmpeg
-
-   # Make FFmpeg executable
    chmod +x binaries/linux/ffmpeg
    ```
 
-   **For Windows (PowerShell)**:
+   **Windows (PowerShell):**
 
-   ````powershell
-   # Create binaries directory if it doesn't exist
+   ```powershell
    New-Item -ItemType Directory -Force -Path "binaries\windows"
-
-   # Download FFmpeg static binary
    Invoke-WebRequest -Uri "https://github.com/tamnguyenvan/screenarc-assets/releases/download/v0.0.1/ffmpeg.exe" -OutFile "binaries\windows\ffmpeg.exe"
+   ```
 
-   **For macOS**:
+   **macOS:**
+
    ```bash
-   # Create binaries directory if it doesn't exist
    mkdir -p binaries/darwin
-
-   # Download FFmpeg static binary
    wget https://github.com/tamnguyenvan/screenarc-assets/releases/download/v0.0.1/ffmpeg -O binaries/darwin/ffmpeg
-
-   # Make FFmpeg executable
    chmod +x binaries/darwin/ffmpeg
-   ````
-
    ```
 
-   ```
-
-4. **Run the development server**:
+4. **Run development server:**
 
    ```bash
    npm run dev
    ```
 
-5. **Build the application (Optional)**:
+5. **Build the app (optional):**
 
    ```bash
-   # For Linux
+   # Linux
    npm run dist:appimage
 
-   # For Windows
+   # Windows
    npm run dist:win
    ```
 
+---
+
 ## 📜 License
 
-This project is licensed under the [AGPL-3.0 License](LICENSE).
+Licensed under [GPL-3.0 License](LICENSE)
+
+---
+
+<div align="center">
+  <p>Made with ❤️ by the ScreenArc community</p>
+  <p>⭐ Star us on GitHub if you find this useful! ⭐</p>
+</div>
