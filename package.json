@@ -7,7 +7,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "clean": "rimraf dist dist-electron build",
+    "clean": "rimraf dist dist-electron",
     "build": "npm run clean && tsc && vite build",
     "dist": "tsc && npm run build && electron-builder",
     "dist:appimage": "tsc && npm run build && electron-builder build -l AppImage --publish never",
