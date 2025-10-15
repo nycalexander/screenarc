@@ -1,5 +1,3 @@
-// START OF FILE electron_main_features_recording-manager.ts
-
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // Contains core business logic for recording, stopping, and cleanup.
 
@@ -92,13 +90,21 @@ async function startActualRecording(
 
   if (appState.mouseTracker) {
     appState.mouseTracker.on('data', (data: any) => {
-      const relativeEvent = {
-        ...data,
-        x: data.x - recordingGeometry.x,
-        y: data.y - recordingGeometry.y,
-        timestamp: data.timestamp - appState.recordingStartTime,
+      // Check if the mouse event is within the recording geometry bounds
+      if (
+        data.x >= recordingGeometry.x &&
+        data.x <= recordingGeometry.x + recordingGeometry.width &&
+        data.y >= recordingGeometry.y &&
+        data.y <= recordingGeometry.y + recordingGeometry.height
+      ) {
+        const relativeEvent = {
+          ...data,
+          x: data.x - recordingGeometry.x,
+          y: data.y - recordingGeometry.y,
+          timestamp: data.timestamp - appState.recordingStartTime,
+        }
+        appState.recordedMouseEvents.push(relativeEvent)
       }
-      appState.recordedMouseEvents.push(relativeEvent)
     })
     // Check if tracker started successfully
     const trackerStarted = await appState.mouseTracker.start(appState.runtimeCursorImageMap)
