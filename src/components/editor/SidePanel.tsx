@@ -7,12 +7,10 @@ import { CameraSettings } from './sidepanel/CameraSettings'
 import { CursorSettings } from './sidepanel/CursorSettings'
 import { AnimationSettingsPanel } from './sidepanel/AnimationSettingsPanel'
 import { useShallow } from 'zustand/react/shallow'
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import { cn } from '../../lib/utils'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip'
 import { AudioSettings } from './sidepanel/AudioSettings'
-
-type SidePanelTab = 'general' | 'camera' | 'cursor' | 'audio' | 'animation' | 'settings'
 
 interface TabButtonProps {
   label: string
@@ -81,17 +79,24 @@ function FrameSettingsPanel() {
 }
 
 export function SidePanel() {
-  const [activeTab, setActiveTab] = useState<SidePanelTab>('general')
-
   // Get necessary states from the store
-  const { selectedRegionId, zoomRegions, cutRegions, webcamVideoUrl, platform, setSelectedRegionId } = useEditorStore(
+  const {
+    selectedRegionId,
+    zoomRegions,
+    cutRegions,
+    webcamVideoUrl,
+    setSelectedRegionId,
+    activeSidePanelTab,
+    setActiveSidePanelTab,
+  } = useEditorStore(
     useShallow((state) => ({
       selectedRegionId: state.selectedRegionId,
       zoomRegions: state.zoomRegions,
       cutRegions: state.cutRegions,
       webcamVideoUrl: state.webcamVideoUrl,
-      platform: state.platform,
       setSelectedRegionId: state.setSelectedRegionId,
+      activeSidePanelTab: state.activeSidePanelTab,
+      setActiveSidePanelTab: state.setActiveSidePanelTab,
     })),
   )
 
@@ -104,9 +109,9 @@ export function SidePanel() {
   // Auto switch to 'general' tab when a region is selected
   useEffect(() => {
     if (selectedRegion) {
-      setActiveTab('general')
+      setActiveSidePanelTab('general')
     }
-  }, [selectedRegion])
+  }, [selectedRegion, setActiveSidePanelTab])
 
   // Handle Escape key to clear selection
   useEffect(() => {
@@ -121,7 +126,7 @@ export function SidePanel() {
 
   // Render content based on active tab
   const renderContent = () => {
-    switch (activeTab) {
+    switch (activeSidePanelTab) {
       case 'general':
         return selectedRegion ? <RegionSettingsPanel region={selectedRegion} /> : <FrameSettingsPanel />
       case 'camera':
@@ -152,34 +157,33 @@ export function SidePanel() {
           <TabButton
             label="General"
             icon={<PanelsTopLeft className="w-5 h-5" />}
-            isActive={activeTab === 'general'}
-            onClick={() => setActiveTab('general')}
+            isActive={activeSidePanelTab === 'general'}
+            onClick={() => setActiveSidePanelTab('general')}
           />
           <TabButton
             label="Camera"
             icon={<Webcam className="w-5 h-5" />}
-            isActive={activeTab === 'camera'}
-            onClick={() => setActiveTab('camera')}
+            isActive={activeSidePanelTab === 'camera'}
+            onClick={() => setActiveSidePanelTab('camera')}
             disabled={!webcamVideoUrl}
           />
           <TabButton
             label="Audio"
             icon={<AudioLines className="w-5 h-5" />}
-            isActive={activeTab === 'audio'}
-            onClick={() => setActiveTab('audio')}
+            isActive={activeSidePanelTab === 'audio'}
+            onClick={() => setActiveSidePanelTab('audio')}
           />
           <TabButton
             label="Animation"
             icon={<LineSquiggle className="w-5 h-5" />}
-            isActive={activeTab === 'animation'}
-            onClick={() => setActiveTab('animation')}
+            isActive={activeSidePanelTab === 'animation'}
+            onClick={() => setActiveSidePanelTab('animation')}
           />
           <TabButton
             label="Cursor"
             icon={<MousePointer className="w-5 h-5" />}
-            isActive={activeTab === 'cursor'}
-            onClick={() => setActiveTab('cursor')}
-            disabled={platform !== 'win32'}
+            isActive={activeSidePanelTab === 'cursor'}
+            onClick={() => setActiveSidePanelTab('cursor')}
           />
         </div>
       </div>

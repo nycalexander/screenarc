@@ -1,4 +1,4 @@
-import type { UIState, UIActions, Slice, CursorStyles } from '../../types'
+import type { UIState, UIActions, Slice, CursorStyles, SidePanelTab } from '../../types'
 
 const initialCursorStyles: CursorStyles = {
   shadowBlur: 6,
@@ -13,6 +13,7 @@ export const initialUIState: UIState = {
   isPreviewFullScreen: false,
   cursorThemeName: 'default',
   cursorStyles: initialCursorStyles,
+  activeSidePanelTab: 'general',
 }
 
 export const createUISlice: Slice<UIState, UIActions> = (set, get) => ({
@@ -78,5 +79,10 @@ export const createUISlice: Slice<UIState, UIActions> = (set, get) => ({
       Object.assign(state.cursorStyles, style)
     })
     window.electronAPI.setSetting('appearance.cursorStyles', get().cursorStyles)
+  },
+  setActiveSidePanelTab: (tab: SidePanelTab) => {
+    set((state) => {
+      state.activeSidePanelTab = tab
+    })
   },
 })
