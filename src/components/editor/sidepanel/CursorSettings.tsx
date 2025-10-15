@@ -9,8 +9,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Slider } from '../../ui/slider'
 import { ColorPicker } from '../../ui/color-picker'
 import { rgbaToHexAlpha, hexToRgb } from '../../../lib/utils'
+import { DEFAULTS } from '../../../lib/constants'
 
 const POST_PROCESSING_SCALES = [
+  { value: 3, label: '3x' },
   { value: 2, label: '2x' },
   { value: 1.5, label: '1.5x' },
   { value: 1, label: '1x' },
@@ -35,7 +37,7 @@ export function CursorSettings() {
     })),
   )
   const { reloadCursorTheme } = useEditorStore.getState()
-  const [cursorScale, setCursorScale] = useState<number>(2)
+  const [cursorScale, setCursorScale] = useState<number>(DEFAULTS.CURSOR.SCALE.defaultValue)
   const [availableThemes, setAvailableThemes] = useState<string[]>(['default'])
 
   const isCustomizationSupported = useMemo(() => platform === 'win32' || platform === 'darwin', [platform])
@@ -87,6 +89,27 @@ export function CursorSettings() {
     }
   }
 
+  const handleResetTheme = () => {
+    if (isCustomizationSupported) {
+      handleThemeChange(DEFAULTS.CURSOR.THEME.defaultValue)
+    }
+  }
+
+  const handleResetSize = () => {
+    if (isCustomizationSupported) {
+      handleCursorScaleChange(DEFAULTS.CURSOR.SCALE.defaultValue)
+    }
+  }
+
+  const handleResetShadow = () => {
+    updateCursorStyle({
+      shadowBlur: DEFAULTS.CURSOR.SHADOW.BLUR.defaultValue,
+      shadowOffsetX: DEFAULTS.CURSOR.SHADOW.OFFSET_X.defaultValue,
+      shadowOffsetY: DEFAULTS.CURSOR.SHADOW.OFFSET_Y.defaultValue,
+      shadowColor: DEFAULTS.CURSOR.SHADOW.DEFAULT_COLOR_RGBA,
+    })
+  }
+
   return (
     <div className="h-full flex flex-col relative">
       {/* Header */}
@@ -103,90 +126,84 @@ export function CursorSettings() {
       </div>
       {/* Content */}
       <div className="flex-1 p-6 space-y-6 overflow-y-auto stable-scrollbar">
-        <div className="relative">
-          {!isCustomizationSupported && (
-            <div className="absolute inset-0 z-10 flex items-end justify-center pb-6 bg-background/50 cursor-not-allowed">
-              <div className="w-full max-w-md mx-6 bg-card/90 dark:bg-card/80 backdrop-blur-sm border border-border rounded-lg shadow-lg overflow-hidden"></div>
-            </div>
-          )}
-
-          <Collapse
-            title="Cursor Theme"
-            description="Change the cursor style in the video"
-            icon={<MousePointer className="w-4 h-4 text-primary" />}
-            defaultOpen={true}
-          >
-            <div className="space-y-3">
-              <label className="text-sm font-medium text-sidebar-foreground flex items-center gap-2">Theme</label>
-              <Select
-                value={isCustomizationSupported ? cursorThemeName : 'default'}
-                onValueChange={handleThemeChange}
-                disabled={!isCustomizationSupported}
-              >
-                <SelectTrigger className="h-10 bg-background/50">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {availableThemes.map((theme) => (
-                    <SelectItem key={theme} value={theme} className="capitalize">
-                      {theme}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </Collapse>
-        </div>
-
-        {/* === Cursor Size === */}
-        <div className="relative">
-          {!isCustomizationSupported && (
-            <div className="absolute inset-0 z-10 flex items-end justify-center pb-6 bg-background/50 cursor-not-allowed">
-              <div className="w-full max-w-md mx-6 bg-card/90 dark:bg-card/80 backdrop-blur-sm border border-border rounded-lg shadow-lg overflow-hidden"></div>
-            </div>
-          )}
-
-          <Collapse
-            title="Cursor Size"
-            description="Change the cursor size in the final video"
-            icon={<MousePointer className="w-4 h-4 text-primary" />}
-            defaultOpen={true}
-          >
-            <div className="space-y-3">
-              <label className="text-sm font-medium text-sidebar-foreground flex items-center gap-2">Scale</label>
-              <div
-                className={cn(
-                  'grid grid-cols-3 gap-1 p-1 rounded-lg',
-                  !isCustomizationSupported ? 'opacity-50 cursor-not-allowed' : 'bg-muted/50',
-                )}
-              >
-                {POST_PROCESSING_SCALES.map((scale) => (
-                  <button
-                    key={scale.value}
-                    onClick={!isCustomizationSupported ? undefined : () => handleCursorScaleChange(scale.value)}
-                    disabled={!isCustomizationSupported}
-                    className={cn(
-                      'py-2 text-sm font-medium rounded-md transition-colors duration-200',
-                      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
-                      cursorScale === scale.value
-                        ? 'bg-background shadow-sm text-foreground'
-                        : 'text-muted-foreground hover:text-foreground',
-                      !isCustomizationSupported && 'cursor-not-allowed hover:text-muted-foreground',
-                    )}
-                  >
-                    {scale.label}
-                  </button>
+        <Collapse
+          title="Cursor Theme"
+          description="Change the cursor style in the video"
+          icon={<MousePointer className="w-4 h-4 text-primary" />}
+          defaultOpen={true}
+          onReset={isCustomizationSupported ? handleResetTheme : undefined}
+        >
+          <div className="space-y-3">
+            <label className="text-sm font-medium text-sidebar-foreground flex items-center gap-2">Theme</label>
+            <Select
+              value={isCustomizationSupported ? cursorThemeName : 'default'}
+              onValueChange={handleThemeChange}
+              disabled={!isCustomizationSupported}
+            >
+              <SelectTrigger className="h-10 bg-background/50">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {availableThemes.map((theme) => (
+                  <SelectItem key={theme} value={theme} className="capitalize">
+                    {theme}
+                  </SelectItem>
                 ))}
-              </div>
+              </SelectContent>
+            </Select>
+            {!isCustomizationSupported && (
+              <p className="text-xs text-muted-foreground pt-1">Cursor themes are available on Windows and macOS.</p>
+            )}
+          </div>
+        </Collapse>
+
+        <Collapse
+          title="Cursor Size"
+          description="Change the cursor size in the final video"
+          icon={<MousePointer className="w-4 h-4 text-primary" />}
+          defaultOpen={true}
+          onReset={isCustomizationSupported ? handleResetSize : undefined}
+        >
+          <div className="space-y-3">
+            <label className="text-sm font-medium text-sidebar-foreground flex items-center gap-2">Scale</label>
+            <div
+              className={cn(
+                'grid grid-cols-4 gap-1 p-1 rounded-lg',
+                !isCustomizationSupported ? 'opacity-50 cursor-not-allowed' : 'bg-muted/50',
+              )}
+            >
+              {POST_PROCESSING_SCALES.map((scale) => (
+                <button
+                  key={scale.value}
+                  onClick={!isCustomizationSupported ? undefined : () => handleCursorScaleChange(scale.value)}
+                  disabled={!isCustomizationSupported}
+                  className={cn(
+                    'py-2 text-sm font-medium rounded-md transition-colors duration-200',
+                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+                    cursorScale === scale.value
+                      ? 'bg-background shadow-sm text-foreground'
+                      : 'text-muted-foreground hover:text-foreground',
+                    !isCustomizationSupported && 'cursor-not-allowed hover:text-muted-foreground',
+                  )}
+                >
+                  {scale.label}
+                </button>
+              ))}
             </div>
-          </Collapse>
-        </div>
+            {!isCustomizationSupported && (
+              <p className="text-xs text-muted-foreground pt-1">
+                Virtual cursor sizing is available on Windows and macOS.
+              </p>
+            )}
+          </div>
+        </Collapse>
 
         <Collapse
           title="Cursor Shadow"
           description="Add a drop shadow for better visibility"
           icon={<ShadowIcon className="w-4 h-4 text-primary" />}
           defaultOpen={true}
+          onReset={handleResetShadow}
         >
           <div className="space-y-4">
             <div className="space-y-2.5">
@@ -195,9 +212,9 @@ export function CursorSettings() {
                 <span className="text-xs font-semibold text-primary tabular-nums">{cursorStyles.shadowBlur}px</span>
               </div>
               <Slider
-                min={0}
-                max={20}
-                step={1}
+                min={DEFAULTS.CURSOR.SHADOW.BLUR.min}
+                max={DEFAULTS.CURSOR.SHADOW.BLUR.max}
+                step={DEFAULTS.CURSOR.SHADOW.BLUR.step}
                 value={cursorStyles.shadowBlur}
                 onChange={(v) => updateCursorStyle({ shadowBlur: v })}
               />
@@ -211,9 +228,9 @@ export function CursorSettings() {
                   </span>
                 </div>
                 <Slider
-                  min={-20}
-                  max={20}
-                  step={1}
+                  min={DEFAULTS.CURSOR.SHADOW.OFFSET_X.min}
+                  max={DEFAULTS.CURSOR.SHADOW.OFFSET_X.max}
+                  step={DEFAULTS.CURSOR.SHADOW.OFFSET_X.step}
                   value={cursorStyles.shadowOffsetX}
                   onChange={(v) => updateCursorStyle({ shadowOffsetX: v })}
                 />
@@ -226,9 +243,9 @@ export function CursorSettings() {
                   </span>
                 </div>
                 <Slider
-                  min={-20}
-                  max={20}
-                  step={1}
+                  min={DEFAULTS.CURSOR.SHADOW.OFFSET_Y.min}
+                  max={DEFAULTS.CURSOR.SHADOW.OFFSET_Y.max}
+                  step={DEFAULTS.CURSOR.SHADOW.OFFSET_Y.step}
                   value={cursorStyles.shadowOffsetY}
                   onChange={(v) => updateCursorStyle({ shadowOffsetY: v })}
                 />
@@ -245,7 +262,13 @@ export function CursorSettings() {
                     {Math.round(shadowAlpha * 100)}%
                   </span>
                 </div>
-                <Slider min={0} max={1} step={0.01} value={shadowAlpha} onChange={handleShadowOpacityChange} />
+                <Slider
+                  min={DEFAULTS.CURSOR.SHADOW.OPACITY.min}
+                  max={DEFAULTS.CURSOR.SHADOW.OPACITY.max}
+                  step={DEFAULTS.CURSOR.SHADOW.OPACITY.step}
+                  value={shadowAlpha}
+                  onChange={handleShadowOpacityChange}
+                />
               </div>
             </div>
           </div>

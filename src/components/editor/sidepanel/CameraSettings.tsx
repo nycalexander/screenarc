@@ -13,6 +13,7 @@ import { CornerRadiusIcon, FlipHorizontalIcon, WebcamOffIcon } from '../../ui/ic
 import { Collapse } from '../../ui/collapse'
 import { cn } from '../../../lib/utils'
 import type { WebcamPosition } from '../../../types'
+import { DEFAULTS } from '../../../lib/constants'
 
 const DisabledPanelPlaceholder = ({
   icon,
@@ -74,9 +75,25 @@ export function CameraSettings() {
     }
   }
 
-  const handleWebcamStyleChange = (name: string, value: string | number) => {
+  const handleResetStyle = () => {
     updateWebcamStyle({
-      [name]: typeof value === 'string' ? Number.parseFloat(value) || 0 : value,
+      shape: DEFAULTS.CAMERA.STYLE.SHAPE.defaultValue,
+      borderRadius: DEFAULTS.CAMERA.STYLE.RADIUS.defaultValue,
+      isFlipped: DEFAULTS.CAMERA.STYLE.FLIP.defaultValue,
+    })
+  }
+
+  const handleResetPlacement = () => {
+    updateWebcamStyle({ size: DEFAULTS.CAMERA.PLACEMENT.SIZE.defaultValue })
+    setWebcamPosition({ pos: DEFAULTS.CAMERA.PLACEMENT.POSITION.defaultValue as WebcamPosition['pos'] })
+  }
+
+  const handleResetEffects = () => {
+    updateWebcamStyle({
+      shadowBlur: DEFAULTS.CAMERA.EFFECTS.BLUR.defaultValue,
+      shadowOffsetX: DEFAULTS.CAMERA.EFFECTS.OFFSET_X.defaultValue,
+      shadowOffsetY: DEFAULTS.CAMERA.EFFECTS.OFFSET_Y.defaultValue,
+      shadowColor: DEFAULTS.CAMERA.EFFECTS.DEFAULT_COLOR_RGBA,
     })
   }
 
@@ -130,7 +147,13 @@ export function CameraSettings() {
               </div>
             </ControlGroup>
 
-            <Collapse title="Style" description="Change shape and orientation" icon={<ImageIcon />} defaultOpen={true}>
+            <Collapse
+              title="Style"
+              description="Change shape and orientation"
+              icon={<ImageIcon />}
+              defaultOpen={true}
+              onReset={handleResetStyle}
+            >
               <div className="space-y-6">
                 {/* Shape Selector */}
                 <div className="space-y-3">
@@ -177,9 +200,9 @@ export function CameraSettings() {
                     )}
                   </label>
                   <Slider
-                    min={0}
-                    max={50}
-                    step={1}
+                    min={DEFAULTS.CAMERA.STYLE.RADIUS.min}
+                    max={DEFAULTS.CAMERA.STYLE.RADIUS.max}
+                    step={DEFAULTS.CAMERA.STYLE.RADIUS.step}
                     value={isCircle ? 50 : webcamStyles.borderRadius}
                     onChange={(value) => updateWebcamStyle({ borderRadius: value })}
                     disabled={isCircle}
@@ -209,6 +232,7 @@ export function CameraSettings() {
               description="Adjust size and corner position"
               icon={<Maximize />}
               defaultOpen={true}
+              onReset={handleResetPlacement}
             >
               <div className="space-y-6">
                 <div className="space-y-3">
@@ -217,9 +241,9 @@ export function CameraSettings() {
                     <span className="text-xs font-semibold text-primary tabular-nums">{webcamStyles.size}%</span>
                   </label>
                   <Slider
-                    min={10}
-                    max={50}
-                    step={1}
+                    min={DEFAULTS.CAMERA.PLACEMENT.SIZE.min}
+                    max={DEFAULTS.CAMERA.PLACEMENT.SIZE.max}
+                    step={DEFAULTS.CAMERA.PLACEMENT.SIZE.step}
                     value={webcamStyles.size}
                     onChange={(value) => updateWebcamStyle({ size: value })}
                   />
@@ -255,7 +279,13 @@ export function CameraSettings() {
               </div>
             </Collapse>
 
-            <Collapse title="Effects" description="Add a drop shadow for depth" icon={<Wand2 />} defaultOpen={false}>
+            <Collapse
+              title="Effects"
+              description="Add a drop shadow for depth"
+              icon={<Wand2 />}
+              defaultOpen={false}
+              onReset={handleResetEffects}
+            >
               <div className="space-y-4">
                 <div className="space-y-2.5">
                   <div className="flex items-center justify-between">
@@ -263,11 +293,11 @@ export function CameraSettings() {
                     <span className="text-xs font-semibold text-primary tabular-nums">{webcamStyles.shadowBlur}px</span>
                   </div>
                   <Slider
-                    min={0}
-                    max={80}
-                    step={1}
+                    min={DEFAULTS.CAMERA.EFFECTS.BLUR.min}
+                    max={DEFAULTS.CAMERA.EFFECTS.BLUR.max}
+                    step={DEFAULTS.CAMERA.EFFECTS.BLUR.step}
                     value={webcamStyles.shadowBlur}
-                    onChange={(v) => handleWebcamStyleChange('shadowBlur', v)}
+                    onChange={(v) => updateWebcamStyle({ shadowBlur: v })}
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
@@ -279,11 +309,11 @@ export function CameraSettings() {
                       </span>
                     </div>
                     <Slider
-                      min={-40}
-                      max={40}
-                      step={1}
+                      min={DEFAULTS.CAMERA.EFFECTS.OFFSET_X.min}
+                      max={DEFAULTS.CAMERA.EFFECTS.OFFSET_X.max}
+                      step={DEFAULTS.CAMERA.EFFECTS.OFFSET_X.step}
                       value={webcamStyles.shadowOffsetX}
-                      onChange={(v) => handleWebcamStyleChange('shadowOffsetX', v)}
+                      onChange={(v) => updateWebcamStyle({ shadowOffsetX: v })}
                     />
                   </div>
                   <div className="space-y-2.5">
@@ -294,11 +324,11 @@ export function CameraSettings() {
                       </span>
                     </div>
                     <Slider
-                      min={-40}
-                      max={40}
-                      step={1}
+                      min={DEFAULTS.CAMERA.EFFECTS.OFFSET_Y.min}
+                      max={DEFAULTS.CAMERA.EFFECTS.OFFSET_Y.max}
+                      step={DEFAULTS.CAMERA.EFFECTS.OFFSET_Y.step}
                       value={webcamStyles.shadowOffsetY}
-                      onChange={(v) => handleWebcamStyleChange('shadowOffsetY', v)}
+                      onChange={(v) => updateWebcamStyle({ shadowOffsetY: v })}
                     />
                   </div>
                 </div>
@@ -313,7 +343,13 @@ export function CameraSettings() {
                         {Math.round(shadowAlpha * 100)}%
                       </span>
                     </div>
-                    <Slider min={0} max={1} step={0.01} value={shadowAlpha} onChange={handleShadowOpacityChange} />
+                    <Slider
+                      min={DEFAULTS.CAMERA.EFFECTS.OPACITY.min}
+                      max={DEFAULTS.CAMERA.EFFECTS.OPACITY.max}
+                      step={DEFAULTS.CAMERA.EFFECTS.OPACITY.step}
+                      value={shadowAlpha}
+                      onChange={handleShadowOpacityChange}
+                    />
                   </div>
                 </div>
               </div>
