@@ -2,7 +2,7 @@ import { useEditorStore } from '../../../store/editorStore'
 import type { ZoomRegion } from '../../../types'
 import { Collapse } from '../../ui/collapse'
 import { LineSquiggle } from 'lucide-react'
-import { ZOOM } from '../../../lib/constants'
+import { ZOOM, DEFAULTS } from '../../../lib/constants'
 import { EASING_MAP } from '../../../lib/easing'
 import { cn } from '../../../lib/utils'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../ui/select'
@@ -31,6 +31,14 @@ export function AnimationSettings({ region }: AnimationSettingsProps) {
     updateRegion(region.id, { zoomLevel: value })
   }
 
+  const handleResetAnimation = () => {
+    updateRegion(region.id, {
+      transitionDuration: ZOOM.SPEED_OPTIONS[DEFAULTS.ANIMATION.SPEED.defaultValue as keyof typeof ZOOM.SPEED_OPTIONS],
+      easing: DEFAULTS.ANIMATION.EASING.defaultValue,
+      zoomLevel: DEFAULTS.ANIMATION.ZOOM_LEVEL.defaultValue,
+    })
+  }
+
   const currentSpeed =
     speedOptions.find(
       (speed) => ZOOM.SPEED_OPTIONS[speed as keyof typeof ZOOM.SPEED_OPTIONS] === region.transitionDuration,
@@ -42,6 +50,7 @@ export function AnimationSettings({ region }: AnimationSettingsProps) {
       description="Adjust transition and zoom level"
       icon={<LineSquiggle className="w-4 h-4 text-primary" />}
       defaultOpen={true}
+      onReset={handleResetAnimation}
     >
       <div className="space-y-6">
         {/* Speed Selector */}
@@ -88,7 +97,13 @@ export function AnimationSettings({ region }: AnimationSettingsProps) {
             <label className="text-sm font-medium text-sidebar-foreground">Zoom Level</label>
             <span className="text-xs font-semibold text-primary tabular-nums">{region.zoomLevel.toFixed(1)}x</span>
           </div>
-          <Slider min={1} max={3} step={0.1} value={region.zoomLevel} onChange={handleZoomLevelChange} />
+          <Slider
+            min={DEFAULTS.ANIMATION.ZOOM_LEVEL.min}
+            max={DEFAULTS.ANIMATION.ZOOM_LEVEL.max}
+            step={DEFAULTS.ANIMATION.ZOOM_LEVEL.step}
+            value={region.zoomLevel}
+            onChange={handleZoomLevelChange}
+          />
         </div>
       </div>
     </Collapse>

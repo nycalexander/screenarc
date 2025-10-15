@@ -123,8 +123,10 @@ export interface WebcamPosition {
     | 'right-center'
 }
 
+export type WebcamShape = 'circle' | 'square' | 'rectangle'
+
 export interface WebcamStyles {
-  shape: 'circle' | 'square' | 'rectangle'
+  shape: WebcamShape
   borderRadius: number
   size: number
   shadowBlur: number
@@ -273,6 +275,7 @@ export interface AudioState {
 export interface AudioActions {
   setVolume: (volume: number) => void
   toggleMute: () => void
+  setIsMuted: (isMuted: boolean) => void
 }
 
 // Combined state type for the editor store

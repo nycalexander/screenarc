@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useEditorStore } from '../../../store/editorStore'
 import { LineSquiggle, Wand2, Check } from 'lucide-react'
-import { ZOOM } from '../../../lib/constants'
+import { ZOOM, DEFAULTS } from '../../../lib/constants'
 import { EASING_MAP } from '../../../lib/easing'
 import { cn } from '../../../lib/utils'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../ui/select'
@@ -16,9 +16,9 @@ export function AnimationSettingsPanel() {
   const { applyAnimationSettingsToAll } = useEditorStore.getState()
 
   // Local state
-  const [speed, setSpeed] = useState(ZOOM.DEFAULT_SPEED)
-  const [easing, setEasing] = useState(ZOOM.DEFAULT_EASING)
-  const [zoomLevel, setZoomLevel] = useState(ZOOM.DEFAULT_LEVEL)
+  const [speed, setSpeed] = useState(DEFAULTS.ANIMATION.SPEED.defaultValue)
+  const [easing, setEasing] = useState(DEFAULTS.ANIMATION.EASING.defaultValue)
+  const [zoomLevel, setZoomLevel] = useState(DEFAULTS.ANIMATION.ZOOM_LEVEL.defaultValue)
   const [applyStatus, setApplyStatus] = useState<'idle' | 'applied'>('idle')
 
   const handleApplyToAll = () => {
@@ -29,6 +29,12 @@ export function AnimationSettingsPanel() {
 
     setApplyStatus('applied')
     setTimeout(() => setApplyStatus('idle'), 2000)
+  }
+
+  const handleResetAnimation = () => {
+    setSpeed(DEFAULTS.ANIMATION.SPEED.defaultValue)
+    setEasing(DEFAULTS.ANIMATION.EASING.defaultValue)
+    setZoomLevel(DEFAULTS.ANIMATION.ZOOM_LEVEL.defaultValue)
   }
 
   return (
@@ -54,6 +60,7 @@ export function AnimationSettingsPanel() {
           description="These settings will be applied to all zoom regions."
           icon={<LineSquiggle />}
           defaultOpen={true}
+          onReset={handleResetAnimation}
         >
           <div className="space-y-6 pt-2">
             {/* Speed Selector */}
@@ -100,7 +107,13 @@ export function AnimationSettingsPanel() {
                 <label className="text-sm font-medium text-sidebar-foreground">Zoom Level</label>
                 <span className="text-xs font-semibold text-primary tabular-nums">{zoomLevel.toFixed(1)}x</span>
               </div>
-              <Slider min={1} max={3} step={0.1} value={zoomLevel} onChange={setZoomLevel} />
+              <Slider
+                min={DEFAULTS.ANIMATION.ZOOM_LEVEL.min}
+                max={DEFAULTS.ANIMATION.ZOOM_LEVEL.max}
+                step={DEFAULTS.ANIMATION.ZOOM_LEVEL.step}
+                value={zoomLevel}
+                onChange={setZoomLevel}
+              />
             </div>
 
             {/* Apply Collapse */}

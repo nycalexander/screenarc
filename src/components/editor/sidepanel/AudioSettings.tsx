@@ -5,6 +5,7 @@ import { Collapse } from '../../ui/collapse'
 import { Slider } from '../../ui/slider'
 import { Button } from '../../ui/button'
 import { cn } from '../../../lib/utils'
+import { DEFAULTS } from '../../../lib/constants'
 
 const DisabledPanelPlaceholder = ({
   icon,
@@ -25,17 +26,23 @@ const DisabledPanelPlaceholder = ({
 )
 
 export function AudioSettings() {
-  const { volume, isMuted, setVolume, toggleMute, hasAudioTrack } = useEditorStore(
+  const { volume, isMuted, setVolume, toggleMute, hasAudioTrack, setIsMuted } = useEditorStore(
     useShallow((state) => ({
       volume: state.volume,
       isMuted: state.isMuted,
       setVolume: state.setVolume,
       toggleMute: state.toggleMute,
       hasAudioTrack: state.hasAudioTrack,
+      setIsMuted: state.setIsMuted,
     })),
   )
 
   const VolumeIcon = isMuted || volume === 0 ? VolumeX : volume < 0.5 ? Volume1 : Volume2
+
+  const handleResetVolume = () => {
+    setVolume(DEFAULTS.AUDIO.VOLUME.defaultValue)
+    setIsMuted(DEFAULTS.AUDIO.MUTED.defaultValue)
+  }
 
   return (
     <div className="h-full flex flex-col">
@@ -67,6 +74,7 @@ export function AudioSettings() {
               description="Control the overall volume of the video"
               icon={<Volume className="w-4 h-4 text-primary" />}
               defaultOpen={true}
+              onReset={handleResetVolume}
             >
               <div className="space-y-4 pt-2">
                 <div className="flex items-center gap-3">
@@ -81,9 +89,9 @@ export function AudioSettings() {
                   </Button>
                   <div className="flex-1">
                     <Slider
-                      min={0}
-                      max={1}
-                      step={0.01}
+                      min={DEFAULTS.AUDIO.VOLUME.min}
+                      max={DEFAULTS.AUDIO.VOLUME.max}
+                      step={DEFAULTS.AUDIO.VOLUME.step}
                       value={isMuted ? 0 : volume}
                       onChange={(value) => setVolume(value)}
                       disabled={isMuted}
