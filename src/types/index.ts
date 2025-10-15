@@ -1,6 +1,7 @@
 // --- Types ---
 export type BackgroundType = 'color' | 'gradient' | 'image' | 'wallpaper'
 export type AspectRatio = '16:9' | '9:16' | '4:3' | '3:4' | '1:1'
+export type SidePanelTab = 'general' | 'camera' | 'cursor' | 'audio' | 'animation' | 'settings'
 
 export interface Background {
   type: BackgroundType
@@ -250,6 +251,7 @@ export interface UIState {
   isPreviewFullScreen: boolean
   cursorThemeName: string
   cursorStyles: CursorStyles
+  activeSidePanelTab: SidePanelTab
 }
 export interface UIActions {
   setTheme: (theme: string) => void
@@ -258,6 +260,7 @@ export interface UIActions {
   togglePreviewFullScreen: () => void
   setCursorThemeName: (themeName: string) => void
   updateCursorStyle: (style: Partial<CursorStyles>) => void
+  setActiveSidePanelTab: (tab: SidePanelTab) => void
 }
 
 export interface AudioState {
