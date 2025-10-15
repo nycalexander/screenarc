@@ -22,6 +22,7 @@ type RenderableState = Pick<
   | 'cursorBitmapsToRender'
   | 'syncOffset'
   | 'cursorTheme'
+  | 'cursorStyles'
 >
 
 /**
@@ -273,12 +274,16 @@ export const drawScene = async (
     if (cursorData && cursorData.imageBitmap && cursorData.width > 0) {
       const cursorX = (event.x / state.recordingGeometry.width) * frameContentWidth
       const cursorY = (event.y / state.recordingGeometry.height) * frameContentHeight
+      const drawX = Math.round(cursorX - cursorData.xhot)
+      const drawY = Math.round(cursorY - cursorData.yhot)
 
-      ctx.drawImage(
-        cursorData.imageBitmap,
-        Math.round(cursorX - cursorData.xhot),
-        Math.round(cursorY - cursorData.yhot),
-      )
+      ctx.save()
+      const { shadowBlur, shadowOffsetX, shadowOffsetY, shadowColor } = state.cursorStyles
+      if (shadowBlur > 0 || shadowOffsetX !== 0 || shadowOffsetY !== 0) {
+        ctx.filter = `drop-shadow(${shadowOffsetX}px ${shadowOffsetY}px ${shadowBlur}px ${shadowColor})`
+      }
+      ctx.drawImage(cursorData.imageBitmap, drawX, drawY)
+      ctx.restore()
     }
   }
 

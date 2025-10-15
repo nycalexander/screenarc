@@ -52,6 +52,7 @@ export const useExportProcess = () => {
       recordingGeometry: fullState.recordingGeometry,
       cursorImages: fullState.cursorImages,
       cursorTheme: fullState.cursorTheme,
+      cursorStyles: fullState.cursorStyles,
       syncOffset: fullState.syncOffset,
     }
 

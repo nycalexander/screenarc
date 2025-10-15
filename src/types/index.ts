@@ -24,6 +24,13 @@ export interface FrameStyles {
   borderColor: string
 }
 
+export interface CursorStyles {
+  shadowBlur: number
+  shadowOffsetX: number
+  shadowOffsetY: number
+  shadowColor: string
+}
+
 export interface Preset {
   id: string
   name: string
@@ -242,6 +249,7 @@ export interface UIState {
   mode: 'light' | 'dark'
   isPreviewFullScreen: boolean
   cursorThemeName: string
+  cursorStyles: CursorStyles
 }
 export interface UIActions {
   setTheme: (theme: string) => void
@@ -249,6 +257,7 @@ export interface UIActions {
   initializeSettings: () => Promise<void>
   togglePreviewFullScreen: () => void
   setCursorThemeName: (themeName: string) => void
+  updateCursorStyle: (style: Partial<CursorStyles>) => void
 }
 
 export interface AudioState {

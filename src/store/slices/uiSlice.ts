@@ -1,10 +1,18 @@
-import type { UIState, UIActions, Slice } from '../../types'
+import type { UIState, UIActions, Slice, CursorStyles } from '../../types'
+
+const initialCursorStyles: CursorStyles = {
+  shadowBlur: 6,
+  shadowOffsetX: 3,
+  shadowOffsetY: 3,
+  shadowColor: 'rgba(0, 0, 0, 0.4)',
+}
 
 export const initialUIState: UIState = {
   theme: 'ocean-blue', // Default theme
   mode: 'light',
   isPreviewFullScreen: false,
   cursorThemeName: 'default',
+  cursorStyles: initialCursorStyles,
 }
 
 export const createUISlice: Slice<UIState, UIActions> = (set, get) => ({
@@ -28,7 +36,9 @@ export const createUISlice: Slice<UIState, UIActions> = (set, get) => ({
         themeName: string
         mode: 'light' | 'dark'
         cursorThemeName: string
+        cursorStyles: Partial<CursorStyles>
       }>('appearance')
+
       if (appearance?.themeName) {
         set((state) => {
           state.theme = appearance.themeName
@@ -44,6 +54,11 @@ export const createUISlice: Slice<UIState, UIActions> = (set, get) => ({
           state.cursorThemeName = appearance.cursorThemeName
         })
       }
+      if (appearance?.cursorStyles) {
+        set((state) => {
+          state.cursorStyles = { ...initialCursorStyles, ...appearance.cursorStyles }
+        })
+      }
     } catch (error) {
       console.error('Could not load app settings:', error)
     }
@@ -57,5 +72,11 @@ export const createUISlice: Slice<UIState, UIActions> = (set, get) => ({
       state.cursorThemeName = themeName
     })
     window.electronAPI.setSetting('appearance.cursorThemeName', themeName)
+  },
+  updateCursorStyle: (style: Partial<CursorStyles>) => {
+    set((state) => {
+      Object.assign(state.cursorStyles, style)
+    })
+    window.electronAPI.setSetting('appearance.cursorStyles', get().cursorStyles)
   },
 })
