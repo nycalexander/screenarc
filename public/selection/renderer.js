@@ -63,6 +63,7 @@ function onMouseDown(e) {
     } else if (target === selectionBox) {
         action = 'moving';
     } else {
+        // This will now catch clicks on the event-capture-layer
         action = 'drawing';
         selection = { x: startPos.x, y: startPos.y, width: 0, height: 0 };
         tooltip.style.display = 'none'; // Hide tooltip once user starts drawing
@@ -159,5 +160,6 @@ function onKeyDown(e) {
 }
 
 // --- Initialization ---
-document.body.addEventListener('mousedown', onMouseDown);
+// Attach the listener to the document to handle all clicks via event delegation
+document.addEventListener('mousedown', onMouseDown);
 window.addEventListener('keydown', onKeyDown);
