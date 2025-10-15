@@ -41,7 +41,6 @@ interface AppState {
 
   // Recording State
   recordingStartTime: number
-  ffmpegFirstFrameTime: number | null
   originalCursorScale: number | null
   currentRecordingSession: RecordingSession | null
   currentEditorSessionFiles: RecordingSession | null
@@ -62,7 +61,6 @@ export const appState: AppState = {
   recordedMouseEvents: [],
   runtimeCursorImageMap: new Map(),
   recordingStartTime: 0,
-  ffmpegFirstFrameTime: null,
   originalCursorScale: null,
   currentRecordingSession: null,
   currentEditorSessionFiles: null,
