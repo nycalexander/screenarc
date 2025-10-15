@@ -71,7 +71,7 @@ export const Preview = memo(
       })),
     )
 
-    const { setPlaying, setDuration, setVideoDimensions } = useEditorStore.getState()
+    const { setPlaying, setDuration, setVideoDimensions, setHasAudioTrack } = useEditorStore.getState()
     const { isPlaying, isCurrentlyCut } = usePlaybackState()
 
     const [bgImage, setBgImage] = useState<HTMLImageElement | null>(null)
@@ -267,6 +267,13 @@ export const Preview = memo(
       if (video) {
         setDuration(video.duration)
         setVideoDimensions({ width: video.videoWidth, height: video.videoHeight })
+
+        // Check for audio tracks using type-safe checks
+        const hasAudioTracks = video.audioTracks && video.audioTracks.length > 0
+        const hasMozAudio = 'mozHasAudio' in video && video.mozHasAudio === true
+        const hasWebkitAudio = 'webkitHasAudio' in video && video.webkitHasAudio === true
+
+        setHasAudioTrack(!!(hasAudioTracks || hasMozAudio || hasWebkitAudio))
 
         const timeFromStore = useEditorStore.getState().currentTime
 

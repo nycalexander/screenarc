@@ -34,6 +34,7 @@ function TabButton({ label, icon, isActive, onClick, disabled }: TabButtonProps)
               disabled && 'opacity-50 cursor-not-allowed hover:bg-transparent',
             )}
             aria-label={label}
+            disabled={disabled}
           >
             <div className="w-6 h-6 flex items-center justify-center">{icon}</div>
           </button>
@@ -85,6 +86,7 @@ export function SidePanel() {
     zoomRegions,
     cutRegions,
     webcamVideoUrl,
+    hasAudioTrack,
     setSelectedRegionId,
     activeSidePanelTab,
     setActiveSidePanelTab,
@@ -94,6 +96,7 @@ export function SidePanel() {
       zoomRegions: state.zoomRegions,
       cutRegions: state.cutRegions,
       webcamVideoUrl: state.webcamVideoUrl,
+      hasAudioTrack: state.hasAudioTrack,
       setSelectedRegionId: state.setSelectedRegionId,
       activeSidePanelTab: state.activeSidePanelTab,
       setActiveSidePanelTab: state.setActiveSidePanelTab,
@@ -172,6 +175,7 @@ export function SidePanel() {
             icon={<AudioLines className="w-5 h-5" />}
             isActive={activeSidePanelTab === 'audio'}
             onClick={() => setActiveSidePanelTab('audio')}
+            disabled={!hasAudioTrack}
           />
           <TabButton
             label="Animation"

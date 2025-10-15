@@ -9,23 +9,49 @@ import { Slider } from '../../ui/slider'
 import { ColorPicker } from '../../ui/color-picker'
 import { rgbaToHexAlpha, hexToRgb } from '../../../lib/utils'
 import { useShallow } from 'zustand/react/shallow'
-import { CornerRadiusIcon, FlipHorizontalIcon } from '../../ui/icons'
+import { CornerRadiusIcon, FlipHorizontalIcon, WebcamOffIcon } from '../../ui/icons'
 import { Collapse } from '../../ui/collapse'
 import { cn } from '../../../lib/utils'
 import type { WebcamPosition } from '../../../types'
 
+const DisabledPanelPlaceholder = ({
+  icon,
+  title,
+  message,
+}: {
+  icon: React.ReactNode
+  title: string
+  message: string
+}) => (
+  <div className="flex flex-col items-center justify-center h-full text-center p-8 bg-muted/30">
+    <div className="w-16 h-16 rounded-full bg-background/60 flex items-center justify-center mb-4 border border-border">
+      {icon}
+    </div>
+    <h3 className="font-semibold text-foreground">{title}</h3>
+    <p className="text-sm text-muted-foreground mt-1 max-w-xs">{message}</p>
+  </div>
+)
+
 export function CameraSettings() {
-  const { isWebcamVisible, webcamPosition, webcamStyles, setWebcamVisibility, setWebcamPosition, updateWebcamStyle } =
-    useEditorStore(
-      useShallow((state) => ({
-        isWebcamVisible: state.isWebcamVisible,
-        webcamPosition: state.webcamPosition,
-        webcamStyles: state.webcamStyles,
-        setWebcamVisibility: state.setWebcamVisibility,
-        setWebcamPosition: state.setWebcamPosition,
-        updateWebcamStyle: state.updateWebcamStyle,
-      })),
-    )
+  const {
+    webcamVideoUrl,
+    isWebcamVisible,
+    webcamPosition,
+    webcamStyles,
+    setWebcamVisibility,
+    setWebcamPosition,
+    updateWebcamStyle,
+  } = useEditorStore(
+    useShallow((state) => ({
+      webcamVideoUrl: state.webcamVideoUrl,
+      isWebcamVisible: state.isWebcamVisible,
+      webcamPosition: state.webcamPosition,
+      webcamStyles: state.webcamStyles,
+      setWebcamVisibility: state.setWebcamVisibility,
+      setWebcamPosition: state.setWebcamPosition,
+      updateWebcamStyle: state.updateWebcamStyle,
+    })),
+  )
 
   const { hex: shadowHex, alpha: shadowAlpha } = useMemo(
     () => rgbaToHexAlpha(webcamStyles.shadowColor),
@@ -82,206 +108,218 @@ export function CameraSettings() {
       </div>
 
       {/* Content */}
-      <div className="flex-1 p-6 space-y-6 overflow-y-auto stable-scrollbar">
-        <ControlGroup label="Visibility" icon={<Eye className="w-4 h-4 text-primary" />}>
-          <div className="flex items-center justify-between p-3 rounded-lg bg-sidebar-accent/30 border border-sidebar-border">
-            <span className="text-sm font-medium text-sidebar-foreground">
-              {isWebcamVisible ? 'Visible' : 'Hidden'}
-            </span>
-            <Switch
-              checked={isWebcamVisible}
-              onCheckedChange={setWebcamVisibility}
-              className="data-[state=on]:bg-primary"
-            />
-          </div>
-        </ControlGroup>
-
-        <Collapse title="Style" description="Change shape and orientation" icon={<ImageIcon />} defaultOpen={true}>
-          <div className="space-y-6">
-            {/* Shape Selector */}
-            <div className="space-y-3">
-              <label className="text-sm font-medium text-sidebar-foreground">Shape</label>
-              <div className="grid grid-cols-3 gap-2 p-1 bg-muted/50 rounded-lg">
-                <Button
-                  variant={webcamStyles.shape === 'rectangle' ? 'secondary' : 'ghost'}
-                  onClick={() => updateWebcamStyle({ shape: 'rectangle' })}
-                  className="h-auto py-2.5 flex items-center justify-center gap-2"
-                >
-                  <RectangleHorizontal className="w-5 h-4" />
-                </Button>
-                <Button
-                  variant={webcamStyles.shape === 'square' ? 'secondary' : 'ghost'}
-                  onClick={() => updateWebcamStyle({ shape: 'square' })}
-                  className="h-auto py-2.5 flex items-center justify-center gap-2"
-                >
-                  <Square className="w-4 h-4" />
-                </Button>
-                <Button
-                  variant={webcamStyles.shape === 'circle' ? 'secondary' : 'ghost'}
-                  onClick={() => updateWebcamStyle({ shape: 'circle' })}
-                  className="h-auto py-2.5 flex items-center justify-center gap-2"
-                >
-                  <Circle className="w-4 h-4" />
-                </Button>
-              </div>
-            </div>
-
-            {/* Border Radius Control */}
-            <div className="space-y-3">
-              <label className="flex items-center justify-between text-sm font-medium text-sidebar-foreground">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-5 h-5 flex items-center justify-center text-primary">
-                    {' '}
-                    <CornerRadiusIcon className="w-4 h-4" />{' '}
-                  </div>
-                  <span className={isCircle ? 'text-muted-foreground' : ''}>Corner Radius</span>
-                </div>
-                {!isCircle && (
-                  <span className="text-xs font-semibold text-primary tabular-nums">{webcamStyles.borderRadius}%</span>
-                )}
-              </label>
-              <Slider
-                min={0}
-                max={50}
-                step={1}
-                value={isCircle ? 50 : webcamStyles.borderRadius}
-                onChange={(value) => updateWebcamStyle({ borderRadius: value })}
-                disabled={isCircle}
-              />
-            </div>
-
-            {/* Flip Horizontal Control */}
-            <div className="space-y-3">
-              <label className="flex items-center justify-between text-sm font-medium text-sidebar-foreground">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-5 h-5 flex items-center justify-center text-primary">
-                    <FlipHorizontalIcon className="w-4 h-4" />
-                  </div>
-                  <span>Flip Horizontal</span>
-                </div>
+      <div className="flex-1 overflow-y-auto stable-scrollbar">
+        {!webcamVideoUrl ? (
+          <DisabledPanelPlaceholder
+            icon={<WebcamOffIcon className="w-8 h-8 text-muted-foreground" />}
+            title="No Webcam Recorded"
+            message="These settings are unavailable because a webcam was not included in this recording."
+          />
+        ) : (
+          <div className="p-6 space-y-6">
+            <ControlGroup label="Visibility" icon={<Eye className="w-4 h-4 text-primary" />}>
+              <div className="flex items-center justify-between p-3 rounded-lg bg-sidebar-accent/30 border border-sidebar-border">
+                <span className="text-sm font-medium text-sidebar-foreground">
+                  {isWebcamVisible ? 'Visible' : 'Hidden'}
+                </span>
                 <Switch
-                  checked={webcamStyles.isFlipped}
-                  onCheckedChange={(isChecked) => updateWebcamStyle({ isFlipped: isChecked })}
+                  checked={isWebcamVisible}
+                  onCheckedChange={setWebcamVisibility}
+                  className="data-[state=on]:bg-primary"
                 />
-              </label>
-            </div>
-          </div>
-        </Collapse>
+              </div>
+            </ControlGroup>
 
-        <Collapse
-          title="Placement"
-          description="Adjust size and corner position"
-          icon={<Maximize />}
-          defaultOpen={true}
-        >
-          <div className="space-y-6">
-            <div className="space-y-3">
-              <label className="flex items-center justify-between text-sm font-medium text-sidebar-foreground">
-                <span>Size</span>
-                <span className="text-xs font-semibold text-primary tabular-nums">{webcamStyles.size}%</span>
-              </label>
-              <Slider
-                min={10}
-                max={50}
-                step={1}
-                value={webcamStyles.size}
-                onChange={(value) => updateWebcamStyle({ size: value })}
-              />
-            </div>
-            <div className="space-y-3">
-              <label className="text-sm font-medium text-sidebar-foreground">Position</label>
-              <div className="relative aspect-video w-full bg-muted/50 rounded-lg p-2 border border-border">
-                {positions.map(({ pos, classes }) => {
-                  const isActive = webcamPosition.pos === pos
-                  return (
-                    <button
-                      key={pos}
-                      onClick={() => setWebcamPosition({ pos })}
-                      className={cn(
-                        'absolute w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-200 hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring ring-offset-background group',
-                        classes,
-                      )}
-                      aria-label={`Position ${pos.replace('-', ' ')}`}
+            <Collapse title="Style" description="Change shape and orientation" icon={<ImageIcon />} defaultOpen={true}>
+              <div className="space-y-6">
+                {/* Shape Selector */}
+                <div className="space-y-3">
+                  <label className="text-sm font-medium text-sidebar-foreground">Shape</label>
+                  <div className="grid grid-cols-3 gap-2 p-1 bg-muted/50 rounded-lg">
+                    <Button
+                      variant={webcamStyles.shape === 'rectangle' ? 'secondary' : 'ghost'}
+                      onClick={() => updateWebcamStyle({ shape: 'rectangle' })}
+                      className="h-auto py-2.5 flex items-center justify-center gap-2"
                     >
-                      <div
-                        className={cn(
-                          'w-4 h-4 rounded-md transition-all duration-200 border-2',
-                          isActive
-                            ? 'bg-primary border-primary'
-                            : 'bg-transparent border-muted-foreground/50 group-hover:border-primary',
-                        )}
-                      />
-                    </button>
-                  )
-                })}
-              </div>
-            </div>
-          </div>
-        </Collapse>
+                      <RectangleHorizontal className="w-5 h-4" />
+                    </Button>
+                    <Button
+                      variant={webcamStyles.shape === 'square' ? 'secondary' : 'ghost'}
+                      onClick={() => updateWebcamStyle({ shape: 'square' })}
+                      className="h-auto py-2.5 flex items-center justify-center gap-2"
+                    >
+                      <Square className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      variant={webcamStyles.shape === 'circle' ? 'secondary' : 'ghost'}
+                      onClick={() => updateWebcamStyle({ shape: 'circle' })}
+                      className="h-auto py-2.5 flex items-center justify-center gap-2"
+                    >
+                      <Circle className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
 
-        <Collapse title="Effects" description="Add a drop shadow for depth" icon={<Wand2 />} defaultOpen={false}>
-          <div className="space-y-4">
-            <div className="space-y-2.5">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Blur</span>
-                <span className="text-xs font-semibold text-primary tabular-nums">{webcamStyles.shadowBlur}px</span>
-              </div>
-              <Slider
-                min={0}
-                max={80}
-                step={1}
-                value={webcamStyles.shadowBlur}
-                onChange={(v) => handleWebcamStyleChange('shadowBlur', v)}
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2.5">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">Offset X</span>
-                  <span className="text-xs font-semibold text-primary tabular-nums">
-                    {webcamStyles.shadowOffsetX}px
-                  </span>
+                {/* Border Radius Control */}
+                <div className="space-y-3">
+                  <label className="flex items-center justify-between text-sm font-medium text-sidebar-foreground">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-5 h-5 flex items-center justify-center text-primary">
+                        {' '}
+                        <CornerRadiusIcon className="w-4 h-4" />{' '}
+                      </div>
+                      <span className={isCircle ? 'text-muted-foreground' : ''}>Corner Radius</span>
+                    </div>
+                    {!isCircle && (
+                      <span className="text-xs font-semibold text-primary tabular-nums">
+                        {webcamStyles.borderRadius}%
+                      </span>
+                    )}
+                  </label>
+                  <Slider
+                    min={0}
+                    max={50}
+                    step={1}
+                    value={isCircle ? 50 : webcamStyles.borderRadius}
+                    onChange={(value) => updateWebcamStyle({ borderRadius: value })}
+                    disabled={isCircle}
+                  />
                 </div>
-                <Slider
-                  min={-40}
-                  max={40}
-                  step={1}
-                  value={webcamStyles.shadowOffsetX}
-                  onChange={(v) => handleWebcamStyleChange('shadowOffsetX', v)}
-                />
-              </div>
-              <div className="space-y-2.5">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">Offset Y</span>
-                  <span className="text-xs font-semibold text-primary tabular-nums">
-                    {webcamStyles.shadowOffsetY}px
-                  </span>
+
+                {/* Flip Horizontal Control */}
+                <div className="space-y-3">
+                  <label className="flex items-center justify-between text-sm font-medium text-sidebar-foreground">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-5 h-5 flex items-center justify-center text-primary">
+                        <FlipHorizontalIcon className="w-4 h-4" />
+                      </div>
+                      <span>Flip Horizontal</span>
+                    </div>
+                    <Switch
+                      checked={webcamStyles.isFlipped}
+                      onCheckedChange={(isChecked) => updateWebcamStyle({ isFlipped: isChecked })}
+                    />
+                  </label>
                 </div>
-                <Slider
-                  min={-40}
-                  max={40}
-                  step={1}
-                  value={webcamStyles.shadowOffsetY}
-                  onChange={(v) => handleWebcamStyleChange('shadowOffsetY', v)}
-                />
               </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <ColorPicker label="Color" value={shadowHex} onChange={handleShadowColorChange} />
-              </div>
-              <div className="space-y-2.5">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">Opacity</span>
-                  <span className="text-xs font-semibold text-primary tabular-nums">
-                    {Math.round(shadowAlpha * 100)}%
-                  </span>
+            </Collapse>
+
+            <Collapse
+              title="Placement"
+              description="Adjust size and corner position"
+              icon={<Maximize />}
+              defaultOpen={true}
+            >
+              <div className="space-y-6">
+                <div className="space-y-3">
+                  <label className="flex items-center justify-between text-sm font-medium text-sidebar-foreground">
+                    <span>Size</span>
+                    <span className="text-xs font-semibold text-primary tabular-nums">{webcamStyles.size}%</span>
+                  </label>
+                  <Slider
+                    min={10}
+                    max={50}
+                    step={1}
+                    value={webcamStyles.size}
+                    onChange={(value) => updateWebcamStyle({ size: value })}
+                  />
                 </div>
-                <Slider min={0} max={1} step={0.01} value={shadowAlpha} onChange={handleShadowOpacityChange} />
+                <div className="space-y-3">
+                  <label className="text-sm font-medium text-sidebar-foreground">Position</label>
+                  <div className="relative aspect-video w-full bg-muted/50 rounded-lg p-2 border border-border">
+                    {positions.map(({ pos, classes }) => {
+                      const isActive = webcamPosition.pos === pos
+                      return (
+                        <button
+                          key={pos}
+                          onClick={() => setWebcamPosition({ pos })}
+                          className={cn(
+                            'absolute w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-200 hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring ring-offset-background group',
+                            classes,
+                          )}
+                          aria-label={`Position ${pos.replace('-', ' ')}`}
+                        >
+                          <div
+                            className={cn(
+                              'w-4 h-4 rounded-md transition-all duration-200 border-2',
+                              isActive
+                                ? 'bg-primary border-primary'
+                                : 'bg-transparent border-muted-foreground/50 group-hover:border-primary',
+                            )}
+                          />
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
               </div>
-            </div>
+            </Collapse>
+
+            <Collapse title="Effects" description="Add a drop shadow for depth" icon={<Wand2 />} defaultOpen={false}>
+              <div className="space-y-4">
+                <div className="space-y-2.5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">Blur</span>
+                    <span className="text-xs font-semibold text-primary tabular-nums">{webcamStyles.shadowBlur}px</span>
+                  </div>
+                  <Slider
+                    min={0}
+                    max={80}
+                    step={1}
+                    value={webcamStyles.shadowBlur}
+                    onChange={(v) => handleWebcamStyleChange('shadowBlur', v)}
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2.5">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground">Offset X</span>
+                      <span className="text-xs font-semibold text-primary tabular-nums">
+                        {webcamStyles.shadowOffsetX}px
+                      </span>
+                    </div>
+                    <Slider
+                      min={-40}
+                      max={40}
+                      step={1}
+                      value={webcamStyles.shadowOffsetX}
+                      onChange={(v) => handleWebcamStyleChange('shadowOffsetX', v)}
+                    />
+                  </div>
+                  <div className="space-y-2.5">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground">Offset Y</span>
+                      <span className="text-xs font-semibold text-primary tabular-nums">
+                        {webcamStyles.shadowOffsetY}px
+                      </span>
+                    </div>
+                    <Slider
+                      min={-40}
+                      max={40}
+                      step={1}
+                      value={webcamStyles.shadowOffsetY}
+                      onChange={(v) => handleWebcamStyleChange('shadowOffsetY', v)}
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <ColorPicker label="Color" value={shadowHex} onChange={handleShadowColorChange} />
+                  </div>
+                  <div className="space-y-2.5">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground">Opacity</span>
+                      <span className="text-xs font-semibold text-primary tabular-nums">
+                        {Math.round(shadowAlpha * 100)}%
+                      </span>
+                    </div>
+                    <Slider min={0} max={1} step={0.01} value={shadowAlpha} onChange={handleShadowOpacityChange} />
+                  </div>
+                </div>
+              </div>
+            </Collapse>
           </div>
-        </Collapse>
+        )}
       </div>
     </div>
   )

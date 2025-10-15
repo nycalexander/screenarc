@@ -157,6 +157,7 @@ export interface ProjectState {
   syncOffset: number
   platform: NodeJS.Platform | null
   cursorTheme: CursorTheme | null
+  hasAudioTrack: boolean
 }
 
 export interface ProjectActions {
@@ -166,6 +167,7 @@ export interface ProjectActions {
   resetProjectState: () => void
   setPostProcessingCursorScale: (scale: number) => Promise<void>
   reloadCursorTheme: (themeName: string) => Promise<void>
+  setHasAudioTrack: (hasAudio: boolean) => void
 }
 
 export interface PlaybackState {
