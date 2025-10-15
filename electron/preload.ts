@@ -1,5 +1,3 @@
-// electron/preload.ts
-
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron'
 
@@ -193,6 +191,11 @@ export const electronAPI = {
       ipcRenderer.removeListener('window:state-changed', listener)
     }
   },
+  // --- START OF CHANGES ---
+  updateTitleBarOverlay: (options: { color: string; symbolColor: string }) => {
+    ipcRenderer.send('window:update-title-bar-overlay', options)
+  },
+  // --- END OF CHANGES ---
   getVersion: (): Promise<string> => ipcRenderer.invoke('app:getVersion'),
   getPlatform: (): Promise<NodeJS.Platform> => ipcRenderer.invoke('app:getPlatform'),
   getVideoFrame: (options: { videoPath: string; time: number }): Promise<string> =>
