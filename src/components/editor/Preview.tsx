@@ -45,6 +45,7 @@ export const Preview = memo(
       isMuted,
       setCurrentTime,
       cursorStyles,
+      cursorBitmapsToRender,
     } = useEditorStore(
       useShallow((state) => ({
         videoUrl: state.videoUrl,
@@ -66,6 +67,7 @@ export const Preview = memo(
         isMuted: state.isMuted,
         setCurrentTime: state.setCurrentTime,
         cursorStyles: state.cursorStyles,
+        cursorBitmapsToRender: state.cursorBitmapsToRender,
       })),
     )
 
@@ -194,6 +196,7 @@ export const Preview = memo(
       webcamStyles,
       videoDimensions,
       cursorStyles,
+      cursorBitmapsToRender,
     ])
 
     useEffect(() => {
