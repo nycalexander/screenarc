@@ -16,6 +16,16 @@ export const initialUIState: UIState = {
   activeSidePanelTab: 'general',
 }
 
+const updateWindowsTitleBar = (mode: 'light' | 'dark', platform: NodeJS.Platform | null) => {
+  if (platform !== 'win32') return
+
+  const options =
+    mode === 'dark'
+      ? { color: '#1D2025', symbolColor: '#EEEEEE' } // Matches dark card/sidebar
+      : { color: '#F9FAFB', symbolColor: '#333333' } // Matches light card/sidebar
+  window.electronAPI.updateTitleBarOverlay(options)
+}
+
 export const createUISlice: Slice<UIState, UIActions> = (set, get) => ({
   ...initialUIState,
   setTheme: (theme: string) => {
@@ -30,6 +40,7 @@ export const createUISlice: Slice<UIState, UIActions> = (set, get) => ({
       state.mode = newMode
     })
     window.electronAPI.setSetting('appearance.mode', newMode)
+    updateWindowsTitleBar(newMode, get().platform)
   },
   initializeSettings: async () => {
     try {
@@ -40,12 +51,15 @@ export const createUISlice: Slice<UIState, UIActions> = (set, get) => ({
         cursorStyles: Partial<CursorStyles>
       }>('appearance')
 
+      let finalMode: 'light' | 'dark' = 'light'
+
       if (appearance?.themeName) {
         set((state) => {
           state.theme = appearance.themeName
         })
       }
       if (appearance?.mode) {
+        finalMode = appearance.mode
         set((state) => {
           state.mode = appearance.mode
         })
@@ -60,6 +74,7 @@ export const createUISlice: Slice<UIState, UIActions> = (set, get) => ({
           state.cursorStyles = { ...initialCursorStyles, ...appearance.cursorStyles }
         })
       }
+      updateWindowsTitleBar(finalMode, get().platform)
     } catch (error) {
       console.error('Could not load app settings:', error)
     }

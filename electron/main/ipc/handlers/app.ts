@@ -1,8 +1,5 @@
-// electron/main/ipc/handlers/app.ts
-
-// Handlers for app-related IPC (app, window controls).
-
 import { app, BrowserWindow, IpcMainEvent, IpcMainInvokeEvent } from 'electron'
+import { appState } from '../../state'
 
 export function handleGetPath(_event: IpcMainInvokeEvent, name: 'home' | 'userData' | 'desktop') {
   return app.getPath(name)
@@ -46,4 +43,13 @@ export function recorderClickThrough(event: IpcMainEvent) {
 export function handleIsMaximized(event: IpcMainInvokeEvent): boolean {
   const window = BrowserWindow.fromWebContents(event.sender)
   return window?.isMaximized() ?? false
+}
+
+export function updateTitleBarOverlay(_event: IpcMainEvent, options: { color: string; symbolColor: string }) {
+  if (process.platform !== 'win32') return
+
+  const editorWindow = appState.editorWin
+  if (editorWindow && !editorWindow.isDestroyed()) {
+    editorWindow.setTitleBarOverlay(options)
+  }
 }
