@@ -2,7 +2,7 @@
 import React, { useEffect, useState, useMemo } from 'react'
 import { Button } from '../ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
-import { Upload, Loader2, CheckCircle2, XCircle, Folder } from 'lucide-react'
+import { Upload, Loader2, CheckCircle2, XCircle, Folder, Ban } from 'lucide-react'
 import { Input } from '../ui/input'
 import { cn } from '../../lib/utils'
 import { useEditorStore } from '../../store/editorStore'
@@ -226,34 +226,49 @@ const ProgressView = ({ progress, onCancel }: { progress: number; onCancel: () =
 )
 
 const ResultView = ({ result, onClose }: { result: NonNullable<ExportModalProps['result']>; onClose: () => void }) => {
+  const isCancelled = !result.success && result.error === 'Export cancelled.'
+
   const handleOpenFolder = () => {
     if (result.success && result.outputPath) {
       window.electronAPI.showItemInFolder(result.outputPath)
     }
   }
 
+  const getTitle = () => {
+    if (isCancelled) return 'Export Cancelled'
+    if (result.success) return 'Export Successful'
+    return 'Export Failed'
+  }
+
+  const getMessage = () => {
+    if (isCancelled) return 'The export process was stopped.'
+    if (result.success) return 'Your video has been saved to the selected location.'
+    return result.error || 'An unknown error occurred.'
+  }
+
+  const getIcon = () => {
+    if (isCancelled) {
+      return <Ban className="w-8 h-8 text-yellow-500" />
+    }
+    if (result.success) {
+      return <CheckCircle2 className="w-8 h-8 text-green-500" />
+    }
+    return <XCircle className="w-8 h-8 text-red-500" />
+  }
+
+  const getIconBgClass = () => {
+    if (isCancelled) return 'bg-yellow-500/10'
+    if (result.success) return 'bg-green-500/10'
+    return 'bg-red-500/10'
+  }
+
   return (
     <div className="flex flex-col items-center text-center p-8">
-      <div
-        className={cn(
-          'w-16 h-16 rounded-full flex items-center justify-center mb-5',
-          result.success ? 'bg-green-500/10' : 'bg-red-500/10',
-        )}
-      >
-        {result.success ? (
-          <CheckCircle2 className="w-8 h-8 text-green-500" />
-        ) : (
-          <XCircle className="w-8 h-8 text-red-500" />
-        )}
+      <div className={cn('w-16 h-16 rounded-full flex items-center justify-center mb-5', getIconBgClass())}>
+        {getIcon()}
       </div>
-      <h2 className="text-lg font-semibold text-foreground mb-2">
-        {result.success ? 'Export Successful' : 'Export Failed'}
-      </h2>
-      <p className="text-sm text-muted-foreground mb-8 max-w-xs break-words leading-relaxed">
-        {result.success
-          ? `Your video has been saved to the selected location.`
-          : `${result.error || 'An unknown error occurred.'}`}
-      </p>
+      <h2 className="text-lg font-semibold text-foreground mb-2">{getTitle()}</h2>
+      <p className="text-sm text-muted-foreground mb-8 max-w-xs break-words leading-relaxed">{getMessage()}</p>
       <div className="flex w-full gap-3">
         {result.success ? (
           <>

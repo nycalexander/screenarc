@@ -74,41 +74,59 @@ export async function startExport(event: IpcMainInvokeEvent, { projectState, exp
 
   const cancellationHandler = () => {
     log.warn('[ExportManager] Received "export:cancel". Terminating export.')
-    if (!ffmpegClosed && ffmpeg) ffmpeg.kill('SIGKILL')
-    if (appState.renderWorker) appState.renderWorker.close()
-    if (fs.existsSync(outputPath)) fsPromises.unlink(outputPath)
+    if (ffmpeg && !ffmpeg.killed) {
+      ffmpeg.kill('SIGKILL')
+    }
+    if (appState.renderWorker && !appState.renderWorker.isDestroyed()) {
+      appState.renderWorker.close()
+    }
+    if (fs.existsSync(outputPath)) {
+      fsPromises.unlink(outputPath).catch((err) => log.error('Failed to delete cancelled export file:', err))
+    }
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const frameListener = (_e: any, { frame, progress }: { frame: Buffer; progress: number }) => {
     if (!ffmpegClosed && ffmpeg.stdin.writable) ffmpeg.stdin.write(frame)
-    editorWindow.webContents.send('export:progress', { progress, stage: 'Rendering...' })
+    if (editorWindow && !editorWindow.isDestroyed()) {
+      editorWindow.webContents.send('export:progress', { progress, stage: 'Rendering...' })
+    }
   }
 
   const finishListener = () => {
     log.info('[ExportManager] Render finished. Closing FFmpeg stdin.')
-    if (!ffmpegClosed) ffmpeg.stdin.end()
+    if (!ffmpegClosed && ffmpeg.stdin.writable) {
+      ffmpeg.stdin.end()
+    }
   }
 
   ipcMain.on('export:frame-data', frameListener)
   ipcMain.on('export:render-finished', finishListener)
-  ipcMain.on('export:cancel', cancellationHandler)
+  ipcMain.once('export:cancel', cancellationHandler) // Use once to avoid multiple calls
 
   ffmpeg.on('close', (code) => {
     ffmpegClosed = true
     log.info(`[ExportManager] FFmpeg process exited with code ${code}.`)
-    appState.renderWorker?.close()
+    if (appState.renderWorker && !appState.renderWorker.isDestroyed()) {
+      appState.renderWorker.close()
+    }
     appState.renderWorker = null
 
-    if (code === null) {
-      // Cancelled
-      editorWindow.webContents.send('export:complete', { success: false, error: 'Export cancelled.' })
-    } else if (code === 0) {
-      editorWindow.webContents.send('export:complete', { success: true, outputPath })
+    // Check if the editor window still exists before sending a message
+    if (editorWindow && !editorWindow.isDestroyed()) {
+      if (code === null) {
+        // Cancelled by SIGKILL
+        editorWindow.webContents.send('export:complete', { success: false, error: 'Export cancelled.' })
+      } else if (code === 0) {
+        editorWindow.webContents.send('export:complete', { success: true, outputPath })
+      } else {
+        editorWindow.webContents.send('export:complete', { success: false, error: `FFmpeg exited with code ${code}` })
+      }
     } else {
-      editorWindow.webContents.send('export:complete', { success: false, error: `FFmpeg exited with code ${code}` })
+      log.warn('[ExportManager] Editor window was destroyed. Could not send export:complete message.')
     }
 
+    // Clean up all listeners
     ipcMain.removeListener('export:frame-data', frameListener)
     ipcMain.removeListener('export:render-finished', finishListener)
     ipcMain.removeListener('export:cancel', cancellationHandler)
@@ -116,6 +134,8 @@ export async function startExport(event: IpcMainInvokeEvent, { projectState, exp
 
   ipcMain.once('render:ready', () => {
     log.info('[ExportManager] Worker ready. Sending project state.')
-    appState.renderWorker?.webContents.send('render:start', { projectState, exportSettings })
+    if (appState.renderWorker && !appState.renderWorker.isDestroyed()) {
+      appState.renderWorker.webContents.send('render:start', { projectState, exportSettings })
+    }
   })
 }

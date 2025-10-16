@@ -36,7 +36,6 @@ export function registerIpcHandlers() {
 
   // Export
   ipcMain.handle('export:start', exportHandlers.handleStartExport)
-  ipcMain.on('export:cancel', exportHandlers.handleCancelExport)
 
   // File System
   ipcMain.handle('fs:readFile', fsHandlers.handleReadFile)
