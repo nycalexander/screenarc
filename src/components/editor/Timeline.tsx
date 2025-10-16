@@ -63,13 +63,36 @@ export function Timeline({ videoRef }: { videoRef: React.RefObject<HTMLVideoElem
   const playheadRef = useRef<HTMLDivElement>(null)
   const regionRefs = useRef<Map<string, HTMLDivElement | null>>(new Map())
   const animationFrameRef = useRef<number>()
+
   const [containerWidth, setContainerWidth] = useState(0)
+  const [timelineHeight, setTimelineHeight] = useState(0)
 
   useEffect(() => {
-    if (containerRef.current) setContainerWidth(containerRef.current.clientWidth)
-    const observer = new ResizeObserver((entries) => entries[0] && setContainerWidth(entries[0].contentRect.width))
-    if (containerRef.current) observer.observe(containerRef.current)
-    return () => observer.disconnect()
+    const containerEl = containerRef.current
+    const timelineEl = timelineRef.current
+    let widthObserver: ResizeObserver | null = null
+    let heightObserver: ResizeObserver | null = null
+
+    if (containerEl) {
+      setContainerWidth(containerEl.clientWidth)
+      widthObserver = new ResizeObserver((entries) => {
+        if (entries[0]) setContainerWidth(entries[0].contentRect.width)
+      })
+      widthObserver.observe(containerEl)
+    }
+
+    if (timelineEl) {
+      setTimelineHeight(timelineEl.clientHeight)
+      heightObserver = new ResizeObserver((entries) => {
+        if (entries[0]) setTimelineHeight(entries[0].contentRect.height)
+      })
+      heightObserver.observe(timelineEl)
+    }
+
+    return () => {
+      if (widthObserver && containerEl) widthObserver.unobserve(containerEl)
+      if (heightObserver && timelineEl) heightObserver.unobserve(timelineEl)
+    }
   }, [])
 
   const pixelsPerSecond = useMemo(() => {
@@ -143,6 +166,8 @@ export function Timeline({ videoRef }: { videoRef: React.RefObject<HTMLVideoElem
 
   const { zoomRegions, cutRegions, speedRegions } = useAllRegions()
 
+  const hasSpeedRegions = useMemo(() => Object.keys(speedRegions).length > 0, [speedRegions])
+
   const allRegionsToRender = useMemo(() => {
     const combined = [...Object.values(zoomRegions), ...Object.values(cutRegions), ...Object.values(speedRegions)]
     if (previewCutRegion) {
@@ -152,7 +177,12 @@ export function Timeline({ videoRef }: { videoRef: React.RefObject<HTMLVideoElem
   }, [zoomRegions, cutRegions, speedRegions, previewCutRegion])
 
   return (
-    <div className="h-full flex flex-col bg-background/50 p-3">
+    <div
+      className={cn(
+        'flex flex-col bg-background/50 p-3 transition-all duration-300 ease-in-out',
+        hasSpeedRegions ? 'h-56' : 'h-44',
+      )}
+    >
       <div className="h-full flex flex-row rounded-xl overflow-hidden shadow-xl bg-card border border-border">
         <div
           className="w-8 shrink-0 h-full bg-gradient-to-b from-card to-muted/30 flex items-center justify-center transition-all duration-200 cursor-ew-resize select-none border-r border-border hover:bg-accent/40 active:bg-accent/60 group"
@@ -184,7 +214,6 @@ export function Timeline({ videoRef }: { videoRef: React.RefObject<HTMLVideoElem
                 const isSelected = selectedRegionId === region.id
                 const zIndex = isSelected ? 100 : (region.zIndex ?? 1)
 
-                // Common style
                 const regionStyle: React.CSSProperties = {
                   left: `${timeToPx(region.startTime)}px`,
                   width: `${timeToPx(region.duration)}px`,
@@ -193,7 +222,11 @@ export function Timeline({ videoRef }: { videoRef: React.RefObject<HTMLVideoElem
 
                 if (region.type === 'zoom' || region.type === 'cut') {
                   return (
-                    <div key={region.id} className="absolute top-0 h-1/2" style={regionStyle}>
+                    <div
+                      key={region.id}
+                      className={cn('absolute top-0', hasSpeedRegions ? 'h-1/2' : 'h-full')}
+                      style={regionStyle}
+                    >
                       {region.type === 'zoom' && (
                         <ZoomRegionBlock
                           region={region}
@@ -241,7 +274,7 @@ export function Timeline({ videoRef }: { videoRef: React.RefObject<HTMLVideoElem
                 style={{ transform: `translateX(${timeToPx(currentTime)}px)`, pointerEvents: 'none' }}
               >
                 <Playhead
-                  height={Math.floor((timelineRef.current?.clientHeight ?? 200) * 0.9)}
+                  height={Math.floor(timelineHeight * 0.9)}
                   isDragging={false}
                   onMouseDown={handlePlayheadMouseDown}
                 />

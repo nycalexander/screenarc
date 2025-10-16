@@ -267,7 +267,7 @@ export function EditorPage() {
               <div className="flex-shrink-0">
                 <PreviewControls />
               </div>
-              <div className="h-56 flex-shrink-0 bg-card/60 border-t border-border/50 backdrop-blur-sm overflow-hidden">
+              <div className="flex-shrink-0 bg-card/60 border-t border-border/50 backdrop-blur-sm overflow-hidden">
                 <Timeline videoRef={videoRef} />
               </div>
             </div>
