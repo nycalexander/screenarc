@@ -84,6 +84,7 @@ export const electronAPI = {
     webcam?: { deviceId: string; deviceLabel: string; index: number }
     mic?: { deviceId: string; deviceLabel: string; index: number }
   }): Promise<RecordingResult> => ipcRenderer.invoke('recording:start', options),
+  stopRecording: (): void => ipcRenderer.send('recording:stop'),
   loadVideoFromFile: (): Promise<RecordingResult> => ipcRenderer.invoke('recording:load-from-file'),
   getCursorScale: (): Promise<number> => ipcRenderer.invoke('desktop:get-cursor-scale'),
   setCursorScale: (scale: number): void => ipcRenderer.send('desktop:set-cursor-scale', scale),
@@ -91,6 +92,14 @@ export const electronAPI = {
   getDisplays: (): Promise<DisplayInfo[]> => ipcRenderer.invoke('desktop:get-displays'),
   getDshowDevices: (): Promise<{ video: DshowDevice[]; audio: DshowDevice[] }> =>
     ipcRenderer.invoke('desktop:get-dshow-devices'),
+
+  onRecordingStarted: (callback: () => void) => {
+    const listener = () => callback()
+    ipcRenderer.on('recording-started', listener)
+    return () => {
+      ipcRenderer.removeListener('recording-started', listener)
+    }
+  },
 
   onRecordingFinished: (callback: (result: RecordingResult) => void) => {
     const listener = (_event: IpcRendererEvent, result: RecordingResult) => callback(result)
