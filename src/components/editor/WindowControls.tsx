@@ -1,9 +1,7 @@
-// src/components/editor/WindowControls.tsx
-
 import { useState, useEffect } from 'react'
 import { Minus, Maximize2, X, Minimize2 } from 'lucide-react'
 
-export function WindowControls({ platform }: { platform: NodeJS.Platform | null }) {
+export function WindowControls() {
   const [isMaximized, setIsMaximized] = useState(false)
 
   const handleMinimize = () => window.electronAPI.minimizeWindow()
@@ -27,40 +25,7 @@ export function WindowControls({ platform }: { platform: NodeJS.Platform | null 
     return () => cleanup()
   }, [])
 
-  // Render for Windows
-  if (platform === 'win32') {
-    return (
-      <div className="flex items-center h-full" style={{ WebkitAppRegion: 'no-drag' }}>
-        <button
-          onClick={handleClose}
-          className="w-12 h-8 flex justify-center items-center transition-colors duration-150 hover:bg-destructive hover:text-destructive-foreground"
-          aria-label="Close"
-        >
-          <X className="w-4 h-4" />
-        </button>
-        <button
-          onClick={handleMaximize}
-          className="w-12 h-8 flex justify-center items-center transition-colors duration-150 hover:bg-accent"
-          aria-label={isMaximized ? 'Restore' : 'Maximize'}
-        >
-          {isMaximized ? (
-            <Minimize2 className="w-4 h-4 text-foreground" />
-          ) : (
-            <Maximize2 className="w-4 h-4 text-foreground" />
-          )}
-        </button>
-        <button
-          onClick={handleMinimize}
-          className="w-12 h-8 flex justify-center items-center transition-colors duration-150 hover:bg-accent"
-          aria-label="Minimize"
-        >
-          <Minus className="w-4 h-4 text-foreground" />
-        </button>
-      </div>
-    )
-  }
-
-  // Render for Linux
+  // Render for Linux (macOS has native controls)
   return (
     <div className="flex items-center gap-2" style={{ WebkitAppRegion: 'no-drag' }}>
       <button

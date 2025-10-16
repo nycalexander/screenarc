@@ -1,6 +1,7 @@
 // --- Types ---
 export type BackgroundType = 'color' | 'gradient' | 'image' | 'wallpaper'
 export type AspectRatio = '16:9' | '9:16' | '4:3' | '3:4' | '1:1'
+export type SidePanelTab = 'general' | 'camera' | 'cursor' | 'audio' | 'animation' | 'settings'
 
 export interface Background {
   type: BackgroundType
@@ -22,6 +23,13 @@ export interface FrameStyles {
   shadowColor: string
   borderWidth: number
   borderColor: string
+}
+
+export interface CursorStyles {
+  shadowBlur: number
+  shadowOffsetX: number
+  shadowOffsetY: number
+  shadowColor: string
 }
 
 export interface Preset {
@@ -115,8 +123,10 @@ export interface WebcamPosition {
     | 'right-center'
 }
 
+export type WebcamShape = 'circle' | 'square' | 'rectangle'
+
 export interface WebcamStyles {
-  shape: 'circle' | 'square' | 'rectangle'
+  shape: WebcamShape
   borderRadius: number
   size: number
   shadowBlur: number
@@ -149,6 +159,7 @@ export interface ProjectState {
   syncOffset: number
   platform: NodeJS.Platform | null
   cursorTheme: CursorTheme | null
+  hasAudioTrack: boolean
 }
 
 export interface ProjectActions {
@@ -158,6 +169,7 @@ export interface ProjectActions {
   resetProjectState: () => void
   setPostProcessingCursorScale: (scale: number) => Promise<void>
   reloadCursorTheme: (themeName: string) => Promise<void>
+  setHasAudioTrack: (hasAudio: boolean) => void
 }
 
 export interface PlaybackState {
@@ -242,6 +254,8 @@ export interface UIState {
   mode: 'light' | 'dark'
   isPreviewFullScreen: boolean
   cursorThemeName: string
+  cursorStyles: CursorStyles
+  activeSidePanelTab: SidePanelTab
 }
 export interface UIActions {
   setTheme: (theme: string) => void
@@ -249,6 +263,8 @@ export interface UIActions {
   initializeSettings: () => Promise<void>
   togglePreviewFullScreen: () => void
   setCursorThemeName: (themeName: string) => void
+  updateCursorStyle: (style: Partial<CursorStyles>) => void
+  setActiveSidePanelTab: (tab: SidePanelTab) => void
 }
 
 export interface AudioState {
@@ -259,6 +275,7 @@ export interface AudioState {
 export interface AudioActions {
   setVolume: (volume: number) => void
   toggleMute: () => void
+  setIsMuted: (isMuted: boolean) => void
 }
 
 // Combined state type for the editor store

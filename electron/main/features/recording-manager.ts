@@ -1,5 +1,3 @@
-// START OF FILE electron_main_features_recording-manager.ts
-
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // Contains core business logic for recording, stopping, and cleanup.
 
@@ -18,6 +16,21 @@ import { createSavingWindow, createSelectionWindow } from '../windows/temporary-
 import type { RecordingSession, RecordingGeometry } from '../state'
 
 const FFMPEG_PATH = getFFmpegPath()
+
+/**
+ * Uses ffprobe to get the precise creation time of the video file.
+ * @param videoPath The path to the video file.
+ * @returns A promise that resolves to the creation time as a UNIX timestamp (ms).
+ */
+async function getVideoStartTime(videoPath: string): Promise<number> {
+  try {
+    const stats = await fsPromises.stat(videoPath)
+    return stats.birthtimeMs
+  } catch (error) {
+    log.error(`[getVideoStartTime] Error getting file stats for ${videoPath}:`, error)
+    throw error
+  }
+}
 
 /**
  * Validates the generated recording files to ensure they exist and are not empty.
@@ -85,20 +98,27 @@ async function startActualRecording(
 
   // Reset state for the new session
   appState.recordingStartTime = Date.now()
-  appState.ffmpegFirstFrameTime = null
   appState.recordedMouseEvents = []
   appState.runtimeCursorImageMap = new Map()
   appState.mouseTracker = createMouseTracker()
 
   if (appState.mouseTracker) {
     appState.mouseTracker.on('data', (data: any) => {
-      const relativeEvent = {
-        ...data,
-        x: data.x - recordingGeometry.x,
-        y: data.y - recordingGeometry.y,
-        timestamp: data.timestamp - appState.recordingStartTime,
+      // Check if the mouse event is within the recording geometry bounds
+      if (
+        data.x >= recordingGeometry.x &&
+        data.x <= recordingGeometry.x + recordingGeometry.width &&
+        data.y >= recordingGeometry.y &&
+        data.y <= recordingGeometry.y + recordingGeometry.height
+      ) {
+        const absoluteEvent = {
+          ...data,
+          x: data.x - recordingGeometry.x,
+          y: data.y - recordingGeometry.y,
+          timestamp: data.timestamp,
+        }
+        appState.recordedMouseEvents.push(absoluteEvent)
       }
-      appState.recordedMouseEvents.push(relativeEvent)
     })
     // Check if tracker started successfully
     const trackerStarted = await appState.mouseTracker.start(appState.runtimeCursorImageMap)
@@ -118,13 +138,6 @@ async function startActualRecording(
   appState.ffmpegProcess.stderr.on('data', (data: any) => {
     const message = data.toString()
     log.warn(`[FFMPEG stderr]: ${message}`)
-
-    // Capture the timestamp of the first frame for mouse/video synchronization
-    if (!appState.ffmpegFirstFrameTime && message.includes('frame=')) {
-      appState.ffmpegFirstFrameTime = Date.now()
-      const syncOffset = appState.ffmpegFirstFrameTime - appState.recordingStartTime
-      log.info(`[SYNC] FFmpeg first frame detected. Sync offset: ${syncOffset}ms`)
-    }
 
     // Early detection of fatal errors to provide immediate feedback
     const fatalErrorKeywords = [
@@ -254,7 +267,7 @@ export async function startRecording(options: any) {
     if (screenAccess !== 'granted') {
       dialog.showErrorBox(
         'Screen Recording Permission Required',
-        'ScreenArc does not have permission to record the screen. Please grant access in System Settings > Privacy & Security > Screen Recording.',
+        'Accessibility permissions required. Please go to System Preferences > Security & Privacy > Privacy > Accessibility and enable this application.',
       )
       return { canceled: true }
     }
@@ -268,7 +281,7 @@ export async function startRecording(options: any) {
       if (micAccess !== 'granted') {
         dialog.showErrorBox(
           'Microphone Permission Required',
-          'ScreenArc does not have permission to access the microphone. Please grant access in System Settings > Privacy & Security > Microphone.',
+          'Microphone permissions required. Please go to System Preferences > Security & Privacy > Privacy > Microphone and enable this application.',
         )
         return { canceled: true }
       }
@@ -424,8 +437,10 @@ export async function stopRecording() {
   appState.tray?.destroy()
   appState.tray = null
   createSavingWindow()
+
+  // Step 1: Wait for FFmpeg and tracker to finish
   await cleanupAndSave()
-  log.info('FFmpeg process finished.')
+  log.info('FFmpeg process finished and file is finalized.')
 
   const session = appState.currentRecordingSession
   if (!session) {
@@ -435,6 +450,10 @@ export async function stopRecording() {
     return
   }
 
+  // Step 2: Process and save metadata (after video file is complete)
+  await processAndSaveMetadata(session)
+
+  // Step 3: Validate file
   const isValid = await validateRecordingFiles(session)
   if (!isValid) {
     log.error('[StopRecord] Recording validation failed. Discarding files.')
@@ -480,41 +499,6 @@ async function cleanupAndSave(): Promise<void> {
     appState.mouseTracker = null
   }
 
-  if (appState.currentRecordingSession) {
-    const { metadataPath, recordingGeometry } = appState.currentRecordingSession
-    const primaryDisplay = screen.getPrimaryDisplay()
-
-    // Calculate the sync offset: the time between recording start and FFmpeg's first frame.
-    const syncOffset = appState.ffmpegFirstFrameTime ? appState.ffmpegFirstFrameTime - appState.recordingStartTime : 0
-
-    if (syncOffset > 500) {
-      log.warn(`[SYNC] High sync offset detected: ${syncOffset}ms. This might indicate system load.`)
-    }
-
-    // Pre-process all event timestamps to be relative to the video's first frame, not the recording start.
-    // This "bakes in" the synchronization and simplifies all downstream logic.
-    const finalEvents = appState.recordedMouseEvents.map((event) => ({
-      ...event,
-      timestamp: Math.max(0, event.timestamp - syncOffset), // Ensure no negative timestamps
-    }))
-
-    const finalMetadata = {
-      platform: process.platform,
-      screenSize: primaryDisplay.size,
-      geometry: recordingGeometry,
-      syncOffset: 0,
-      cursorImages: Object.fromEntries(appState.runtimeCursorImageMap || []),
-      events: finalEvents,
-    }
-
-    try {
-      await fsPromises.writeFile(metadataPath, JSON.stringify(finalMetadata))
-      log.info(`Metadata saved to ${metadataPath}`)
-    } catch (err) {
-      log.error(`Failed to write metadata file: ${err}`)
-    }
-  }
-
   return new Promise((resolve) => {
     if (appState.ffmpegProcess) {
       const ffmpeg = appState.ffmpegProcess
@@ -534,6 +518,50 @@ async function cleanupAndSave(): Promise<void> {
       resolve()
     }
   })
+}
+
+/**
+ * Processes mouse events against the final video start time and saves the metadata file.
+ * @param session The current recording session.
+ * @returns A promise that resolves to true on success, false on failure.
+ */
+async function processAndSaveMetadata(session: RecordingSession): Promise<boolean> {
+  try {
+    const videoStartTime = await getVideoStartTime(session.screenVideoPath)
+    log.info(`[SYNC] Precise video start time from ffprobe: ${new Date(videoStartTime).toISOString()}`)
+
+    const finalEvents = appState.recordedMouseEvents.map((event) => ({
+      ...event,
+      timestamp: Math.max(0, event.timestamp - videoStartTime),
+    }))
+
+    const primaryDisplay = screen.getPrimaryDisplay()
+    const finalMetadata = {
+      platform: process.platform,
+      screenSize: primaryDisplay.size,
+      geometry: session.recordingGeometry,
+      syncOffset: 0,
+      cursorImages: Object.fromEntries(appState.runtimeCursorImageMap || []),
+      events: finalEvents,
+    }
+
+    await fsPromises.writeFile(session.metadataPath, JSON.stringify(finalMetadata))
+    log.info(`Metadata saved to ${session.metadataPath}`)
+    return true
+  } catch (err) {
+    log.error(`Failed to process and save metadata: ${err}`)
+    // Write an empty metadata file to avoid Editor crash
+    const errorMetadata = {
+      platform: process.platform,
+      events: [],
+      cursorImages: {},
+      geometry: session.recordingGeometry,
+      screenSize: screen.getPrimaryDisplay().size,
+      syncOffset: 0,
+    }
+    await fsPromises.writeFile(session.metadataPath, JSON.stringify(errorMetadata))
+    return false
+  }
 }
 
 /**

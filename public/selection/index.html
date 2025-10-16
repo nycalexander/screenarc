@@ -7,6 +7,9 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <!-- This layer covers the entire window to capture mouse events on transparent areas -->
+    <div id="event-capture-layer"></div>
+
     <!-- Overlay will be managed by the selection box's shadow -->
     <div id="selection-box" style="display: none;">
         <div class="resize-handle nw"></div>

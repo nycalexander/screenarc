@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
-import { Mic, Webcam, Monitor, SquareDashed, Loader2, Video, X, MousePointer, MicOff, FolderOpen } from 'lucide-react'
-import { WebcamOffIcon } from '../components/ui/icons'
+import { Mic, Webcam, Monitor, Loader2, Video, X, MousePointer, MicOff, FolderOpen } from 'lucide-react'
+import { WebcamOffIcon, AreaModeIcon } from '../components/ui/icons'
 import { Button } from '../components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select'
 import { useDeviceManager } from '../hooks/useDeviceManager'
@@ -214,7 +214,7 @@ export function RecorderPage() {
                 tooltip="Full Screen"
               />
               <SourceButton
-                icon={<SquareDashed size={16} />}
+                icon={<AreaModeIcon size={16} />}
                 isActive={source === 'area'}
                 onClick={() => setSource('area')}
                 tooltip="Area"
@@ -400,7 +400,7 @@ const SourceButton = ({
     className={cn(
       'flex items-center justify-center w-10 h-9 rounded-lg transition-all duration-200 outline-none focus-visible:ring-2 focus-visible:ring-ring',
       isActive
-        ? 'bg-background shadow-sm text-foreground'
+        ? 'bg-primary shadow-sm text-primary-foreground'
         : 'text-muted-foreground hover:text-foreground hover:bg-background/50',
     )}
     title={tooltip}

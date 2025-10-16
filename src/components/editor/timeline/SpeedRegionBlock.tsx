@@ -3,7 +3,7 @@ import { TimelineRegion, SpeedRegion } from '../../../types'
 import { cn } from '../../../lib/utils'
 import { FastForward, Check } from 'lucide-react'
 import { useEditorStore } from '../../../store/editorStore'
-import { ContextMenu, ContextMenuItem, ContextMenuDivider } from '../../ui/context-menu'
+import { ContextMenu, ContextMenuItem, ContextMenuDivider, ContextMenuLabel } from '../../ui/context-menu'
 
 interface SpeedRegionBlockProps {
   region: SpeedRegion
@@ -17,7 +17,7 @@ interface SpeedRegionBlockProps {
   setRef: (el: HTMLDivElement | null) => void
 }
 
-const SPEED_OPTIONS = [0.75, 1, 1.25, 1.5, 2, 3, 4]
+const SPEED_OPTIONS = [1, 1.2, 1.4, 1.6, 2, 3, 4, 8, 16]
 
 export const SpeedRegionBlock = memo(
   ({ region, isSelected, isBeingDragged, onMouseDown, setRef }: SpeedRegionBlockProps) => {
@@ -112,8 +112,13 @@ export const SpeedRegionBlock = memo(
         </div>
 
         {/* Context Menu */}
-        <ContextMenu isOpen={isMenuOpen} onClose={() => setMenuOpen(false)} position={menuPosition}>
-          <div className="px-2.5 py-1 text-xs font-semibold text-white/50">Speed</div>
+        <ContextMenu
+          isOpen={isMenuOpen}
+          onClose={() => setMenuOpen(false)}
+          position={menuPosition}
+          className="min-w-[120px]"
+        >
+          <ContextMenuLabel>Speed</ContextMenuLabel>
           {SPEED_OPTIONS.map((speed) => (
             <ContextMenuItem key={speed} onClick={() => handleSpeedSelect(speed)}>
               <span className="flex-1">{speed}x</span>

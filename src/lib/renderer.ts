@@ -22,6 +22,7 @@ type RenderableState = Pick<
   | 'cursorBitmapsToRender'
   | 'syncOffset'
   | 'cursorTheme'
+  | 'cursorStyles'
 >
 
 /**
@@ -172,12 +173,12 @@ export const drawScene = async (
   // --- 3. Main video frame transform and drawing ---
   ctx.save()
 
-  // --- START OF FIX: No longer pass syncOffset, use currentTime directly ---
+  // --- START OF FIX: Pass recordingGeometry for accurate coordinate mapping ---
   const { scale, translateX, translateY, transformOrigin } = calculateZoomTransform(
     currentTime,
     state.zoomRegions,
     state.metadata,
-    state.videoDimensions,
+    state.recordingGeometry || state.videoDimensions,
     { width: frameContentWidth, height: frameContentHeight },
   )
   // --- END OF FIX ---
@@ -268,17 +269,27 @@ export const drawScene = async (
 
   if (lastEventIndex > -1 && state.recordingGeometry) {
     const event = state.metadata[lastEventIndex]
-    const cursorData = state.cursorBitmapsToRender.get(event.cursorImageKey!)
+    // Only draw the cursor if the last found event is very recent.
+    // A large gap between currentTime and the event's timestamp implies the mouse
+    // was outside the recording geometry and no events were being logged.
+    // 100ms is a safe threshold (equivalent to 5 missing mouse frames at 50 FPS).
+    if (event && currentTime - event.timestamp < 0.1) {
+      const cursorData = state.cursorBitmapsToRender.get(event.cursorImageKey!)
 
-    if (cursorData && cursorData.imageBitmap && cursorData.width > 0) {
-      const cursorX = (event.x / state.recordingGeometry.width) * frameContentWidth
-      const cursorY = (event.y / state.recordingGeometry.height) * frameContentHeight
+      if (cursorData && cursorData.imageBitmap && cursorData.width > 0) {
+        const cursorX = (event.x / state.recordingGeometry.width) * frameContentWidth
+        const cursorY = (event.y / state.recordingGeometry.height) * frameContentHeight
+        const drawX = Math.round(cursorX - cursorData.xhot)
+        const drawY = Math.round(cursorY - cursorData.yhot)
 
-      ctx.drawImage(
-        cursorData.imageBitmap,
-        Math.round(cursorX - cursorData.xhot),
-        Math.round(cursorY - cursorData.yhot),
-      )
+        ctx.save()
+        const { shadowBlur, shadowOffsetX, shadowOffsetY, shadowColor } = state.cursorStyles
+        if (shadowBlur > 0 || shadowOffsetX !== 0 || shadowOffsetY !== 0) {
+          ctx.filter = `drop-shadow(${shadowOffsetX}px ${shadowOffsetY}px ${shadowBlur}px ${shadowColor})`
+        }
+        ctx.drawImage(cursorData.imageBitmap, drawX, drawY)
+        ctx.restore()
+      }
     }
   }
 

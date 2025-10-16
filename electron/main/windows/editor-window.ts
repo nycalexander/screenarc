@@ -1,5 +1,3 @@
-// electron/main/windows/editor-window.ts
-
 // Logic to create and manage the editor window.
 
 import log from 'electron-log/main'
@@ -34,6 +32,23 @@ export function createEditorWindow(
   appState.currentEditorSessionFiles = { screenVideoPath: videoPath, metadataPath, recordingGeometry, webcamVideoPath }
   log.info('[EditorWindow] Stored session files for cleanup:', appState.currentEditorSessionFiles)
 
+  const isWindows = process.platform === 'win32'
+  let titleBarOptions = {}
+
+  if (isWindows) {
+    const appearance = store.get('appearance') as { mode?: 'light' | 'dark' } | undefined
+    const isDarkMode = appearance?.mode === 'dark'
+
+    titleBarOptions = {
+      titleBarStyle: 'hidden',
+      titleBarOverlay: {
+        color: isDarkMode ? '#1D2025' : '#F9FAFB', // Matches dark/light card/sidebar background
+        symbolColor: isDarkMode ? '#EEEEEE' : '#333333',
+        height: 48, // h-12 in Tailwind
+      },
+    }
+  }
+
   appState.editorWin = new BrowserWindow({
     icon: path.join(process.env.VITE_PUBLIC!, 'screenarc-appicon.png'),
     autoHideMenuBar: true,
@@ -41,7 +56,8 @@ export function createEditorWindow(
     minWidth: 1280,
     minHeight: 720,
     frame: false,
-    titleBarStyle: 'hidden',
+    titleBarStyle: 'hidden', // Keep hidden for all platforms
+    ...titleBarOptions, // Apply Windows-specific overlay
     show: false,
     webPreferences: {
       preload: PRELOAD_SCRIPT,

@@ -1,3 +1,5 @@
+// .eslintrc.cjs
+
 module.exports = {
   root: true,
   env: { browser: true, es2020: true, node: true },
@@ -9,9 +11,8 @@ module.exports = {
   ],
   ignorePatterns: ['dist', '.eslintrc.cjs'],
   parser: '@typescript-eslint/parser',
-  plugins: ['react-refresh', 'prettier'],
+  plugins: ['react-refresh'],
   rules: {
-    'prettier/prettier': 'error',
     'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
     '@typescript-eslint/no-unused-vars': [
       'error',

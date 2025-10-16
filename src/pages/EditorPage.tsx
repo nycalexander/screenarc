@@ -1,5 +1,3 @@
-// src/pages/EditorPage.tsx
-
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { useEditorStore } from '../store/editorStore'
 import { Preview } from '../components/editor/Preview'
@@ -174,6 +172,45 @@ export function EditorPage() {
     }
   }
 
+  const renderHeaderActions = () => {
+    const isWindows = platform === 'win32'
+    const actions = [
+      <ExportButton key="export" isExporting={isExporting} onClick={openExportModal} disabled={duration <= 0} />,
+      <Button
+        key="presets"
+        variant="secondary"
+        size="sm"
+        onClick={() => setPresetModalOpen(true)}
+        disabled={presetSaveStatus === 'saving'}
+        className={cn(
+          'transition-all duration-300 w-[110px] h-8 font-medium shadow-sm',
+          presetSaveStatus === 'saved' && 'bg-green-500/15 border border-green-500/30',
+          'text-green-600 dark:text-green-400 shadow-green-500/10',
+        )}
+      >
+        {getPresetButtonContent()}
+      </Button>,
+      <Button
+        key="settings"
+        variant="ghost"
+        size="icon"
+        onClick={() => setSettingsModalOpen(true)}
+        aria-label="Open Settings"
+        className={cn('h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-accent/50 rounded-lg')}
+      >
+        <Settings className="w-4 h-4" />
+      </Button>,
+      updateInfo && <UpdateNotification key="update" info={updateInfo} />,
+    ].filter(Boolean)
+
+    if (isWindows) {
+      // For Windows, reverse the order
+      return actions
+    }
+    // For macOS/Linux, keep original order but reverse for flex-row-reverse
+    return actions.reverse()
+  }
+
   return (
     <main className="h-screen w-screen bg-background flex flex-col overflow-hidden select-none">
       {isPreviewFullScreen ? (
@@ -183,45 +220,42 @@ export function EditorPage() {
       ) : (
         <>
           <header
-            className="relative h-12 flex-shrink-0 border-b border-border/50 bg-card/80 backdrop-blur-xl flex items-center justify-center shadow-xs"
+            className="relative h-12 flex-shrink-0 border-b border-border/50 bg-card/80 backdrop-blur-xl flex items-center justify-between px-3 shadow-xs"
             style={{ WebkitAppRegion: 'drag' }}
           >
-            <div className="absolute left-3 top-1/2 -translate-y-1/2">
-              {platform !== 'darwin' && <WindowControls platform={platform} />}
+            {/* Left side controls */}
+            <div className="flex items-center gap-4 h-full">
+              {platform === 'linux' && (
+                <div className="h-full flex items-center">
+                  <WindowControls />
+                </div>
+              )}
+              {platform === 'win32' && (
+                <div
+                  className="flex items-center gap-2 flex-row-reverse" // Use flex-row-reverse to get desired order
+                  style={{ WebkitAppRegion: 'no-drag' }}
+                >
+                  {renderHeaderActions()}
+                </div>
+              )}
             </div>
-            <h1 className="text-sm font-bold text-foreground pointer-events-none tracking-tight">ScreenArc</h1>
-            <div
-              className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2"
-              style={{ WebkitAppRegion: 'no-drag' }}
-            >
-              {updateInfo && <UpdateNotification info={updateInfo} />}
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setSettingsModalOpen(true)}
-                aria-label="Open Settings"
-                className={cn(
-                  'h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-accent/50 rounded-lg transition-all duration-200',
-                )}
+
+            {/* Centered Title */}
+            <h1 className="text-sm font-bold text-foreground pointer-events-none tracking-tight absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+              ScreenArc
+            </h1>
+
+            {/* Right side controls (for non-Windows) */}
+            {platform !== 'win32' && (
+              <div
+                className="flex items-center gap-2" // Use flex-row-reverse to get desired order
+                style={{ WebkitAppRegion: 'no-drag' }}
               >
-                <Settings className="w-4 h-4" />
-              </Button>
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={() => setPresetModalOpen(true)}
-                disabled={presetSaveStatus === 'saving'}
-                className={cn(
-                  'transition-all duration-300 w-[110px] h-8 font-medium shadow-sm',
-                  presetSaveStatus === 'saved' &&
-                    'bg-green-500/15 border border-green-500/30 text-green-600 dark:text-green-400 shadow-green-500/10',
-                )}
-              >
-                {getPresetButtonContent()}
-              </Button>
-              <ExportButton isExporting={isExporting} onClick={openExportModal} disabled={duration <= 0} />
-            </div>
+                {renderHeaderActions()}
+              </div>
+            )}
           </header>
+
           <div className="flex flex-1 overflow-hidden">
             <div className="w-[28rem] flex-shrink-0 bg-sidebar border-r border-sidebar-border overflow-hidden">
               <SidePanel />

@@ -1,5 +1,3 @@
-// electron/main/ipc/index.ts
-
 import { ipcMain } from 'electron'
 import * as appHandlers from './handlers/app'
 import * as desktopHandlers from './handlers/desktop'
@@ -18,6 +16,7 @@ export function registerIpcHandlers() {
   ipcMain.on('window:maximize', appHandlers.maximizeWindow)
   ipcMain.on('window:close', appHandlers.closeWindow)
   ipcMain.handle('window:isMaximized', appHandlers.handleIsMaximized)
+  ipcMain.on('window:update-title-bar-overlay', appHandlers.updateTitleBarOverlay)
 
   // Desktop
   ipcMain.handle('desktop:get-displays', desktopHandlers.getDisplays)
@@ -37,7 +36,6 @@ export function registerIpcHandlers() {
 
   // Export
   ipcMain.handle('export:start', exportHandlers.handleStartExport)
-  ipcMain.on('export:cancel', exportHandlers.handleCancelExport)
 
   // File System
   ipcMain.handle('fs:readFile', fsHandlers.handleReadFile)

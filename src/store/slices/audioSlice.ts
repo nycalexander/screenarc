@@ -1,8 +1,9 @@
 import type { AudioState, AudioActions, Slice } from '../../types'
+import { DEFAULTS } from '../../lib/constants'
 
 export const initialAudioState: AudioState = {
-  volume: 1, // Full volume by default
-  isMuted: false,
+  volume: DEFAULTS.AUDIO.VOLUME.defaultValue,
+  isMuted: DEFAULTS.AUDIO.MUTED.defaultValue,
 }
 
 export const createAudioSlice: Slice<AudioState, AudioActions> = (set) => ({
@@ -20,6 +21,11 @@ export const createAudioSlice: Slice<AudioState, AudioActions> = (set) => ({
   toggleMute: () => {
     set((state) => {
       state.isMuted = !state.isMuted
+    })
+  },
+  setIsMuted: (isMuted: boolean) => {
+    set((state) => {
+      state.isMuted = isMuted
     })
   },
 })

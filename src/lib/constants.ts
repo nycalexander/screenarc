@@ -65,5 +65,64 @@ export const ZOOM = {
   AUTO_ZOOM_PRE_CLICK_OFFSET: 1.0, // Time to start zoom before the first click
   AUTO_ZOOM_POST_CLICK_PADDING: 0.8, // Time to hold zoom after the last click
   AUTO_ZOOM_MIN_DURATION: 3.0, // Minimum duration for an auto-generated zoom region
-  PAN_EASING: 'easeInOutQuint', // Easing function for pan transitions
+  PAN_EASING: 'easeOutQuint', // Easing function for pan transitions
+}
+
+// --- Editor Defaults ---
+export const DEFAULTS = {
+  FRAME: {
+    PADDING: { min: 0, max: 30, step: 1, defaultValue: 5 },
+    RADIUS: { min: 0, max: 100, step: 1, defaultValue: 16 },
+    SHADOW: {
+      BLUR: { min: 0, max: 100, step: 1, defaultValue: 35 },
+      OFFSET_X: { min: -50, max: 50, step: 1, defaultValue: 0 },
+      OFFSET_Y: { min: -50, max: 50, step: 1, defaultValue: 15 },
+      OPACITY: { min: 0, max: 1, step: 0.01, defaultValue: 0.8 },
+      DEFAULT_COLOR_HEX: '#000000',
+      DEFAULT_COLOR_RGBA: 'rgba(0, 0, 0, 0.8)',
+    },
+    BORDER: {
+      WIDTH: { min: 0, max: 20, step: 1, defaultValue: 4 },
+      DEFAULT_COLOR_HEX: '#ffffff',
+      DEFAULT_COLOR_RGBA: 'rgba(255, 255, 255, 0.2)',
+    },
+  },
+  CAMERA: {
+    STYLE: {
+      SHAPE: { defaultValue: 'square' as const, values: ['circle', 'square', 'rectangle'] as const },
+      RADIUS: { min: 0, max: 50, step: 1, defaultValue: 35 },
+      FLIP: { defaultValue: false },
+    },
+    PLACEMENT: {
+      SIZE: { min: 10, max: 50, step: 1, defaultValue: 30 },
+      POSITION: { defaultValue: 'bottom-right' },
+    },
+    EFFECTS: {
+      BLUR: { min: 0, max: 80, step: 1, defaultValue: 20 },
+      OFFSET_X: { min: -40, max: 40, step: 1, defaultValue: 0 },
+      OFFSET_Y: { min: -40, max: 40, step: 1, defaultValue: 10 },
+      OPACITY: { min: 0, max: 1, step: 0.01, defaultValue: 0.4 },
+      DEFAULT_COLOR_RGBA: 'rgba(0, 0, 0, 0.4)',
+    },
+  },
+  AUDIO: {
+    VOLUME: { min: 0, max: 1, step: 0.01, defaultValue: 1 },
+    MUTED: { defaultValue: false },
+  },
+  ANIMATION: {
+    SPEED: { defaultValue: ZOOM.DEFAULT_SPEED },
+    EASING: { defaultValue: ZOOM.DEFAULT_EASING },
+    ZOOM_LEVEL: { min: 1, max: 3, step: 0.1, defaultValue: ZOOM.DEFAULT_LEVEL },
+  },
+  CURSOR: {
+    THEME: { defaultValue: 'Default' },
+    SCALE: { defaultValue: 2 },
+    SHADOW: {
+      BLUR: { min: 0, max: 20, step: 1, defaultValue: 6 },
+      OFFSET_X: { min: -20, max: 20, step: 1, defaultValue: 3 },
+      OFFSET_Y: { min: -20, max: 20, step: 1, defaultValue: 3 },
+      OPACITY: { min: 0, max: 1, step: 0.01, defaultValue: 0.4 },
+      DEFAULT_COLOR_RGBA: 'rgba(0, 0, 0, 0.4)',
+    },
+  },
 }

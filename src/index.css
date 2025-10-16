@@ -218,6 +218,77 @@
   }
 }
 
+/* --- THEME: Ocean Blue (DEFAULT) --- */
+[data-theme='ocean-blue'] {
+  --background: hsl(0 0% 98%);
+  --foreground: hsl(0 0% 13%);
+  --card: hsl(0 0% 100%);
+  --card-foreground: hsl(0 0% 13%);
+  --popover: hsl(0 0% 100%);
+  --popover-foreground: hsl(0 0% 13%);
+  --primary: hsl(211 100% 50%);
+  --primary-foreground: hsl(0 0% 100%);
+  --secondary: hsl(0 0% 96%);
+  --secondary-foreground: hsl(0 0% 13%);
+  --muted: hsl(0 0% 97%);
+  --muted-foreground: hsl(0 0% 46%);
+  --accent: hsl(0 0% 94%);
+  --accent-foreground: hsl(0 0% 13%);
+  --destructive: hsl(0 82% 55%);
+  --destructive-foreground: hsl(0 0% 100%);
+  --border: hsl(0 0% 89%);
+  --input: hsl(0 0% 94%);
+  --ring: hsl(211 100% 50%);
+  --sidebar: hsl(0 0% 97.5%);
+  --sidebar-foreground: hsl(0 0% 13%);
+  --sidebar-border: hsl(0 0% 87%);
+  --color-picker-border: hsl(0 0% 85%);
+  --color-picker-border-hover: hsl(0 0% 72%);
+  --color-picker-focus-ring: hsla(211, 100%, 50%, 0.25);
+  --color-picker-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --color-picker-input-bg: hsl(0 0% 99%);
+  --color-picker-input-border: hsl(0 0% 89%);
+  --radius: 0.75rem;
+  --font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', sans-serif;
+  --font-mono: 'SF Mono', 'Menlo', 'Monaco', 'Consolas', monospace;
+  --timeline-tick: hsl(0 0% 28%);
+  --speed-accent: hsl(158, 78%, 52%);
+}
+
+/* Ocean Blue Dark - macOS Style */
+[data-theme='ocean-blue'].dark {
+  --background: hsl(220 25% 6%);
+  --foreground: hsl(210 20% 98%);
+  --card: hsl(220 24% 9%);
+  --card-foreground: hsl(210 20% 98%);
+  --popover: hsl(220 24% 10%);
+  --popover-foreground: hsl(210 20% 98%);
+  --primary: hsl(213 94% 68%);
+  --primary-foreground: hsl(0 0% 100%);
+  --secondary: hsl(220 22% 14%);
+  --secondary-foreground: hsl(210 20% 98%);
+  --muted: hsl(220 22% 12%);
+  --muted-foreground: hsl(215 16% 65%);
+  --accent: hsl(220 24% 16%);
+  --accent-foreground: hsl(210 20% 98%);
+  --destructive: hsl(0 72% 58%);
+  --destructive-foreground: hsl(0 0% 100%);
+  --border: hsl(220 22% 18%);
+  --input: hsl(220 22% 14%);
+  --ring: hsl(213 94% 68%);
+  --sidebar: hsl(220 26% 7%);
+  --sidebar-foreground: hsl(210 20% 98%);
+  --sidebar-border: hsl(220 22% 18%);
+  --color-picker-border: hsl(220 20% 24%);
+  --color-picker-border-hover: hsl(220 20% 38%);
+  --color-picker-focus-ring: hsla(213, 94%, 68%, 0.4);
+  --color-picker-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+  --color-picker-input-bg: hsl(220 22% 12%);
+  --color-picker-input-border: hsl(220 20% 24%);
+  --timeline-tick: hsl(210 18% 76%);
+  --speed-accent: hsl(158, 78%, 56%);
+}
+
 /* --- THEME: Monochrome Pro --- */
 [data-theme='monochrome-pro'] {
   --background: hsl(0 0% 98%);
@@ -252,8 +323,9 @@
   --font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   --font-mono: 'SF Mono', 'Menlo', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', monospace;
   --timeline-tick: hsl(0 0% 32%);
-  --speed-accent: hsl(264, 84%, 58%); /* Added */
+  --speed-accent: hsl(264, 84%, 58%);
 }
+
 [data-theme='monochrome-pro'].dark {
   --background: hsl(0 0% 8%);
   --foreground: hsl(0 0% 96%);
@@ -284,76 +356,7 @@
   --color-picker-input-bg: hsl(0 0% 15%);
   --color-picker-input-border: hsl(0 0% 26%);
   --timeline-tick: hsl(0 0% 72%);
-  --speed-accent: hsl(264, 80%, 70%); /* Added */
-}
-
-/* --- THEME: Ocean Slate (DEFAULT) --- */
-[data-theme='ocean-slate'] {
-  --background: hsl(210 18% 97%);
-  --foreground: hsl(215 20% 14%);
-  --card: hsl(0 0% 100%);
-  --card-foreground: hsl(215 20% 14%);
-  --popover: hsl(0 0% 100%);
-  --popover-foreground: hsl(215 20% 14%);
-  --primary: hsl(213 94% 68%);
-  --primary-foreground: hsl(0 0% 100%);
-  --secondary: hsl(210 20% 94%);
-  --secondary-foreground: hsl(215 20% 14%);
-  --muted: hsl(210 20% 96%);
-  --muted-foreground: hsl(215 16% 42%);
-  --accent: hsl(210 25% 92%);
-  --accent-foreground: hsl(215 20% 14%);
-  --destructive: hsl(0 78% 54%);
-  --destructive-foreground: hsl(0 0% 100%);
-  --border: hsl(210 20% 88%);
-  --input: hsl(210 20% 92%);
-  --ring: hsl(213 94% 68%);
-  --sidebar: hsl(210 18% 97%);
-  --sidebar-foreground: hsl(215 20% 14%);
-  --sidebar-border: hsl(210 20% 88%);
-  --color-picker-border: hsl(210 20% 82%);
-  --color-picker-border-hover: hsl(210 20% 68%);
-  --color-picker-focus-ring: hsla(213, 94%, 68%, 0.3);
-  --color-picker-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
-  --color-picker-input-bg: hsl(210 20% 98%);
-  --color-picker-input-border: hsl(210 20% 88%);
-  --radius: 0.625rem;
-  --font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  --font-mono: 'SF Mono', 'Menlo', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', monospace;
-  --timeline-tick: hsl(215 18% 32%);
-  --speed-accent: hsl(158, 82%, 56%); /* Added */
-}
-[data-theme='ocean-slate'].dark {
-  --background: hsl(215 20% 9%);
-  --foreground: hsl(210 20% 96%);
-  --card: hsl(215 22% 12%);
-  --card-foreground: hsl(210 20% 96%);
-  --popover: hsl(215 22% 14%);
-  --popover-foreground: hsl(210 20% 96%);
-  --primary: hsl(213 92% 64%);
-  --primary-foreground: hsl(0 0% 100%);
-  --secondary: hsl(215 20% 18%);
-  --secondary-foreground: hsl(210 20% 96%);
-  --muted: hsl(215 20% 16%);
-  --muted-foreground: hsl(215 16% 60%);
-  --accent: hsl(215 24% 21%);
-  --accent-foreground: hsl(210 20% 96%);
-  --destructive: hsl(0 68% 50%);
-  --destructive-foreground: hsl(0 0% 100%);
-  --border: hsl(215 20% 24%);
-  --input: hsl(215 20% 18%);
-  --ring: hsl(213 92% 64%);
-  --sidebar: hsl(215 22% 11%);
-  --sidebar-foreground: hsl(210 20% 96%);
-  --sidebar-border: hsl(215 20% 24%);
-  --color-picker-border: hsl(215 20% 28%);
-  --color-picker-border-hover: hsl(215 20% 42%);
-  --color-picker-focus-ring: hsla(213, 92%, 64%, 0.4);
-  --color-picker-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
-  --color-picker-input-bg: hsl(215 20% 16%);
-  --color-picker-input-border: hsl(215 20% 28%);
-  --timeline-tick: hsl(210 18% 72%);
-  --speed-accent: hsl(158, 78%, 54%); /* Added */
+  --speed-accent: hsl(264, 80%, 70%);
 }
 
 /* --- THEME: Warm Graphite --- */

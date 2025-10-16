@@ -5,7 +5,7 @@ import { useShallow } from 'zustand/react/shallow'
 import { cn } from '../../lib/utils'
 
 const THEMES = [
-  { id: 'ocean-slate', name: 'Ocean Slate', colors: ['#3b82f6', '#14b8a6'] },
+  { id: 'ocean-blue', name: 'Ocean Blue', colors: ['#3b82f6', '#14b8a6'] },
   { id: 'monochrome-pro', name: 'Monochrome Pro', colors: ['#2e2e2e', '#a3a3a3'] },
   { id: 'warm-graphite', name: 'Warm Graphite', colors: ['#ea580c', '#78716c'] },
   { id: 'nordic-night', name: 'Nordic Night', colors: ['#88c0d0', '#5e81ac'] },

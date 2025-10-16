@@ -27,6 +27,7 @@ export const initialProjectState: ProjectState = {
   syncOffset: 0,
   platform: null,
   cursorTheme: null,
+  hasAudioTrack: false,
 }
 
 /**
@@ -325,6 +326,11 @@ export const createProjectSlice: Slice<ProjectState, ProjectActions> = (set, get
 
     set((state) => {
       state.cursorBitmapsToRender = bitmaps
+    })
+  },
+  setHasAudioTrack: (hasAudio) => {
+    set((state) => {
+      state.hasAudioTrack = hasAudio
     })
   },
 })
