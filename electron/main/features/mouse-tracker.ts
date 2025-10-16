@@ -184,15 +184,20 @@ class WindowsMouseTracker extends EventEmitter implements IMouseTracker {
 
   private currentCursorName = ''
   private currentAniFrame = 0
+  private lastPosition = { x: 0, y: 0 }
 
   async start(): Promise<boolean> {
-    // Listen for position/click events
-    mouseEvents.on('mousemove', this.handleMouseEvent('move'))
-    mouseEvents.on('mousedown', this.handleMouseEvent('click', true))
-    mouseEvents.on('mouseup', this.handleMouseEvent('click', false))
+    // Listen for position changes to update our state.
+    mouseEvents.on('mousemove', (event: any) => {
+      this.lastPosition = { x: event.x, y: event.y }
+    })
 
-    // Poll for cursor shape changes
-    this.pollIntervalId = setInterval(() => this.pollCursorState(), 1000 / MOUSE_RECORDING_FPS)
+    // Listen for click events and emit them directly.
+    mouseEvents.on('mousedown', (event: any) => this.emitClickEvent(event, true))
+    mouseEvents.on('mouseup', (event: any) => this.emitClickEvent(event, false))
+
+    // This poller is the SOLE source of 'move' events, ensuring a constant stream.
+    this.pollIntervalId = setInterval(() => this.pollAndEmitMove(), 1000 / MOUSE_RECORDING_FPS)
 
     log.info('[MouseTracker-Windows] Started.')
     return true
@@ -204,28 +209,42 @@ class WindowsMouseTracker extends EventEmitter implements IMouseTracker {
     log.info('[MouseTracker-Windows] Stopped.')
   }
 
-  private handleMouseEvent = (type: 'move' | 'click', isPressed?: boolean) => (event: any) => {
+  private emitClickEvent = (event: any, isPressed: boolean) => {
+    // A click event provides the most up-to-date cursor position.
+    this.lastPosition = { x: event.x, y: event.y }
+    // Check for cursor shape changes right before emitting the click.
+    this.updateCursorState()
+
     const data: MetaDataItem = {
       timestamp: Date.now(),
       x: event.x,
       y: event.y,
-      type,
+      type: 'click',
       cursorImageKey: `${this.currentCursorName}-${this.currentAniFrame}`,
-    }
-    if (type === 'click') {
-      data.button = this.mapButton(event.button)
-      data.pressed = isPressed
+      button: this.mapButton(event.button),
+      pressed: isPressed,
     }
     this.emit('data', data)
   }
 
-  private pollCursorState = () => {
+  private pollAndEmitMove = () => {
+    this.updateCursorState()
+
+    const data: MetaDataItem = {
+      timestamp: Date.now(),
+      x: this.lastPosition.x,
+      y: this.lastPosition.y,
+      type: 'move',
+      cursorImageKey: `${this.currentCursorName}-${this.currentAniFrame}`,
+    }
+    this.emit('data', data)
+  }
+
+  private updateCursorState = () => {
     const name = winCursorManager.getCurrentCursorName()
     if (name !== this.currentCursorName) {
       this.currentCursorName = name
       this.currentAniFrame = 0 // Reset frame animation when cursor shape changes
-    } else {
-      // this.currentAniFrame += 1; // Increment frame for animations
     }
   }
 
@@ -247,6 +266,7 @@ class MacOSMouseTracker extends EventEmitter implements IMouseTracker {
   private pollIntervalId: NodeJS.Timeout | null = null
   private currentCursorName = 'arrow'
   private currentAniFrame = 0
+  private lastPosition = { x: 0, y: 0 }
 
   async start(): Promise<boolean> {
     if (!iohook) {
@@ -268,17 +288,24 @@ class MacOSMouseTracker extends EventEmitter implements IMouseTracker {
 
     iohook.enablePerformanceMode()
     iohook.setPollingRate(1000 / MOUSE_RECORDING_FPS)
-    iohook.on('mouseMoved', this.handleMouseEvent('move'))
-    iohook.on('leftMouseDown', this.handleMouseEvent('click', true))
-    iohook.on('rightMouseDown', this.handleMouseEvent('click', true))
-    iohook.on('otherMouseDown', this.handleMouseEvent('click', true))
-    iohook.on('leftMouseup', this.handleMouseEvent('click', false))
-    iohook.on('rightMouseup', this.handleMouseEvent('click', false))
-    iohook.on('otherMouseup', this.handleMouseEvent('click', false))
+
+    // Just update position, don't emit from here
+    iohook.on('mouseMoved', (event: any) => {
+      this.lastPosition = { x: event.x, y: event.y }
+    })
+
+    // Handle clicks separately
+    iohook.on('leftMouseDown', (event: any) => this.emitClickEvent(event, true))
+    iohook.on('rightMouseDown', (event: any) => this.emitClickEvent(event, true))
+    iohook.on('otherMouseDown', (event: any) => this.emitClickEvent(event, true))
+    iohook.on('leftMouseup', (event: any) => this.emitClickEvent(event, false))
+    iohook.on('rightMouseup', (event: any) => this.emitClickEvent(event, false))
+    iohook.on('otherMouseup', (event: any) => this.emitClickEvent(event, false))
 
     iohook.startMonitoring()
 
-    this.pollIntervalId = setInterval(() => this.pollCursorState(), 1000 / MOUSE_RECORDING_FPS)
+    // This poller is the SOLE source of 'move' events, ensuring a constant stream.
+    this.pollIntervalId = setInterval(() => this.pollAndEmitMove(), 1000 / MOUSE_RECORDING_FPS)
     log.info('[MouseTracker-macOS] Started.')
     return true
   }
@@ -292,22 +319,38 @@ class MacOSMouseTracker extends EventEmitter implements IMouseTracker {
     log.info('[MouseTracker-macOS] Stopped.')
   }
 
-  private handleMouseEvent = (type: 'move' | 'click', isPressed?: boolean) => (event: any) => {
+  private emitClickEvent = (event: any, isPressed: boolean) => {
+    // A click event provides the most up-to-date cursor position.
+    this.lastPosition = { x: event.x, y: event.y }
+    // Check for cursor shape changes right before emitting the click.
+    this.updateCursorState()
+
     const data: MetaDataItem = {
       timestamp: Date.now(),
       x: event.x,
       y: event.y,
-      type,
+      type: 'click',
       cursorImageKey: `${this.currentCursorName}-${this.currentAniFrame}`,
-    }
-    if (type === 'click') {
-      data.button = this.mapButton(event.button)
-      data.pressed = isPressed
+      button: this.mapButton(event.button),
+      pressed: isPressed,
     }
     this.emit('data', data)
   }
 
-  private pollCursorState = () => {
+  private pollAndEmitMove = () => {
+    this.updateCursorState()
+
+    const data: MetaDataItem = {
+      timestamp: Date.now(),
+      x: this.lastPosition.x,
+      y: this.lastPosition.y,
+      type: 'move',
+      cursorImageKey: `${this.currentCursorName}-${this.currentAniFrame}`,
+    }
+    this.emit('data', data)
+  }
+
+  private updateCursorState = () => {
     this.currentCursorName = macosCursorManager.getCurrentCursorName()
   }
 
