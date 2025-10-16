@@ -266,9 +266,15 @@ class MacOSMouseTracker extends EventEmitter implements IMouseTracker {
       return false // MODIFIED: Signal failure if permissions are not granted
     }
 
-    iohook.on('mousemove', this.handleMouseEvent('move'))
-    iohook.on('mousedown', this.handleMouseEvent('click', true))
-    iohook.on('mouseup', this.handleMouseEvent('click', false))
+    iohook.enablePerformanceMode()
+    iohook.setPollingRate(1000 / MOUSE_RECORDING_FPS)
+    iohook.on('mouseMoved', this.handleMouseEvent('move'))
+    iohook.on('leftMouseDown', this.handleMouseEvent('click', true))
+    iohook.on('rightMouseDown', this.handleMouseEvent('click', true))
+    iohook.on('otherMouseDown', this.handleMouseEvent('click', true))
+    iohook.on('leftMouseup', this.handleMouseEvent('click', false))
+    iohook.on('rightMouseup', this.handleMouseEvent('click', false))
+    iohook.on('otherMouseup', this.handleMouseEvent('click', false))
 
     iohook.startMonitoring()
 
