@@ -115,7 +115,7 @@ export const DEFAULTS = {
     ZOOM_LEVEL: { min: 1, max: 3, step: 0.1, defaultValue: ZOOM.DEFAULT_LEVEL },
   },
   CURSOR: {
-    THEME: { defaultValue: 'default' },
+    THEME: { defaultValue: 'Default' },
     SCALE: { defaultValue: 2 },
     SHADOW: {
       BLUR: { min: 0, max: 20, step: 1, defaultValue: 6 },
