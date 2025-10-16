@@ -267,7 +267,7 @@ export async function startRecording(options: any) {
     if (screenAccess !== 'granted') {
       dialog.showErrorBox(
         'Screen Recording Permission Required',
-        'ScreenArc does not have permission to record the screen. Please grant access in System Settings > Privacy & Security > Screen Recording.',
+        'Accessibility permissions required. Please go to System Preferences > Security & Privacy > Privacy > Accessibility and enable this application.',
       )
       return { canceled: true }
     }
@@ -281,7 +281,7 @@ export async function startRecording(options: any) {
       if (micAccess !== 'granted') {
         dialog.showErrorBox(
           'Microphone Permission Required',
-          'ScreenArc does not have permission to access the microphone. Please grant access in System Settings > Privacy & Security > Microphone.',
+          'Microphone permissions required. Please go to System Preferences > Security & Privacy > Privacy > Microphone and enable this application.',
         )
         return { canceled: true }
       }
