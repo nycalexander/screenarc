@@ -13,6 +13,18 @@ import { MetaDataItem } from '../types'
 const require = createRequire(import.meta.url)
 const hash = (buffer: Buffer) => createHash('sha1').update(buffer).digest('hex')
 
+// --- Metadata for Animated Cursors ---
+const ANIMATED_CURSORS = {
+  win32: {
+    IDC_WAIT: { frames: 18, duration: 65 }, // 18 frames, 65ms per frame
+    IDC_APPSTARTING: { frames: 18, duration: 65 },
+  },
+  darwin: {
+    // NOTE: The current native module for macOS doesn't reliably identify
+    // the spinning wheel cursor by name, so animation is not supported for it.
+  },
+}
+
 // --- Dynamic Imports for Platform-Specific Modules ---
 let X11Module: any
 let mouseEvents: any
@@ -185,6 +197,7 @@ class WindowsMouseTracker extends EventEmitter implements IMouseTracker {
   private currentCursorName = ''
   private currentAniFrame = 0
   private lastPosition = { x: 0, y: 0 }
+  private animationStartTime: number | null = null
 
   async start(): Promise<boolean> {
     // Listen for position changes to update our state.
@@ -242,9 +255,23 @@ class WindowsMouseTracker extends EventEmitter implements IMouseTracker {
 
   private updateCursorState = () => {
     const name = winCursorManager.getCurrentCursorName()
+    const animInfo = ANIMATED_CURSORS.win32[name as keyof typeof ANIMATED_CURSORS.win32]
+
     if (name !== this.currentCursorName) {
       this.currentCursorName = name
-      this.currentAniFrame = 0 // Reset frame animation when cursor shape changes
+      if (animInfo) {
+        // New animated cursor detected, start the timer.
+        this.animationStartTime = Date.now()
+        this.currentAniFrame = 0
+      } else {
+        // Not animated, reset timer and frame.
+        this.animationStartTime = null
+        this.currentAniFrame = 0
+      }
+    } else if (animInfo && this.animationStartTime) {
+      // Same animated cursor, calculate the current frame.
+      const elapsedTime = Date.now() - this.animationStartTime
+      this.currentAniFrame = Math.floor(elapsedTime / animInfo.duration) % animInfo.frames
     }
   }
 
@@ -352,6 +379,10 @@ class MacOSMouseTracker extends EventEmitter implements IMouseTracker {
 
   private updateCursorState = () => {
     this.currentCursorName = macosCursorManager.getCurrentCursorName()
+    // NOTE: Animated cursors like the spinning wheel are not currently
+    // identifiable by name with the native module being used.
+    // Therefore, animation frame calculation is not implemented for macOS.
+    this.currentAniFrame = 0
   }
 
   private mapButton = (code: number) => {
