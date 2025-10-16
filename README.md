@@ -43,17 +43,21 @@ Grab the latest version for your OS from the [**Releases Page**](https://github.
 ### 🐧 Linux Instructions
 
 #### Prerequisites
+
 - **X11 Display Server Required** - ScreenArc currently doesn't support Wayland.
   - Check your session type: `echo $XDG_SESSION_TYPE`
   - If it shows `wayland`, switch to X11 from your login screen.
 
 #### Installation Steps
+
 1. **Download** the latest AppImage:
+
    ```bash
    wget https://github.com/tamnguyenvan/screenarc/releases/latest/download/ScreenArc-*-linux-x64.AppImage
    ```
 
 2. **Make it executable**:
+
    ```bash
    chmod +x ScreenArc-*-linux-x64.AppImage
    ```
@@ -66,21 +70,25 @@ Grab the latest version for your OS from the [**Releases Page**](https://github.
      ```
 
 #### Troubleshooting
+
 - If you get permission errors, ensure the file is executable
 - For AppImage issues, try running with `--no-sandbox` flag
 
 ### 🪟 Windows Instructions
 
 #### Security Notice
+
 > **🔒 Important:** As a new open-source project, we don't have a code signing certificate yet. You may see security warnings during installation.
 >
 > **To proceed safely:**
+>
 > - In your browser, click "Keep" or "Keep anyway" when downloading
 > - On the SmartScreen prompt, click "More info" → "Run anyway"
 >
 > Our code is [fully open source](https://github.com/tamnguyenvan/screenarc) for your review.
 
 #### Installation Steps
+
 1. **Download** the latest Windows installer:
    - Visit our [Releases Page](https://github.com/tamnguyenvan/screenarc/releases/latest)
    - Download the `ScreenArc-*-Setup.exe` file
@@ -93,9 +101,11 @@ Grab the latest version for your OS from the [**Releases Page**](https://github.
 ### 🍏 macOS Instructions
 
 #### Security Notice
+
 > **🔒 Important:** As a new open-source project, we don't have a code signing certificate yet. You'll need to authorize the app to run on your Mac.
 >
 > **To proceed safely:**
+>
 > 1. After downloading and attempting to open the app, you'll see a security warning
 > 2. Close the warning dialog
 > 3. Open System Settings > Privacy & Security
@@ -106,6 +116,7 @@ Grab the latest version for your OS from the [**Releases Page**](https://github.
 > Our code is [fully open source](https://github.com/tamnguyenvan/screenarc) for your review
 
 #### Installation Steps
+
 1. **Download** the appropriate macOS package for your system:
    - Visit our [Releases Page](https://github.com/tamnguyenvan/screenarc/releases/latest)
    - For Apple Silicon (M1/M2/M3) Macs: Download `ScreenArc-*-arm64.dmg`
@@ -153,6 +164,7 @@ Grab the latest version for your OS from the [**Releases Page**](https://github.
     ```
 3.  **Set up FFmpeg:**
     - Download the appropriate FFmpeg executable from [screenarc-assets](https://github.com/tamnguyenvan/screenarc-assets/releases/tag/v0.0.1) and place it in the `binaries/[os]` directory.
+
     ```bash
     # Linux
     wget https://github.com/tamnguyenvan/screenarc-assets/releases/download/v0.0.1/ffmpeg-linux-x64 -O binaries/linux/ffmpeg
@@ -169,6 +181,7 @@ Grab the latest version for your OS from the [**Releases Page**](https://github.
     # Windows
     wget https://github.com/tamnguyenvan/screenarc-assets/releases/download/v0.0.1/ffmpeg.exe -O binaries/windows/ffmpeg.exe
     ```
+
 4.  **Run in development mode:**
     ```bash
     npm run dev
