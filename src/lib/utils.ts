@@ -1,6 +1,6 @@
 import { type ClassValue, clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
-import { CursorImage, CursorImageBitmap } from '../types'
+import { CursorImage, CursorImageBitmap, CutRegion, SpeedRegion } from '../types'
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -125,4 +125,74 @@ export const prepareCursorBitmaps = async (
 
   await Promise.all(promises)
   return bitmapMap
+}
+
+/**
+ * Maps a timestamp from the exported video timeline to the corresponding timestamp in the source video.
+ * This is crucial for seek-driven rendering, as it accounts for cut regions and speed modifications.
+ * @param exportTime The time in seconds in the final exported video.
+ * @param duration The total duration of the source video.
+ * @param cutRegions A record of regions to be removed from the video.
+ * @param speedRegions A record of regions where playback speed is altered.
+ * @returns The corresponding time in seconds in the source video.
+ */
+export const mapExportTimeToSourceTime = (
+  exportTime: number,
+  duration: number,
+  cutRegions: Record<string, CutRegion>,
+  speedRegions: Record<string, SpeedRegion>,
+): number => {
+  const allCuts = Object.values(cutRegions)
+  const allSpeeds = Object.values(speedRegions)
+
+  // Create a sorted list of "events" (start/end of any region)
+  const events = new Set([0, duration])
+  allCuts.forEach((r) => {
+    events.add(r.startTime)
+    events.add(r.startTime + r.duration)
+  })
+  allSpeeds.forEach((r) => {
+    events.add(r.startTime)
+    events.add(r.startTime + r.duration)
+  })
+  const sortedEvents = Array.from(events)
+    .sort((a, b) => a - b)
+    .filter((t) => t >= 0 && t <= duration)
+
+  let accumulatedExportTime = 0
+  let sourceTime = 0
+
+  for (let i = 0; i < sortedEvents.length - 1; i++) {
+    const segmentStart = sortedEvents[i]
+    const segmentEnd = sortedEvents[i + 1]
+    const segmentSourceDuration = segmentEnd - segmentStart
+    const midpoint = segmentStart + segmentSourceDuration / 2
+
+    // Check if this segment is inside a cut region
+    const isCut = allCuts.some((r) => midpoint >= r.startTime && midpoint < r.startTime + r.duration)
+    if (isCut) {
+      sourceTime = segmentEnd // Skip this segment
+      continue
+    }
+
+    // Find the speed for this segment
+    const activeSpeedRegion = allSpeeds.find((r) => midpoint >= r.startTime && midpoint < r.startTime + r.duration)
+    const speed = activeSpeedRegion ? activeSpeedRegion.speed : 1
+
+    const segmentExportDuration = segmentSourceDuration / speed
+    const endOfSegmentExportTime = accumulatedExportTime + segmentExportDuration
+
+    if (exportTime <= endOfSegmentExportTime) {
+      // The target time is within this segment
+      const timeIntoSegmentExport = exportTime - accumulatedExportTime
+      const timeIntoSegmentSource = timeIntoSegmentExport * speed
+      return segmentStart + timeIntoSegmentSource
+    }
+
+    accumulatedExportTime = endOfSegmentExportTime
+    sourceTime = segmentEnd
+  }
+
+  // If exportTime is beyond the calculated duration (e.g., due to floating point), clamp to the end
+  return sourceTime
 }
