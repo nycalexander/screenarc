@@ -230,19 +230,17 @@ export const drawScene = async (
   const { DURATION, MAX_RADIUS, EASING, COLOR } = EFFECTS.CLICK_ANIMATION
   const clickAnimationEasing = EASING_MAP[EASING as keyof typeof EASING_MAP] || ((t: number) => t)
 
-  const effectiveTime = currentTime - DURATION
-
   if (state.recordingGeometry) {
     const recentClicks = state.metadata.filter(
       (event) =>
         event.type === 'click' &&
         event.pressed &&
-        effectiveTime >= event.timestamp &&
-        effectiveTime < event.timestamp + DURATION,
+        currentTime >= event.timestamp &&
+        currentTime < event.timestamp + DURATION,
     )
 
     for (const click of recentClicks) {
-      const progress = (effectiveTime - click.timestamp) / DURATION
+      const progress = (currentTime - click.timestamp) / DURATION
       const easedProgress = clickAnimationEasing(progress)
 
       const currentRadius = easedProgress * MAX_RADIUS
