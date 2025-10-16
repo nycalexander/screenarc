@@ -38,7 +38,7 @@ export function CursorSettings() {
   )
   const { reloadCursorTheme } = useEditorStore.getState()
   const [cursorScale, setCursorScale] = useState<number>(DEFAULTS.CURSOR.SCALE.defaultValue)
-  const [availableThemes, setAvailableThemes] = useState<string[]>(['default'])
+  const [availableThemes, setAvailableThemes] = useState<string[]>([DEFAULTS.CURSOR.THEME.defaultValue])
 
   const isCustomizationSupported = useMemo(() => platform === 'win32' || platform === 'darwin', [platform])
 
@@ -136,7 +136,7 @@ export function CursorSettings() {
           <div className="space-y-3">
             <label className="text-sm font-medium text-sidebar-foreground flex items-center gap-2">Theme</label>
             <Select
-              value={isCustomizationSupported ? cursorThemeName : 'default'}
+              value={isCustomizationSupported ? cursorThemeName : 'Default'}
               onValueChange={handleThemeChange}
               disabled={!isCustomizationSupported}
             >
