@@ -1,5 +1,5 @@
 // Notification button for available app updates
-import { Download } from 'lucide-react'
+import { Download } from 'tabler-icons-react'
 import { Button } from '../ui/button'
 
 interface UpdateNotificationProps {

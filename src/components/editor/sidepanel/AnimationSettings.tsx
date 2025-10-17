@@ -1,7 +1,7 @@
 import { useEditorStore } from '../../../store/editorStore'
 import type { ZoomRegion } from '../../../types'
 import { Collapse } from '../../ui/collapse'
-import { LineSquiggle } from 'lucide-react'
+import { Route } from 'tabler-icons-react'
 import { ZOOM, DEFAULTS } from '../../../lib/constants'
 import { EASING_MAP } from '../../../lib/easing'
 import { cn } from '../../../lib/utils'
@@ -48,7 +48,7 @@ export function AnimationSettings({ region }: AnimationSettingsProps) {
     <Collapse
       title="Animation & Level"
       description="Adjust transition and zoom level"
-      icon={<LineSquiggle className="w-4 h-4 text-primary" />}
+      icon={<Route className="w-4 h-4 text-primary" />}
       defaultOpen={true}
       onReset={handleResetAnimation}
     >

@@ -1,6 +1,13 @@
 import { useEditorStore } from '../../../store/editorStore'
 import { useShallow } from 'zustand/react/shallow'
-import { AudioLines, Volume, Volume1, Volume2, VolumeX, MicOff } from 'lucide-react'
+import {
+  Microphone,
+  Volume,
+  Volume2 as MinVolume,
+  Volume as MaxVolume,
+  Volume3 as MuteVolume,
+  MicrophoneOff,
+} from 'tabler-icons-react'
 import { Collapse } from '../../ui/collapse'
 import { Slider } from '../../ui/slider'
 import { Button } from '../../ui/button'
@@ -37,7 +44,7 @@ export function AudioSettings() {
     })),
   )
 
-  const VolumeIcon = isMuted || volume === 0 ? VolumeX : volume < 0.5 ? Volume1 : Volume2
+  const VolumeIcon = isMuted || volume === 0 ? MuteVolume : volume < 0.5 ? MinVolume : MaxVolume
 
   const handleResetVolume = () => {
     setVolume(DEFAULTS.AUDIO.VOLUME.defaultValue)
@@ -50,7 +57,7 @@ export function AudioSettings() {
       <div className="p-6 border-b border-sidebar-border flex-shrink-0">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-            <AudioLines className="w-5 h-5 text-primary" />
+            <Microphone className="w-5 h-5 text-primary" />
           </div>
           <div>
             <h2 className="text-lg font-semibold text-sidebar-foreground">Audio Settings</h2>
@@ -63,7 +70,7 @@ export function AudioSettings() {
       <div className="flex-1 overflow-y-auto stable-scrollbar">
         {!hasAudioTrack ? (
           <DisabledPanelPlaceholder
-            icon={<MicOff className="w-8 h-8 text-muted-foreground" />}
+            icon={<MicrophoneOff className="w-8 h-8 text-muted-foreground" />}
             title="No Audio Detected"
             message="These settings are unavailable because the current video does not contain an audio track."
           />
@@ -109,7 +116,7 @@ export function AudioSettings() {
                     'bg-primary hover:bg-primary/90 text-primary-foreground',
                   )}
                 >
-                  <Volume2 className="w-4 h-4 mr-2" />
+                  <MaxVolume className="w-4 h-4 mr-2" />
                   Set to Max Volume
                 </Button>
               </div>

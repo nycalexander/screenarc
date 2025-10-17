@@ -2,7 +2,7 @@
 import { useMemo, useRef } from 'react'
 import { WALLPAPERS } from '../../lib/constants'
 import type { FrameStyles, AspectRatio, WebcamStyles, WebcamPosition } from '../../types'
-import { Video } from 'lucide-react'
+import { Video } from 'tabler-icons-react'
 import { cn } from '../../lib/utils'
 
 interface PresetPreviewProps {

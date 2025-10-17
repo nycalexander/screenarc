@@ -1,6 +1,18 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
-import { Mic, Webcam, Monitor, Loader2, Video, X, MousePointer, MicOff, FolderOpen, Square } from 'lucide-react'
-import { WebcamOffIcon, AreaModeIcon } from '../components/ui/icons'
+import {
+  Microphone,
+  MicrophoneOff,
+  DeviceComputerCamera,
+  DeviceComputerCameraOff,
+  DeviceDesktop,
+  Loader2,
+  Video,
+  X,
+  Marquee2,
+  Pointer,
+  Folder,
+  Square,
+} from 'tabler-icons-react'
 import { Button } from '../components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select'
 import { useDeviceManager } from '../hooks/useDeviceManager'
@@ -224,14 +236,14 @@ export function RecorderPage() {
               style={{ WebkitAppRegion: 'no-drag' }}
             >
               <SourceButton
-                icon={<Monitor size={16} />}
+                icon={<DeviceDesktop size={16} />}
                 isActive={source === 'fullscreen'}
                 onClick={() => setSource('fullscreen')}
                 tooltip="Full Screen"
                 disabled={isRecording}
               />
               <SourceButton
-                icon={<AreaModeIcon size={16} />}
+                icon={<Marquee2 size={16} />}
                 isActive={source === 'area'}
                 onClick={() => setSource('area')}
                 tooltip="Area"
@@ -255,7 +267,7 @@ export function RecorderPage() {
                 >
                   <SelectValue asChild>
                     <div className="flex items-center gap-1.5 text-xs">
-                      <Monitor size={14} className="text-primary shrink-0" />
+                      <DeviceDesktop size={14} className="text-primary shrink-0" />
                       <span className="truncate">
                         {displays.find((d) => String(d.id) === selectedDisplayId)?.name || '...'}
                       </span>
@@ -284,9 +296,9 @@ export function RecorderPage() {
                   <SelectValue asChild>
                     <div className="flex items-center gap-1.5 text-xs">
                       {selectedWebcamId !== 'none' ? (
-                        <Webcam size={14} className="text-primary shrink-0" />
+                        <DeviceComputerCamera size={14} className="text-primary shrink-0" />
                       ) : (
-                        <WebcamOffIcon size={14} className="text-muted-foreground/60" />
+                        <DeviceComputerCameraOff size={14} className="text-muted-foreground/60" />
                       )}
                       <span className={cn('truncate', selectedWebcamId === 'none' && 'text-muted-foreground')}>
                         {webcams.find((w) => w.id === selectedWebcamId)?.name || 'No webcam'}
@@ -317,9 +329,9 @@ export function RecorderPage() {
                   <SelectValue asChild>
                     <div className="flex items-center gap-1.5 text-xs">
                       {selectedMicId !== 'none' ? (
-                        <Mic size={14} className="text-primary shrink-0" />
+                        <Microphone size={14} className="text-primary shrink-0" />
                       ) : (
-                        <MicOff size={14} className="text-muted-foreground/60" />
+                        <MicrophoneOff size={14} className="text-muted-foreground/60" />
                       )}
                       <span className={cn('truncate', selectedMicId === 'none' && 'text-muted-foreground')}>
                         {mics.find((m) => m.id === selectedMicId)?.name || 'No microphone'}
@@ -344,7 +356,7 @@ export function RecorderPage() {
             {platform === 'linux' && (
               <>
                 <div className="flex items-center gap-1.5" style={{ WebkitAppRegion: 'no-drag' }}>
-                  <MousePointer size={14} className="text-muted-foreground/60" />
+                  <Pointer size={14} className="text-muted-foreground/60" />
                   <Select value={String(cursorScale)} onValueChange={handleCursorScaleChange} disabled={isRecording}>
                     <SelectTrigger variant="minimal" className="w-[56px] h-9 text-xs" aria-label="Select cursor scale">
                       <SelectValue />
@@ -394,7 +406,7 @@ export function RecorderPage() {
                   size="icon"
                   className="h-10 w-10 rounded-full shadow-lg"
                 >
-                  <FolderOpen size={18} />
+                  <Folder size={18} />
                 </Button>
               </div>
               <div className="w-8 h-10 flex items-center justify-center">

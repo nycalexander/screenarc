@@ -1,6 +1,6 @@
 import * as React from 'react'
 import * as CollapsiblePrimitive from '@radix-ui/react-collapsible'
-import { ChevronDownIcon, RotateCcw } from 'lucide-react'
+import { ChevronDown, Refresh } from 'tabler-icons-react'
 
 interface CollapseProps {
   title: string
@@ -50,10 +50,10 @@ export function Collapse({
               className="p-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 cursor-pointer hover:bg-accent/70"
               aria-label={`Reset ${title}`}
             >
-              <RotateCcw className="w-3.5 h-3.5 text-muted-foreground" />
+              <Refresh className="w-3.5 h-3.5 text-muted-foreground" />
             </div>
           )}
-          <ChevronDownIcon
+          <ChevronDown
             className={`collapse-chevron ml-1 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
           />
         </div>

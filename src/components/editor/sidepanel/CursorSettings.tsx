@@ -1,5 +1,4 @@
-import { MousePointer } from 'lucide-react'
-import { ShadowIcon } from '../../ui/icons'
+import { Pointer, Shadow } from 'tabler-icons-react'
 import { Collapse } from '../../ui/collapse'
 import { cn } from '../../../lib/utils'
 import { useEffect, useState, useMemo } from 'react'
@@ -116,7 +115,7 @@ export function CursorSettings() {
       <div className="p-6 border-b border-sidebar-border flex-shrink-0">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-            <MousePointer className="w-5 h-5 text-primary" />
+            <Pointer className="w-5 h-5 text-primary" />
           </div>
           <div>
             <h2 className="text-lg font-semibold text-sidebar-foreground">Cursor Settings</h2>
@@ -129,7 +128,7 @@ export function CursorSettings() {
         <Collapse
           title="Cursor Theme"
           description="Change the cursor style in the video"
-          icon={<MousePointer className="w-4 h-4 text-primary" />}
+          icon={<Pointer className="w-4 h-4 text-primary" />}
           defaultOpen={true}
           onReset={isCustomizationSupported ? handleResetTheme : undefined}
         >
@@ -160,7 +159,7 @@ export function CursorSettings() {
         <Collapse
           title="Cursor Size"
           description="Change the cursor size in the final video"
-          icon={<MousePointer className="w-4 h-4 text-primary" />}
+          icon={<Pointer className="w-4 h-4 text-primary" />}
           defaultOpen={true}
           onReset={isCustomizationSupported ? handleResetSize : undefined}
         >
@@ -201,7 +200,7 @@ export function CursorSettings() {
         <Collapse
           title="Cursor Shadow"
           description="Add a drop shadow for better visibility"
-          icon={<ShadowIcon className="w-4 h-4 text-primary" />}
+          icon={<Shadow className="w-4 h-4 text-primary" />}
           defaultOpen={true}
           onReset={handleResetShadow}
         >

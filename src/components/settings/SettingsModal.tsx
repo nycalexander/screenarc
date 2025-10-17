@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { cn } from '../../lib/utils'
-import { SettingsIcon, InfoIcon } from '../ui/icons'
-import { Keyboard } from 'lucide-react'
+import { Settings, InfoCircle, Keyboard } from 'tabler-icons-react'
 import { GeneralTab } from './GeneralTab'
 import { AboutTab } from './AboutTab'
 import { ShortcutsTab } from './ShortcutsTab'
@@ -14,9 +13,9 @@ interface SettingsModalProps {
 type SettingsTab = 'general' | 'shortcuts' | 'about'
 
 const TABS: { id: SettingsTab; label: string; icon: React.ReactNode }[] = [
-  { id: 'general', label: 'General', icon: <SettingsIcon className="w-5 h-5" /> },
+  { id: 'general', label: 'General', icon: <Settings className="w-5 h-5" /> },
   { id: 'shortcuts', label: 'Shortcuts', icon: <Keyboard className="w-5 h-5" /> },
-  { id: 'about', label: 'About', icon: <InfoIcon className="w-5 h-5" /> },
+  { id: 'about', label: 'About', icon: <InfoCircle className="w-5 h-5" /> },
 ]
 
 export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {

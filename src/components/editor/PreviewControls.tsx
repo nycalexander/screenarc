@@ -1,5 +1,5 @@
 import React from 'react'
-import { Scissors, ZoomIn, Trash2, Undo2, Redo2, FastForward } from 'lucide-react'
+import { Scissors, ZoomIn, Trash, ArrowBackUp, ArrowForwardUp, PlayerTrackNext } from 'tabler-icons-react'
 import { useEditorStore } from '../../store/editorStore'
 import type { AspectRatio } from '../../types'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
@@ -70,7 +70,7 @@ export function PreviewControls() {
             <span>Trim</span>
           </ToolbarButton>
           <ToolbarButton title="Add Speed Region" onClick={() => addSpeedRegion()} disabled={!!selectedRegionId}>
-            <FastForward className="w-4 h-4" />
+            <PlayerTrackNext className="w-4 h-4" />
             <span>Speed</span>
           </ToolbarButton>
           <ToolbarButton
@@ -79,7 +79,7 @@ export function PreviewControls() {
             onClick={handleDelete}
             disabled={!selectedRegionId}
           >
-            <Trash2 className="w-4 h-4" />
+            <Trash className="w-4 h-4" />
           </ToolbarButton>
         </div>
 
@@ -87,7 +87,7 @@ export function PreviewControls() {
 
         <div className="flex items-center gap-2">
           <ToolbarButton variant="icon" title="Undo (Ctrl+Z)" onClick={() => undo()} disabled={pastStates.length === 0}>
-            <Undo2 className="w-4 h-4" />
+            <ArrowBackUp className="w-4 h-4" />
           </ToolbarButton>
           <ToolbarButton
             variant="icon"
@@ -95,7 +95,7 @@ export function PreviewControls() {
             onClick={() => redo()}
             disabled={futureStates.length === 0}
           >
-            <Redo2 className="w-4 h-4" />
+            <ArrowForwardUp className="w-4 h-4" />
           </ToolbarButton>
         </div>
 

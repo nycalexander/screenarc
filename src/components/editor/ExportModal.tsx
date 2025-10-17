@@ -2,7 +2,7 @@
 import React, { useEffect, useState, useMemo } from 'react'
 import { Button } from '../ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
-import { Upload, Loader2, CheckCircle2, XCircle, Folder, Ban } from 'lucide-react'
+import { Upload, Loader2, CircleCheck, CircleX, Folder, Ban } from 'tabler-icons-react'
 import { Input } from '../ui/input'
 import { cn } from '../../lib/utils'
 import { useEditorStore } from '../../store/editorStore'
@@ -251,9 +251,9 @@ const ResultView = ({ result, onClose }: { result: NonNullable<ExportModalProps[
       return <Ban className="w-8 h-8 text-yellow-500" />
     }
     if (result.success) {
-      return <CheckCircle2 className="w-8 h-8 text-green-500" />
+      return <CircleCheck className="w-8 h-8 text-green-500" />
     }
-    return <XCircle className="w-8 h-8 text-red-500" />
+    return <CircleX className="w-8 h-8 text-red-500" />
   }
 
   const getIconBgClass = () => {

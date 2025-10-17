@@ -2,14 +2,25 @@
 import { useMemo } from 'react'
 import { useEditorStore } from '../../../store/editorStore'
 import { ControlGroup } from './ControlGroup'
-import { Video, Eye, ImageIcon, Maximize, Circle, Square, RectangleHorizontal, Wand2 } from 'lucide-react'
+import {
+  DeviceComputerCamera,
+  Eye,
+  Photo,
+  Maximize,
+  Circle,
+  Square,
+  Rectangle,
+  Wand,
+  BorderRadius,
+  FlipVertical,
+  DeviceComputerCameraOff,
+} from 'tabler-icons-react'
 import { Button } from '../../ui/button'
 import { Switch } from '../../ui/switch'
 import { Slider } from '../../ui/slider'
 import { ColorPicker } from '../../ui/color-picker'
 import { rgbaToHexAlpha, hexToRgb } from '../../../lib/utils'
 import { useShallow } from 'zustand/react/shallow'
-import { CornerRadiusIcon, FlipHorizontalIcon, WebcamOffIcon } from '../../ui/icons'
 import { Collapse } from '../../ui/collapse'
 import { cn } from '../../../lib/utils'
 import type { WebcamPosition } from '../../../types'
@@ -115,7 +126,7 @@ export function CameraSettings() {
       <div className="p-6 border-b border-sidebar-border flex-shrink-0">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-            <Video className="w-5 h-5 text-primary" />
+            <DeviceComputerCamera className="w-5 h-5 text-primary" />
           </div>
           <div>
             <h2 className="text-lg font-semibold text-sidebar-foreground">Camera Settings</h2>
@@ -128,7 +139,7 @@ export function CameraSettings() {
       <div className="flex-1 overflow-y-auto stable-scrollbar">
         {!webcamVideoUrl ? (
           <DisabledPanelPlaceholder
-            icon={<WebcamOffIcon className="w-8 h-8 text-muted-foreground" />}
+            icon={<DeviceComputerCameraOff className="w-8 h-8 text-muted-foreground" />}
             title="No Webcam Recorded"
             message="These settings are unavailable because a webcam was not included in this recording."
           />
@@ -150,7 +161,7 @@ export function CameraSettings() {
             <Collapse
               title="Style"
               description="Change shape and orientation"
-              icon={<ImageIcon />}
+              icon={<Photo />}
               defaultOpen={true}
               onReset={handleResetStyle}
             >
@@ -164,7 +175,7 @@ export function CameraSettings() {
                       onClick={() => updateWebcamStyle({ shape: 'rectangle' })}
                       className="h-auto py-2.5 flex items-center justify-center gap-2"
                     >
-                      <RectangleHorizontal className="w-5 h-4" />
+                      <Rectangle className="w-5 h-4" />
                     </Button>
                     <Button
                       variant={webcamStyles.shape === 'square' ? 'secondary' : 'ghost'}
@@ -189,7 +200,7 @@ export function CameraSettings() {
                     <div className="flex items-center gap-2.5">
                       <div className="w-5 h-5 flex items-center justify-center text-primary">
                         {' '}
-                        <CornerRadiusIcon className="w-4 h-4" />{' '}
+                        <BorderRadius className="w-4 h-4" />{' '}
                       </div>
                       <span className={isCircle ? 'text-muted-foreground' : ''}>Corner Radius</span>
                     </div>
@@ -214,7 +225,7 @@ export function CameraSettings() {
                   <label className="flex items-center justify-between text-sm font-medium text-sidebar-foreground">
                     <div className="flex items-center gap-2.5">
                       <div className="w-5 h-5 flex items-center justify-center text-primary">
-                        <FlipHorizontalIcon className="w-4 h-4" />
+                        <FlipVertical className="w-4 h-4" />
                       </div>
                       <span>Flip Horizontal</span>
                     </div>
@@ -282,7 +293,7 @@ export function CameraSettings() {
             <Collapse
               title="Effects"
               description="Add a drop shadow for depth"
-              icon={<Wand2 />}
+              icon={<Wand />}
               defaultOpen={false}
               onReset={handleResetEffects}
             >

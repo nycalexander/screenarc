@@ -4,7 +4,7 @@ import { ColorPicker } from '../../ui/color-picker'
 import { Slider } from '../../ui/slider'
 import { Collapse } from '../../ui/collapse'
 import { rgbaToHexAlpha, hexToRgb } from '../../../lib/utils'
-import { BorderThicknessIcon, CornerRadiusIcon, PaddingIcon, ShadowIcon } from '../../ui/icons'
+import { BoxPadding, Shadow, BorderAll } from 'tabler-icons-react'
 import { DEFAULTS } from '../../../lib/constants'
 
 export function FrameEffectsSettings() {
@@ -52,10 +52,6 @@ export function FrameEffectsSettings() {
     updateFrameStyle({ padding: DEFAULTS.FRAME.PADDING.defaultValue })
   }
 
-  const handleResetRadius = () => {
-    updateFrameStyle({ borderRadius: DEFAULTS.FRAME.RADIUS.defaultValue })
-  }
-
   const handleResetShadow = () => {
     updateFrameStyle({
       shadowBlur: DEFAULTS.FRAME.SHADOW.BLUR.defaultValue,
@@ -67,6 +63,7 @@ export function FrameEffectsSettings() {
 
   const handleResetBorder = () => {
     updateFrameStyle({
+      borderRadius: DEFAULTS.FRAME.RADIUS.defaultValue,
       borderWidth: DEFAULTS.FRAME.BORDER.WIDTH.defaultValue,
       borderColor: DEFAULTS.FRAME.BORDER.DEFAULT_COLOR_RGBA,
     })
@@ -78,7 +75,7 @@ export function FrameEffectsSettings() {
       <Collapse
         title="Padding"
         description="Space around your video content"
-        icon={<PaddingIcon />}
+        icon={<BoxPadding />}
         defaultOpen={true}
         onReset={handleResetPadding}
       >
@@ -97,34 +94,11 @@ export function FrameEffectsSettings() {
         </div>
       </Collapse>
 
-      {/* Corner Radius Section */}
-      <Collapse
-        title="Corner Radius"
-        description="Rounded corners for your video"
-        icon={<CornerRadiusIcon />}
-        defaultOpen={true}
-        onReset={handleResetRadius}
-      >
-        <div className="space-y-3">
-          <label className="flex items-center justify-between text-sm text-muted-foreground">
-            <span>Radius</span>
-            <span className="text-xs font-semibold text-primary tabular-nums">{frameStyles.borderRadius}px</span>
-          </label>
-          <Slider
-            min={DEFAULTS.FRAME.RADIUS.min}
-            max={DEFAULTS.FRAME.RADIUS.max}
-            step={DEFAULTS.FRAME.RADIUS.step}
-            value={frameStyles.borderRadius}
-            onChange={(value) => handleStyleChange('borderRadius', value)}
-          />
-        </div>
-      </Collapse>
-
       {/* Shadow Section */}
       <Collapse
         title="Shadow"
         description="Add depth with drop shadows"
-        icon={<ShadowIcon />}
+        icon={<Shadow />}
         defaultOpen={false}
         onReset={handleResetShadow}
       >
@@ -199,11 +173,25 @@ export function FrameEffectsSettings() {
       <Collapse
         title="Border"
         description="Frame your video with a border"
-        icon={<BorderThicknessIcon />}
+        icon={<BorderAll />}
         defaultOpen={false}
         onReset={handleResetBorder}
       >
         <div className="space-y-4">
+          <div className="space-y-2.5">
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-muted-foreground">Radius</span>
+              <span className="text-xs font-semibold text-primary tabular-nums">{frameStyles.borderRadius}px</span>
+            </div>
+
+            <Slider
+              min={DEFAULTS.FRAME.RADIUS.min}
+              max={DEFAULTS.FRAME.RADIUS.max}
+              step={DEFAULTS.FRAME.RADIUS.step}
+              value={frameStyles.borderRadius}
+              onChange={(value) => handleStyleChange('borderRadius', value)}
+            />
+          </div>
           <div className="space-y-2.5">
             <div className="flex items-center justify-between">
               <span className="text-sm text-muted-foreground">Thickness</span>
