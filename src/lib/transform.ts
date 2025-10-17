@@ -122,19 +122,20 @@ function calculateBoundedPan(
  */
 function getTransformOrigin(targetX: number, targetY: number, zoomLevel: number): { x: number; y: number } {
   // Safe boundary, transform-origin will be "stuck" to the edge when exceeded
-  const boundary = 0.5 * (1 - 1 / zoomLevel)
+  // const boundary = 0.5 * (1 - 1 / zoomLevel)
 
-  let originX: number
-  if (targetX > boundary) originX = 1
-  else if (targetX < -boundary) originX = 0
-  else originX = 0.5 + targetX
+  // let originX: number
+  // if (targetX > boundary) originX = 1
+  // else if (targetX < -boundary) originX = 0
+  // else originX = 0.5 + targetX
 
-  let originY: number
-  if (targetY > boundary) originY = 1
-  else if (targetY < -boundary) originY = 0
-  else originY = 0.5 + targetY
+  // let originY: number
+  // if (targetY > boundary) originY = 1
+  // else if (targetY < -boundary) originY = 0
+  // else originY = 0.5 + targetY
 
-  return { x: originX, y: originY }
+  // return { x: originX, y: originY }
+  return { x: targetX + 0.5, y: targetY + 0.5 }
 }
 
 export const calculateZoomTransform = (
@@ -144,10 +145,9 @@ export const calculateZoomTransform = (
   recordingGeometry: { width: number; height: number },
   frameContentDimensions: { width: number; height: number },
 ): { scale: number; translateX: number; translateY: number; transformOrigin: string } => {
-  const effectiveTime = currentTime
 
   const activeRegion = Object.values(zoomRegions).find(
-    (r) => effectiveTime >= r.startTime && effectiveTime < r.startTime + r.duration,
+    (r) => currentTime >= r.startTime && currentTime < r.startTime + r.duration,
   )
 
   const defaultTransform = {
@@ -171,17 +171,17 @@ export const calculateZoomTransform = (
   let currentTranslateY = 0
 
   // --- Calculate Pan Targets ---
-  let initialPan = { tx: 0, ty: 0 }
+  // let initialPan = { tx: 0, ty: 0 }
   let livePan = { tx: 0, ty: 0 }
   let finalPan = { tx: 0, ty: 0 }
 
   if (mode === 'auto' && metadata.length > 0 && recordingGeometry.width > 0) {
     // Pan target for the end of the zoom-in transition (STATIONARY)
-    const initialMousePos = getSmoothedMousePosition(metadata, zoomInEndTime)
-    initialPan = calculateBoundedPan(initialMousePos, fixedOrigin, zoomLevel, recordingGeometry, frameContentDimensions)
+    // const initialMousePos = getSmoothedMousePosition(metadata, zoomInEndTime)
+    // initialPan = calculateBoundedPan(initialMousePos, fixedOrigin, zoomLevel, recordingGeometry, frameContentDimensions)
 
     // Live pan target for the hold phase (DYNAMIC)
-    const liveMousePos = getSmoothedMousePosition(metadata, effectiveTime)
+    const liveMousePos = getSmoothedMousePosition(metadata, currentTime)
     livePan = calculateBoundedPan(liveMousePos, fixedOrigin, zoomLevel, recordingGeometry, frameContentDimensions)
 
     // Pan target for the start of the zoom-out transition (STATIONARY)
@@ -192,24 +192,26 @@ export const calculateZoomTransform = (
   // --- Determine current transform based on phase ---
 
   // Phase 1: ZOOM-IN (No panning, just move towards initial pan position)
-  if (effectiveTime >= startTime && effectiveTime < zoomInEndTime) {
-    const t = (EASING_MAP[easing as keyof typeof EASING_MAP] || EASING_MAP.easeInOutQuint)(
-      (effectiveTime - startTime) / transitionDuration,
+  if (currentTime >= startTime && currentTime < zoomInEndTime) {
+    console.log('is being zoom-in')
+    const t = (EASING_MAP[easing as keyof typeof EASING_MAP] || EASING_MAP.Balanced)(
+      (currentTime - startTime) / transitionDuration,
     )
     currentScale = lerp(1, zoomLevel, t)
-    currentTranslateX = lerp(0, initialPan.tx, t)
-    currentTranslateY = lerp(0, initialPan.ty, t)
+    // currentTranslateX = lerp(0, initialPan.tx, t)
+    // currentTranslateY = lerp(0, initialPan.ty, t)
   }
   // Phase 2: PAN/HOLD (Fully zoomed in, pan follows smoothed mouse)
-  else if (effectiveTime >= zoomInEndTime && effectiveTime < zoomOutStartTime) {
+  else if (currentTime >= zoomInEndTime && currentTime < zoomOutStartTime) {
+    console.log('is being pan/hold')
     currentScale = zoomLevel
     currentTranslateX = livePan.tx
     currentTranslateY = livePan.ty
   }
   // Phase 3: ZOOM-OUT (No panning, move from final pan position back to center)
-  else if (effectiveTime >= zoomOutStartTime && effectiveTime <= startTime + duration) {
-    const t = (EASING_MAP[easing as keyof typeof EASING_MAP] || EASING_MAP.easeInOutQuint)(
-      (effectiveTime - zoomOutStartTime) / transitionDuration,
+  else if (currentTime >= zoomOutStartTime && currentTime <= startTime + duration) {
+    const t = (EASING_MAP[easing as keyof typeof EASING_MAP] || EASING_MAP.Balanced)(
+      (currentTime - zoomOutStartTime) / transitionDuration,
     )
     currentScale = lerp(zoomLevel, 1, t)
     currentTranslateX = lerp(finalPan.tx, 0, t)

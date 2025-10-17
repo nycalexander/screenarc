@@ -1,71 +1,73 @@
-// Implement common easing functions
+/**
+ * Creates a spring-based easing function.
+ * This simulates a damped harmonic oscillator, providing a more natural motion.
+ * Inspired by principles from physics-based UI animation.
+ *
+ * @param tension - The stiffness of the spring. Higher values result in faster, snappier motion.
+ * @param friction - The damping force. Higher values reduce oscillation and bring the spring to rest faster.
+ * @param mass - The mass of the object. Higher values increase inertia and overshoot.
+ * @returns An easing function that maps time `t` [0, 1] to a springy position value.
+ */
+function createSpringEasing({ tension = 250, friction = 25, mass = 1 } = {}) {
+  // Pre-calculate physics constants for performance
+  const stiffness = tension
+  const damping = friction
+  const velocity = 0 // Start from rest
+
+  return (t: number): number => {
+    if (t === 0) return 0
+    if (t === 1) return 1
+
+    const m_w0 = Math.sqrt(stiffness / mass)
+    const m_zeta = damping / (2 * Math.sqrt(stiffness * mass))
+
+    if (m_zeta < 1) {
+      // Under-damped (bouncy)
+      const m_wd = m_w0 * Math.sqrt(1 - m_zeta * m_zeta)
+      const b = (m_zeta * m_w0 + -velocity) / m_wd
+      return (
+        1 -
+        Math.exp(-t * m_zeta * m_w0) * ((1 + b * Math.sin(m_wd * t)) * Math.cos(m_wd * t) + Math.sin(m_wd * t) * -1)
+      )
+    } else {
+      // Critically damped (no bounce)
+      const g = m_w0
+      const h = velocity + m_w0
+      return 1 - (Math.exp(-t * g) * (1 + h * t)) / Math.exp(0)
+    }
+  }
+}
+
+// --- Standard Cubic Bezier Easing Functions ---
+
 const easeInOutCubic = (t: number): number => {
   return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2
 }
 
-const easeInOutCirc = (t: number): number => {
-  return t < 0.5 ? (1 - Math.sqrt(1 - Math.pow(2 * t, 2))) / 2 : (Math.sqrt(1 - Math.pow(-2 * t + 2, 2)) + 1) / 2
-}
-
-const easeInOutQuad = (t: number): number => {
-  return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2
-}
-
-const easeInOutQuart = (t: number): number => {
-  return t < 0.5 ? 8 * t * t * t * t : 1 - Math.pow(-2 * t + 2, 4) / 2
-}
-
-export function easeInOutQuint(t: number): number {
+const easeInOutQuint = (t: number): number => {
   if (t < 0.5) {
-    return 16 * t * t * t * t * t // 16t^5 cho giai đoạn đầu
+    return 16 * t * t * t * t * t
   } else {
     const f = 2 * t - 2
-    return 0.5 * f * f * f * f * f + 1 // phần sau đối xứng
+    return 0.5 * f * f * f * f * f + 1
   }
 }
 
-export function easeOutQuint(t: number): number {
+const easeOutQuint = (t: number): number => {
   return 1 - Math.pow(1 - t, 5)
 }
 
-const easeOutElastic = (x: number): number => {
-  const c4 = (2 * Math.PI) / 3
+// --- User-Friendly Easing Map ---
+// This map provides descriptive names for different animation styles,
+// making the UI more intuitive for non-technical users.
 
-  return x === 0 ? 0 : x === 1 ? 1 : Math.pow(2, -10 * x) * Math.sin((x * 10 - 0.75) * c4) + 1
-}
-
-/**
- * Creates a cubic-bezier easing function.
- *
- * @param p0 - Start point (fixed = 0)
- * @param p1 - Control point 1 (x1, y1)
- * @param p2 - Control point 2 (x2, y2)
- * @param p3 - End point (fixed = 1)
- * @returns Function that maps t ∈ [0,1] → eased value ∈ [0,1]
- */
-const cubicBezier = (_x1: number, y1: number, _x2: number, y2: number) => {
-  // Cubic Bézier helper
-  const cubic = (a: number, b: number, c: number, d: number, t: number) =>
-    (1 - t) ** 3 * a + 3 * (1 - t) ** 2 * t * b + 3 * (1 - t) * t ** 2 * c + t ** 3 * d
-
-  return (t: number): number => {
-    if (t <= 0) return 0
-    if (t >= 1) return 1
-    // Only use y-control for the easing curve
-    return cubic(0, y1, y2, 1, t)
-  }
-}
-
-export const easeInOutCubicBezier = cubicBezier(0.42, 0, 0.58, 1)
-
-// Easing map
 export const EASING_MAP = {
-  easeInOutCubic: easeInOutCubic,
-  easeInOutCirc: easeInOutCirc,
-  easeInOutQuad: easeInOutQuad,
-  easeInOutQuart: easeInOutQuart,
-  easeInOutQuint: easeInOutQuint,
-  easeOutQuint: easeOutQuint,
-  easeOutElastic: easeOutElastic,
-  easeInOutCubicBezier: easeInOutCubicBezier,
+  // Standard, reliable easing curves
+  Smooth: easeOutQuint, // A gentle start that decelerates smoothly to a stop. Good for elegant transitions.
+  Balanced: easeInOutQuint, // A symmetrical, very smooth acceleration and deceleration. The new default.
+  Dynamic: easeInOutCubic, // A slightly quicker and more pronounced acceleration/deceleration than Balanced.
+
+  // Physics-based spring animations
+  'Gentle Spring': createSpringEasing({ tension: 180, friction: 30, mass: 1 }), // A soft, fluid motion with no bounce.
+  'Bouncy Spring': createSpringEasing({ tension: 380, friction: 20, mass: 1 }), // A playful, energetic motion with a noticeable overshoot and bounce.
 }

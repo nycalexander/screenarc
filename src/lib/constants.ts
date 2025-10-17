@@ -41,9 +41,9 @@ export const TIMELINE = {
 // Visual Effects constants
 export const EFFECTS = {
   CLICK_ANIMATION: {
-    DURATION: 0.4, // seconds
+    DURATION: 0.3, // seconds
     MAX_RADIUS: 30, // pixels
-    EASING: 'easeOutQuint',
+    EASING: 'Balanced',
     COLOR: [255, 255, 255, 0.8], // [r, g, b, a]
   },
 }
@@ -57,15 +57,15 @@ export const ZOOM = {
     Quick: 0.7,
     Rapid: 0.4,
   },
-  DEFAULT_LEVEL: 2.0, // Default zoom level when adding a new region
+  DEFAULT_LEVEL: 1.5, // Default zoom level when adding a new region
   DEFAULT_DURATION: 3.0, // Default duration when adding a new region
-  DEFAULT_EASING: 'easeInOutQuint',
+  DEFAULT_EASING: 'Balanced',
 
   // --- Auto-Zoom Generation ---
   AUTO_ZOOM_PRE_CLICK_OFFSET: 1.0, // Time to start zoom before the first click
-  AUTO_ZOOM_POST_CLICK_PADDING: 0.8, // Time to hold zoom after the last click
+  AUTO_ZOOM_POST_CLICK_PADDING: 0.9, // Time to hold zoom after the last click
   AUTO_ZOOM_MIN_DURATION: 3.0, // Minimum duration for an auto-generated zoom region
-  PAN_EASING: 'easeOutQuint', // Easing function for pan transitions
+  PAN_EASING: 'Balanced', // Easing function for pan transitions
 }
 
 // --- Editor Defaults ---
