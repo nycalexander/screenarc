@@ -1,3 +1,29 @@
+# [1.2.0](https://github.com/tamnguyenvan/screenarc/compare/v1.1.0...v1.2.0) (2025-10-17)
+
+
+### Bug Fixes
+
+* click animation delay ([f0943bd](https://github.com/tamnguyenvan/screenarc/commit/f0943bd20b3364d2f78350fc40cc2a7095dc12f3))
+* collapse state shift ([cdcc198](https://github.com/tamnguyenvan/screenarc/commit/cdcc198dda01aed197337aa2c7c237215709cf6e))
+* cursor animation on Windows ([3679db6](https://github.com/tamnguyenvan/screenarc/commit/3679db619cc3e1fd7d71530509b02023d4a1d533))
+* minimize recorder window instead of hiding it ([8015a2f](https://github.com/tamnguyenvan/screenarc/commit/8015a2f6204b32ebe45c3744a8c39af4a398e270))
+* mouse events not fired when cursor is stationary on macOS and Windows ([6899ebb](https://github.com/tamnguyenvan/screenarc/commit/6899ebbb16e93100804ac6e781ed0865691515d3))
+* region blocks jitter when dragging ([0191e69](https://github.com/tamnguyenvan/screenarc/commit/0191e69584a0207736cb3ae3a901ae7d4ce20da6))
+* remove custom app theme ([8958178](https://github.com/tamnguyenvan/screenarc/commit/8958178bdf87ab3203e3367544ff4c77efa90dfe))
+
+
+### Features
+
+* hide inactive cursor in preview fullscreen ([3b3ac21](https://github.com/tamnguyenvan/screenarc/commit/3b3ac217aeb606f16b30ddd4acb0de4f0a2c9de1))
+* implement cursor scale animation and toggle cursor ([3487d8a](https://github.com/tamnguyenvan/screenarc/commit/3487d8a6082b4a77bdaefdbabeb197c704583ef2))
+* improve auto zoom animation ([f2a74d3](https://github.com/tamnguyenvan/screenarc/commit/f2a74d361c5d184cf4ae34bcd5017a2746c82ce7))
+* smart webcam preview position ([fe02581](https://github.com/tamnguyenvan/screenarc/commit/fe02581224c1fa338584e2b3ea415b21822c33e3))
+
+
+### Performance Improvements
+
+* use seek-driven approach to improve export perf ([4cbe85d](https://github.com/tamnguyenvan/screenarc/commit/4cbe85d7c382b33d57d870fa11f8870c82dd71ed))
+
 # [1.1.0](https://github.com/tamnguyenvan/screenarc/compare/v1.0.15...v1.1.0) (2025-10-16)
 
 
