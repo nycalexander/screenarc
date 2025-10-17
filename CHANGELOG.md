@@ -1,3 +1,10 @@
+## [1.2.1](https://github.com/tamnguyenvan/screenarc/compare/v1.2.0...v1.2.1) (2025-10-17)
+
+
+### Bug Fixes
+
+* zoom level unused ([346e25e](https://github.com/tamnguyenvan/screenarc/commit/346e25e69c88f5c61db4e59ca16f56e0208ad6c4))
+
 # [1.2.0](https://github.com/tamnguyenvan/screenarc/compare/v1.1.0...v1.2.0) (2025-10-17)
 
 
