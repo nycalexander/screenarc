@@ -1,5 +1,47 @@
 import { useState, useEffect } from 'react'
-import { Minus, Maximize2, X, Minimize2 } from 'lucide-react'
+import { Minus, X } from 'tabler-icons-react'
+
+const Maximize2 = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={24}
+    height={24}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={2}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className="lucide lucide-maximize2-icon lucide-maximize-2"
+    {...props}
+  >
+    <path d="M15 3h6v6" />
+    <path d="m21 3-7 7" />
+    <path d="m3 21 7-7" />
+    <path d="M9 21H3v-6" />
+  </svg>
+)
+
+const Minimize2 = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={24}
+    height={24}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={2}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className="lucide lucide-minimize2-icon lucide-minimize-2"
+    {...props}
+  >
+    <path d="m14 10 7-7" />
+    <path d="M20 10h-6V4" />
+    <path d="m3 21 7-7" />
+    <path d="M4 14h6v6" />
+  </svg>
+)
 
 export function WindowControls() {
   const [isMaximized, setIsMaximized] = useState(false)

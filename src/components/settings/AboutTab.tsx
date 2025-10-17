@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Button } from '../ui/button'
-import { Github } from 'lucide-react'
+import { BrandGithub } from 'tabler-icons-react'
 
 export function AboutTab() {
   const [appVersion, setAppVersion] = useState('...')
@@ -29,7 +29,7 @@ export function AboutTab() {
 
       <div className="mt-8 flex items-center gap-4">
         <Button variant="secondary" onClick={() => openLink('https://github.com/tamnguyenvan/screenarc')}>
-          <Github className="w-4 h-4 mr-2" />
+          <BrandGithub className="w-4 h-4 mr-2" />
           GitHub Repository
         </Button>
       </div>

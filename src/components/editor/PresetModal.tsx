@@ -6,8 +6,7 @@ import { Input } from '../ui/input'
 import { PresetPreview } from './PresetPreview'
 import type { Preset } from '../../types'
 import { cn } from '../../lib/utils'
-import { Plus, Trash2, Check, Lock, RectangleHorizontal } from 'lucide-react'
-import { PaddingIcon, BorderThicknessIcon, ShadowIcon, CornerRadiusIcon } from '../ui/icons'
+import { Plus, Trash, Check, Lock, Rectangle, BoxPadding, BorderRadius, Shadow, BorderAll } from 'tabler-icons-react'
 
 interface PresetModalProps {
   isOpen: boolean
@@ -180,7 +179,7 @@ export function PresetModal({ isOpen, onClose }: PresetModalProps) {
                       onClick={() => handleDelete(previewPreset.id)}
                       className="h-9"
                     >
-                      <Trash2 className="w-4 h-4 mr-2" /> Delete
+                      <Trash className="w-4 h-4 mr-2" /> Delete
                     </Button>
                   )}
                 </div>
@@ -197,23 +196,23 @@ export function PresetModal({ isOpen, onClose }: PresetModalProps) {
 
                 <div className="flex-shrink-0 flex items-center justify-center flex-wrap gap-x-6 gap-y-2 mt-5 pt-5 border-t border-border/30">
                   <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium">
-                    <RectangleHorizontal className="w-4 h-4" />
+                    <Rectangle className="w-4 h-4" />
                     <span>{previewPreset.aspectRatio}</span>
                   </div>
                   <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium">
-                    <PaddingIcon className="w-4 h-4" />
+                    <BoxPadding className="w-4 h-4" />
                     <span>{previewPreset.styles.padding}%</span>
                   </div>
                   <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium">
-                    <CornerRadiusIcon className="w-4 h-4" />
+                    <BorderRadius className="w-4 h-4" />
                     <span>{previewPreset.styles.borderRadius}px</span>
                   </div>
                   <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium">
-                    <ShadowIcon className="w-4 h-4" />
+                    <Shadow className="w-4 h-4" />
                     <span>{previewPreset.styles.shadowBlur}px</span>
                   </div>
                   <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium">
-                    <BorderThicknessIcon className="w-4 h-4" />
+                    <BorderAll className="w-4 h-4" />
                     <span>{previewPreset.styles.borderWidth}px</span>
                   </div>
                 </div>

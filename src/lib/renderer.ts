@@ -1,29 +1,58 @@
-import { EditorState } from '../types'
-import { calculateZoomTransform } from './transform'
-import { findLastMetadataIndex } from './transform'
-import { EFFECTS } from './constants'
+import { EditorState, RenderableState, WebcamPosition } from '../types'
+import { calculateZoomTransform, findLastMetadataIndex } from './transform'
 import { EASING_MAP } from './easing'
+import { DEFAULTS } from './constants'
 
-type RenderableState = Pick<
-  EditorState,
-  | 'platform'
-  | 'frameStyles'
-  | 'videoDimensions'
-  | 'aspectRatio'
-  | 'webcamPosition'
-  | 'webcamStyles'
-  | 'isWebcamVisible'
-  | 'zoomRegions'
-  | 'cutRegions'
-  | 'speedRegions'
-  | 'metadata'
-  | 'recordingGeometry'
-  | 'cursorImages'
-  | 'cursorBitmapsToRender'
-  | 'syncOffset'
-  | 'cursorTheme'
-  | 'cursorStyles'
->
+type Rect = { x: number; y: number; width: number; height: number }
+
+const ADJACENT_POSITIONS: Record<WebcamPosition['pos'], [WebcamPosition['pos'], WebcamPosition['pos']]> = {
+  'top-left': ['top-center', 'left-center'],
+  'top-center': ['top-left', 'top-right'],
+  'top-right': ['top-center', 'right-center'],
+  'right-center': ['top-right', 'bottom-right'],
+  'bottom-right': ['right-center', 'bottom-center'],
+  'bottom-center': ['bottom-right', 'bottom-left'],
+  'bottom-left': ['bottom-center', 'left-center'],
+  'left-center': ['bottom-left', 'top-left'],
+}
+
+function getWebcamRectForPosition(
+  pos: WebcamPosition['pos'],
+  width: number,
+  height: number,
+  outputWidth: number,
+  outputHeight: number,
+): Rect {
+  const baseSize = Math.min(outputWidth, outputHeight)
+  const edgePadding = baseSize * 0.02
+
+  switch (pos) {
+    case 'top-left':
+      return { x: edgePadding, y: edgePadding, width, height }
+    case 'top-center':
+      return { x: (outputWidth - width) / 2, y: edgePadding, width, height }
+    case 'top-right':
+      return { x: outputWidth - width - edgePadding, y: edgePadding, width, height }
+    case 'left-center':
+      return { x: edgePadding, y: (outputHeight - height) / 2, width, height }
+    case 'right-center':
+      return { x: outputWidth - width - edgePadding, y: (outputHeight - height) / 2, width, height }
+    case 'bottom-left':
+      return { x: edgePadding, y: outputHeight - height - edgePadding, width, height }
+    case 'bottom-center':
+      return { x: (outputWidth - width) / 2, y: outputHeight - height - edgePadding, width, height }
+    default:
+      return { x: outputWidth - width - edgePadding, y: outputHeight - height - edgePadding, width, height }
+  }
+}
+
+function isPointInRect(point: { x: number; y: number }, rect: Rect): boolean {
+  return point.x >= rect.x && point.x <= rect.x + rect.width && point.y >= rect.y && point.y <= rect.y + rect.height
+}
+
+function lerp(start: number, end: number, t: number): number {
+  return start * (1 - t) + end * t
+}
 
 /**
  * Draws the background with optimized rendering
@@ -173,7 +202,6 @@ export const drawScene = async (
   // --- 3. Main video frame transform and drawing ---
   ctx.save()
 
-  // --- START OF FIX: Pass recordingGeometry for accurate coordinate mapping ---
   const { scale, translateX, translateY, transformOrigin } = calculateZoomTransform(
     currentTime,
     state.zoomRegions,
@@ -181,7 +209,6 @@ export const drawScene = async (
     state.recordingGeometry || state.videoDimensions,
     { width: frameContentWidth, height: frameContentHeight },
   )
-  // --- END OF FIX ---
 
   const [originXStr, originYStr] = transformOrigin.split(' ')
   const originXMul = parseFloat(originXStr) / 100
@@ -227,34 +254,31 @@ export const drawScene = async (
   ctx.restore()
 
   // --- 4. Draw Click Animations ---
-  const { DURATION, MAX_RADIUS, EASING, COLOR } = EFFECTS.CLICK_ANIMATION
-  const clickAnimationEasing = EASING_MAP[EASING as keyof typeof EASING_MAP] || ((t: number) => t)
+  if (state.cursorStyles.clickRippleEffect && state.recordingGeometry) {
+    const { clickRippleDuration, clickRippleSize, clickRippleColor } = state.cursorStyles
+    const rippleEasing = EASING_MAP.Balanced // Ripple uses a standard ease-out
 
-  const effectiveTime = currentTime - DURATION
-
-  if (state.recordingGeometry) {
-    const recentClicks = state.metadata.filter(
+    const recentRippleClicks = state.metadata.filter(
       (event) =>
         event.type === 'click' &&
         event.pressed &&
-        effectiveTime >= event.timestamp &&
-        effectiveTime < event.timestamp + DURATION,
+        currentTime >= event.timestamp &&
+        currentTime < event.timestamp + clickRippleDuration,
     )
 
-    for (const click of recentClicks) {
-      const progress = (effectiveTime - click.timestamp) / DURATION
-      const easedProgress = clickAnimationEasing(progress)
-
-      const currentRadius = easedProgress * MAX_RADIUS
+    for (const click of recentRippleClicks) {
+      const progress = (currentTime - click.timestamp) / clickRippleDuration
+      const easedProgress = rippleEasing(progress)
+      const currentRadius = easedProgress * clickRippleSize
       const currentOpacity = 1 - easedProgress
 
       // Scale cursor position from original recording geometry to the current frame's content size
       const cursorX = (click.x / state.recordingGeometry.width) * frameContentWidth
       const cursorY = (click.y / state.recordingGeometry.height) * frameContentHeight
 
-      // Use the pre-parsed color parts instead of running regex on every frame.
-      if (COLOR) {
-        const [r, g, b, baseAlpha] = COLOR
+      const colorResult = /rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/.exec(clickRippleColor)
+      if (colorResult) {
+        const [r, g, b, baseAlpha] = colorResult.slice(1).map(Number)
         ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${baseAlpha * currentOpacity})`
       }
 
@@ -267,12 +291,8 @@ export const drawScene = async (
   // --- 5. Draw Cursor ---
   const lastEventIndex = findLastMetadataIndex(state.metadata, currentTime)
 
-  if (lastEventIndex > -1 && state.recordingGeometry) {
+  if (state.cursorStyles.showCursor && lastEventIndex > -1 && state.recordingGeometry) {
     const event = state.metadata[lastEventIndex]
-    // Only draw the cursor if the last found event is very recent.
-    // A large gap between currentTime and the event's timestamp implies the mouse
-    // was outside the recording geometry and no events were being logged.
-    // 100ms is a safe threshold (equivalent to 5 missing mouse frames at 50 FPS).
     if (event && currentTime - event.timestamp < 0.1) {
       const cursorData = state.cursorBitmapsToRender.get(event.cursorImageKey!)
 
@@ -283,10 +303,45 @@ export const drawScene = async (
         const drawY = Math.round(cursorY - cursorData.yhot)
 
         ctx.save()
+
+        // Handle click scale animation
+        let cursorScale = 1
+        if (state.cursorStyles.clickScaleEffect) {
+          const { clickScaleDuration, clickScaleAmount, clickScaleEasing } = state.cursorStyles
+          const mostRecentClick = state.metadata
+            .filter(
+              (e) =>
+                e.type === 'click' &&
+                e.pressed &&
+                e.timestamp <= currentTime &&
+                e.timestamp > currentTime - clickScaleDuration,
+            )
+            .pop()
+
+          if (mostRecentClick) {
+            const progress = (currentTime - mostRecentClick.timestamp) / clickScaleDuration
+            const easingFn = EASING_MAP[clickScaleEasing as keyof typeof EASING_MAP] || EASING_MAP.Balanced
+            const easedProgress = easingFn(progress)
+            const scaleValue = 1 - (1 - clickScaleAmount) * Math.sin(easedProgress * Math.PI)
+            cursorScale = scaleValue
+          }
+        }
+
+        // Apply drop shadow
         const { shadowBlur, shadowOffsetX, shadowOffsetY, shadowColor } = state.cursorStyles
         if (shadowBlur > 0 || shadowOffsetX !== 0 || shadowOffsetY !== 0) {
           ctx.filter = `drop-shadow(${shadowOffsetX}px ${shadowOffsetY}px ${shadowBlur}px ${shadowColor})`
         }
+
+        // Apply scale transform if needed
+        if (cursorScale !== 1) {
+          const scaleCenterX = drawX + cursorData.xhot
+          const scaleCenterY = drawY + cursorData.yhot
+          ctx.translate(scaleCenterX, scaleCenterY)
+          ctx.scale(cursorScale, cursorScale)
+          ctx.translate(-scaleCenterX, -scaleCenterY)
+        }
+
         ctx.drawImage(cursorData.imageBitmap, drawX, drawY)
         ctx.restore()
       }
@@ -295,67 +350,150 @@ export const drawScene = async (
 
   ctx.restore() // Restore from video's transform
 
-  // --- 6. Draw Webcam with same technique ---
+  // --- 6. Draw Webcam ---
   const { webcamPosition, webcamStyles, isWebcamVisible } = state
-  if (isWebcamVisible && webcamVideoElement && webcamVideoElement.videoWidth > 0) {
-    const baseSize = Math.min(outputWidth, outputHeight)
-    let webcamWidth, webcamHeight
+  if (isWebcamVisible && webcamVideoElement && webcamVideoElement.videoWidth > 0 && state.recordingGeometry) {
+    let finalWebcamScale = 1
+    if (webcamStyles.scaleOnZoom) {
+      const activeZoomRegion = Object.values(state.zoomRegions).find(
+        (r) => currentTime >= r.startTime && currentTime < r.startTime + r.duration,
+      )
+      if (activeZoomRegion) {
+        const { startTime, duration, transitionDuration } = activeZoomRegion
+        const zoomInEndTime = startTime + transitionDuration
+        const zoomOutStartTime = startTime + duration - transitionDuration
+        const easingFn = EASING_MAP[activeZoomRegion.easing as keyof typeof EASING_MAP] || EASING_MAP.Balanced
 
+        if (currentTime < zoomInEndTime) {
+          const progress = (currentTime - startTime) / transitionDuration
+          finalWebcamScale = lerp(1, DEFAULTS.CAMERA.SCALE_ON_ZOOM_AMOUNT, easingFn(progress))
+        } else if (currentTime >= zoomOutStartTime) {
+          const progress = (currentTime - zoomOutStartTime) / transitionDuration
+          finalWebcamScale = lerp(DEFAULTS.CAMERA.SCALE_ON_ZOOM_AMOUNT, 1, easingFn(progress))
+        } else {
+          finalWebcamScale = DEFAULTS.CAMERA.SCALE_ON_ZOOM_AMOUNT
+        }
+      }
+    }
+
+    const baseSize = Math.min(outputWidth, outputHeight)
+    let initialWebcamWidth, initialWebcamHeight
     if (webcamStyles.shape === 'rectangle') {
-      webcamWidth = baseSize * (webcamStyles.size / 100)
-      webcamHeight = webcamWidth * (9 / 16)
+      initialWebcamWidth = baseSize * (webcamStyles.size / 100)
+      initialWebcamHeight = initialWebcamWidth * (9 / 16)
     } else {
-      webcamWidth = baseSize * (webcamStyles.size / 100)
-      webcamHeight = webcamWidth
+      initialWebcamWidth = baseSize * (webcamStyles.size / 100)
+      initialWebcamHeight = initialWebcamWidth
+    }
+
+    const originalPos = webcamPosition.pos
+    let currentPos = originalPos
+    let previousPos = originalPos
+    let timeOfChange = 0
+
+    if (webcamStyles.smartPosition) {
+      const getTargetPosAtTime = (time: number): WebcamPosition['pos'] => {
+        const originalRect = getWebcamRectForPosition(
+          originalPos,
+          initialWebcamWidth,
+          initialWebcamHeight,
+          outputWidth,
+          outputHeight,
+        )
+        const futureCursorIndex = findLastMetadataIndex(
+          state.metadata,
+          time + DEFAULTS.CAMERA.SMART_POSITION.LOOKAHEAD_TIME,
+        )
+        if (futureCursorIndex > -1) {
+          const futureCursorEvent = state.metadata[futureCursorIndex]
+          const cursorCanvasX = (futureCursorEvent.x / state.recordingGeometry!.width) * frameContentWidth + frameX
+          const cursorCanvasY = (futureCursorEvent.y / state.recordingGeometry!.height) * frameContentHeight + frameY
+          if (isPointInRect({ x: cursorCanvasX, y: cursorCanvasY }, originalRect)) {
+            const [adj1, adj2] = ADJACENT_POSITIONS[originalPos]
+            const adj1Rect = getWebcamRectForPosition(
+              adj1,
+              initialWebcamWidth,
+              initialWebcamHeight,
+              outputWidth,
+              outputHeight,
+            )
+            return !isPointInRect({ x: cursorCanvasX, y: cursorCanvasY }, adj1Rect) ? adj1 : adj2
+          }
+        }
+        return originalPos
+      }
+
+      currentPos = getTargetPosAtTime(currentTime)
+      const checkInterval = 0.05
+
+      for (let t = currentTime; t >= 0; t -= checkInterval) {
+        const posAtT = getTargetPosAtTime(t)
+        if (posAtT !== currentPos) {
+          previousPos = posAtT
+          timeOfChange = t + checkInterval
+          break
+        }
+        if (t === 0) {
+          previousPos = currentPos
+          timeOfChange = 0
+        }
+      }
+    }
+
+    const transitionDuration = DEFAULTS.CAMERA.SMART_POSITION.TRANSITION_DURATION
+    let progress = 1
+    if (previousPos !== currentPos && currentTime - timeOfChange < transitionDuration) {
+      progress = (currentTime - timeOfChange) / transitionDuration
+    }
+
+    const easingFn = EASING_MAP[DEFAULTS.CAMERA.SMART_POSITION.EASING as keyof typeof EASING_MAP] || EASING_MAP.Balanced
+    const easedProgress = easingFn(Math.min(1, progress))
+
+    const startRect = getWebcamRectForPosition(
+      previousPos,
+      initialWebcamWidth,
+      initialWebcamHeight,
+      outputWidth,
+      outputHeight,
+    )
+    const targetRect = getWebcamRectForPosition(
+      currentPos,
+      initialWebcamWidth,
+      initialWebcamHeight,
+      outputWidth,
+      outputHeight,
+    )
+
+    const baseWebcamX = lerp(startRect.x, targetRect.x, easedProgress)
+    const baseWebcamY = lerp(startRect.y, targetRect.y, easedProgress)
+
+    const webcamWidth = initialWebcamWidth * finalWebcamScale
+    const webcamHeight = initialWebcamHeight * finalWebcamScale
+
+    let webcamX = baseWebcamX
+    let webcamY = baseWebcamY
+
+    if (originalPos.includes('right')) {
+      webcamX += initialWebcamWidth - webcamWidth
+    } else if (originalPos === 'top-center' || originalPos === 'bottom-center') {
+      webcamX += (initialWebcamWidth - webcamWidth) / 2
+    }
+
+    if (originalPos.includes('bottom')) {
+      webcamY += initialWebcamHeight - webcamHeight
+    } else if (originalPos === 'left-center' || originalPos === 'right-center') {
+      webcamY += (initialWebcamHeight - webcamHeight) / 2
     }
 
     const maxRadius = Math.min(webcamWidth, webcamHeight) / 2
     let webcamRadius = 0
+
     if (webcamStyles.shape === 'circle') {
       webcamRadius = maxRadius
     } else {
       webcamRadius = maxRadius * (webcamStyles.borderRadius / 50)
     }
 
-    const webcamEdgePadding = baseSize * 0.02
-    let webcamX, webcamY
-
-    switch (webcamPosition.pos) {
-      case 'top-left':
-        webcamX = webcamEdgePadding
-        webcamY = webcamEdgePadding
-        break
-      case 'top-center':
-        webcamX = (outputWidth - webcamWidth) / 2
-        webcamY = webcamEdgePadding
-        break
-      case 'top-right':
-        webcamX = outputWidth - webcamWidth - webcamEdgePadding
-        webcamY = webcamEdgePadding
-        break
-      case 'left-center':
-        webcamX = webcamEdgePadding
-        webcamY = (outputHeight - webcamHeight) / 2
-        break
-      case 'right-center':
-        webcamX = outputWidth - webcamWidth - webcamEdgePadding
-        webcamY = (outputHeight - webcamHeight) / 2
-        break
-      case 'bottom-left':
-        webcamX = webcamEdgePadding
-        webcamY = outputHeight - webcamHeight - webcamEdgePadding
-        break
-      case 'bottom-center':
-        webcamX = (outputWidth - webcamWidth) / 2
-        webcamY = outputHeight - webcamHeight - webcamEdgePadding
-        break
-      default:
-        webcamX = outputWidth - webcamWidth - webcamEdgePadding
-        webcamY = outputHeight - webcamHeight - webcamEdgePadding
-        break
-    }
-
-    // Draw webcam shadow if needed
     if (webcamStyles.shadowBlur > 0) {
       ctx.save()
       ctx.shadowColor = webcamStyles.shadowColor
@@ -369,7 +507,6 @@ export const drawScene = async (
       ctx.restore()
     }
 
-    // Crop webcam source to prevent distortion
     const webcamVideo = webcamVideoElement
     const webcamAR = webcamVideo.videoWidth / webcamVideo.videoHeight
     const targetAR = webcamWidth / webcamHeight
@@ -387,26 +524,18 @@ export const drawScene = async (
       sy = (webcamVideo.videoHeight - sHeight) / 2
     }
 
-    // Draw webcam video with border radius
     ctx.save()
 
-    // Apply flip transformation if necessary
     if (webcamStyles.isFlipped) {
-      ctx.translate(outputWidth, 0) // Move context origin to the right edge of the canvas
-      ctx.scale(-1, 1) // Flip the context horizontally
+      ctx.translate(outputWidth, 0)
+      ctx.scale(-1, 1)
     }
 
-    // Calculate the actual drawing X-coordinate, mirroring it if flipped
     const drawX = webcamStyles.isFlipped ? outputWidth - webcamX - webcamWidth : webcamX
-
-    // Create a clipping path at the correct drawing location
     const webcamPath = new Path2D()
     webcamPath.roundRect(drawX, webcamY, webcamWidth, webcamHeight, webcamRadius)
     ctx.clip(webcamPath)
-
-    // Draw the cropped webcam video into the clipped path
     ctx.drawImage(webcamVideo, sx, sy, sWidth, sHeight, drawX, webcamY, webcamWidth, webcamHeight)
-
     ctx.restore()
   }
 }

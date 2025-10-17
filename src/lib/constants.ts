@@ -38,16 +38,6 @@ export const TIMELINE = {
   REGION_DELETE_THRESHOLD: 0.05, // 50ms - Regions smaller than this on mouse up are deleted.
 }
 
-// Visual Effects constants
-export const EFFECTS = {
-  CLICK_ANIMATION: {
-    DURATION: 0.4, // seconds
-    MAX_RADIUS: 30, // pixels
-    EASING: 'easeOutQuint',
-    COLOR: [255, 255, 255, 0.8], // [r, g, b, a]
-  },
-}
-
 // Zoom and Pan specific constants
 export const ZOOM = {
   DEFAULT_SPEED: 'Mellow',
@@ -57,15 +47,15 @@ export const ZOOM = {
     Quick: 0.7,
     Rapid: 0.4,
   },
-  DEFAULT_LEVEL: 2.0, // Default zoom level when adding a new region
+  DEFAULT_LEVEL: 1.5, // Default zoom level when adding a new region
   DEFAULT_DURATION: 3.0, // Default duration when adding a new region
-  DEFAULT_EASING: 'easeInOutQuint',
+  DEFAULT_EASING: 'Balanced',
 
   // --- Auto-Zoom Generation ---
   AUTO_ZOOM_PRE_CLICK_OFFSET: 1.0, // Time to start zoom before the first click
-  AUTO_ZOOM_POST_CLICK_PADDING: 0.8, // Time to hold zoom after the last click
+  AUTO_ZOOM_POST_CLICK_PADDING: 0.9, // Time to hold zoom after the last click
   AUTO_ZOOM_MIN_DURATION: 3.0, // Minimum duration for an auto-generated zoom region
-  PAN_EASING: 'easeOutQuint', // Easing function for pan transitions
+  PAN_EASING: 'Balanced', // Easing function for pan transitions
 }
 
 // --- Editor Defaults ---
@@ -92,9 +82,10 @@ export const DEFAULTS = {
       SHAPE: { defaultValue: 'square' as const, values: ['circle', 'square', 'rectangle'] as const },
       RADIUS: { min: 0, max: 50, step: 1, defaultValue: 35 },
       FLIP: { defaultValue: false },
+      SCALE_ON_ZOOM: { defaultValue: true },
     },
     PLACEMENT: {
-      SIZE: { min: 10, max: 50, step: 1, defaultValue: 30 },
+      SIZE: { min: 10, max: 50, step: 1, defaultValue: 40 },
       POSITION: { defaultValue: 'bottom-right' },
     },
     EFFECTS: {
@@ -104,6 +95,13 @@ export const DEFAULTS = {
       OPACITY: { min: 0, max: 1, step: 0.01, defaultValue: 0.4 },
       DEFAULT_COLOR_RGBA: 'rgba(0, 0, 0, 0.4)',
     },
+    SMART_POSITION: {
+      ENABLED: { defaultValue: true },
+      LOOKAHEAD_TIME: 0.1, // seconds
+      TRANSITION_DURATION: 0.5, // 300ms for a smooth transition
+      EASING: 'Balanced',
+    },
+    SCALE_ON_ZOOM_AMOUNT: 0.8,
   },
   AUDIO: {
     VOLUME: { min: 0, max: 1, step: 0.01, defaultValue: 1 },
@@ -117,12 +115,25 @@ export const DEFAULTS = {
   CURSOR: {
     THEME: { defaultValue: 'Default' },
     SCALE: { defaultValue: 2 },
+    SHOW_CURSOR: { defaultValue: true },
     SHADOW: {
       BLUR: { min: 0, max: 20, step: 1, defaultValue: 6 },
       OFFSET_X: { min: -20, max: 20, step: 1, defaultValue: 3 },
       OFFSET_Y: { min: -20, max: 20, step: 1, defaultValue: 3 },
       OPACITY: { min: 0, max: 1, step: 0.01, defaultValue: 0.4 },
       DEFAULT_COLOR_RGBA: 'rgba(0, 0, 0, 0.4)',
+    },
+    CLICK_RIPPLE: {
+      ENABLED: { defaultValue: false },
+      SIZE: { min: 10, max: 80, step: 1, defaultValue: 30 },
+      DURATION: { min: 0.1, max: 2.0, step: 0.05, defaultValue: 0.5 },
+      COLOR: { defaultValue: 'rgba(255, 255, 255, 0.8)' },
+    },
+    CLICK_SCALE: {
+      ENABLED: { defaultValue: true },
+      AMOUNT: { min: 0.5, max: 1.5, step: 0.05, defaultValue: 0.8 },
+      DURATION: { min: 0.1, max: 1, step: 0.05, defaultValue: 0.4 },
+      EASING: { defaultValue: 'Balanced' },
     },
   },
 }

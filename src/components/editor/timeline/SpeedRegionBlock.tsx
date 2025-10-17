@@ -1,7 +1,7 @@
 import { memo, useState } from 'react'
 import { TimelineRegion, SpeedRegion } from '../../../types'
 import { cn } from '../../../lib/utils'
-import { FastForward, Check } from 'lucide-react'
+import { PlayerTrackNext, Check } from 'tabler-icons-react'
 import { useEditorStore } from '../../../store/editorStore'
 import { ContextMenu, ContextMenuItem, ContextMenuDivider, ContextMenuLabel } from '../../ui/context-menu'
 
@@ -96,7 +96,7 @@ export const SpeedRegionBlock = memo(
           {/* Content */}
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none px-3">
             <div className="flex items-center gap-2 overflow-hidden">
-              <FastForward
+              <PlayerTrackNext
                 className={cn('w-4 h-4 shrink-0 transition-colors text-speed-accent', !isSelected && 'opacity-70')}
               />
               <span

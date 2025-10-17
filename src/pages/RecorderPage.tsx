@@ -1,6 +1,18 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
-import { Mic, Webcam, Monitor, Loader2, Video, X, MousePointer, MicOff, FolderOpen } from 'lucide-react'
-import { WebcamOffIcon, AreaModeIcon } from '../components/ui/icons'
+import {
+  Microphone,
+  MicrophoneOff,
+  DeviceComputerCamera,
+  DeviceComputerCameraOff,
+  DeviceDesktop,
+  Loader2,
+  Video,
+  X,
+  Marquee2,
+  Pointer,
+  Folder,
+  Square,
+} from 'tabler-icons-react'
 import { Button } from '../components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select'
 import { useDeviceManager } from '../hooks/useDeviceManager'
@@ -27,6 +39,7 @@ type DisplayInfo = { id: number; name: string; isPrimary: boolean }
 
 export function RecorderPage() {
   const [recordingState, setRecordingState] = useState<RecordingState>('idle')
+  const [isRecording, setIsRecording] = useState(false)
   const [actionInProgress, setActionInProgress] = useState<ActionInProgress>('none')
   const [source, setSource] = useState<RecordingSource>('fullscreen')
   const [displays, setDisplays] = useState<DisplayInfo[]>([])
@@ -90,12 +103,21 @@ export function RecorderPage() {
 
   // Effect to manage IPC listeners for recording completion
   useEffect(() => {
-    const cleanup = window.electronAPI.onRecordingFinished(() => {
+    const cleanupStarted = window.electronAPI.onRecordingStarted(() => {
+      setIsRecording(true)
+      setActionInProgress('none')
+    })
+
+    const cleanupFinished = window.electronAPI.onRecordingFinished(() => {
       setActionInProgress('none')
       setRecordingState('idle')
+      setIsRecording(false)
       reloadDevices() // Refresh device list in case something changed
     })
-    return () => cleanup()
+    return () => {
+      cleanupStarted()
+      cleanupFinished()
+    }
   }, [reloadDevices])
 
   // Effect to manage the webcam preview stream
@@ -150,13 +172,20 @@ export function RecorderPage() {
         mic: mic ? { deviceId: mic.id, deviceLabel: mic.id, index: mics.indexOf(mic) } : undefined,
       })
 
-      setRecordingState(result.canceled ? 'idle' : 'recording')
-      if (result.canceled) setActionInProgress('none')
+      if (result.canceled) {
+        setActionInProgress('none')
+        setIsRecording(false)
+      }
     } catch (error) {
       console.error('Failed to start recording:', error)
       setActionInProgress('none')
-      setRecordingState('idle')
+      setIsRecording(false)
     }
+  }
+
+  const handleStop = () => {
+    setActionInProgress('recording')
+    window.electronAPI.stopRecording()
   }
 
   const handleLoadVideo = async () => {
@@ -182,8 +211,6 @@ export function RecorderPage() {
     window.electronAPI.setSetting('recorder.cursorScale', newScale)
   }
 
-  if (recordingState === 'recording') return null
-
   return (
     <div className="relative h-screen w-screen bg-transparent select-none">
       <div className="absolute top-0 left-0 right-0 flex flex-col items-center pt-6">
@@ -198,6 +225,7 @@ export function RecorderPage() {
               style={{ WebkitAppRegion: 'no-drag' }}
               className="absolute -top-2.5 -left-2.5 z-20 flex items-center justify-center w-6 h-6 rounded-full bg-destructive/90 hover:bg-destructive text-white shadow-lg transition-all hover:scale-110"
               aria-label="Close Recorder"
+              disabled={isRecording}
             >
               <X className="w-3.5 h-3.5" />
             </button>
@@ -208,16 +236,18 @@ export function RecorderPage() {
               style={{ WebkitAppRegion: 'no-drag' }}
             >
               <SourceButton
-                icon={<Monitor size={16} />}
+                icon={<DeviceDesktop size={16} />}
                 isActive={source === 'fullscreen'}
                 onClick={() => setSource('fullscreen')}
                 tooltip="Full Screen"
+                disabled={isRecording}
               />
               <SourceButton
-                icon={<AreaModeIcon size={16} />}
+                icon={<Marquee2 size={16} />}
                 isActive={source === 'area'}
                 onClick={() => setSource('area')}
                 tooltip="Area"
+                disabled={isRecording}
               />
             </div>
 
@@ -225,7 +255,11 @@ export function RecorderPage() {
 
             {/* Device Selectors */}
             <div className="flex items-center gap-2" style={{ WebkitAppRegion: 'no-drag' }}>
-              <Select value={selectedDisplayId} onValueChange={setSelectedDisplayId} disabled={source !== 'fullscreen'}>
+              <Select
+                value={selectedDisplayId}
+                onValueChange={setSelectedDisplayId}
+                disabled={source !== 'fullscreen' || isRecording}
+              >
                 <SelectTrigger
                   variant="minimal"
                   className="w-auto min-w-[120px] max-w-[150px] h-9"
@@ -233,7 +267,7 @@ export function RecorderPage() {
                 >
                   <SelectValue asChild>
                     <div className="flex items-center gap-1.5 text-xs">
-                      <Monitor size={14} className="text-primary shrink-0" />
+                      <DeviceDesktop size={14} className="text-primary shrink-0" />
                       <span className="truncate">
                         {displays.find((d) => String(d.id) === selectedDisplayId)?.name || '...'}
                       </span>
@@ -252,6 +286,7 @@ export function RecorderPage() {
               <Select
                 value={selectedWebcamId}
                 onValueChange={handleSelectionChange(setSelectedWebcamId, 'recorder.selectedWebcamId')}
+                disabled={isRecording}
               >
                 <SelectTrigger
                   variant="minimal"
@@ -261,9 +296,9 @@ export function RecorderPage() {
                   <SelectValue asChild>
                     <div className="flex items-center gap-1.5 text-xs">
                       {selectedWebcamId !== 'none' ? (
-                        <Webcam size={14} className="text-primary shrink-0" />
+                        <DeviceComputerCamera size={14} className="text-primary shrink-0" />
                       ) : (
-                        <WebcamOffIcon size={14} className="text-muted-foreground/60" />
+                        <DeviceComputerCameraOff size={14} className="text-muted-foreground/60" />
                       )}
                       <span className={cn('truncate', selectedWebcamId === 'none' && 'text-muted-foreground')}>
                         {webcams.find((w) => w.id === selectedWebcamId)?.name || 'No webcam'}
@@ -284,6 +319,7 @@ export function RecorderPage() {
               <Select
                 value={selectedMicId}
                 onValueChange={handleSelectionChange(setSelectedMicId, 'recorder.selectedMicId')}
+                disabled={isRecording}
               >
                 <SelectTrigger
                   variant="minimal"
@@ -293,9 +329,9 @@ export function RecorderPage() {
                   <SelectValue asChild>
                     <div className="flex items-center gap-1.5 text-xs">
                       {selectedMicId !== 'none' ? (
-                        <Mic size={14} className="text-primary shrink-0" />
+                        <Microphone size={14} className="text-primary shrink-0" />
                       ) : (
-                        <MicOff size={14} className="text-muted-foreground/60" />
+                        <MicrophoneOff size={14} className="text-muted-foreground/60" />
                       )}
                       <span className={cn('truncate', selectedMicId === 'none' && 'text-muted-foreground')}>
                         {mics.find((m) => m.id === selectedMicId)?.name || 'No microphone'}
@@ -320,8 +356,8 @@ export function RecorderPage() {
             {platform === 'linux' && (
               <>
                 <div className="flex items-center gap-1.5" style={{ WebkitAppRegion: 'no-drag' }}>
-                  <MousePointer size={14} className="text-muted-foreground/60" />
-                  <Select value={String(cursorScale)} onValueChange={handleCursorScaleChange}>
+                  <Pointer size={14} className="text-muted-foreground/60" />
+                  <Select value={String(cursorScale)} onValueChange={handleCursorScaleChange} disabled={isRecording}>
                     <SelectTrigger variant="minimal" className="w-[56px] h-9 text-xs" aria-label="Select cursor scale">
                       <SelectValue />
                     </SelectTrigger>
@@ -341,24 +377,36 @@ export function RecorderPage() {
             {/* Action Buttons */}
             <div className="flex items-center" style={{ WebkitAppRegion: 'no-drag' }}>
               <div className="flex items-center gap-2">
-                <Button
-                  onClick={handleStart}
-                  title="Record"
-                  disabled={isInitializing || actionInProgress !== 'none'}
-                  size="icon"
-                  className="h-10 w-10 rounded-full shadow-lg"
-                >
-                  <Video size={18} />
-                </Button>
+                {isRecording ? (
+                  <Button
+                    onClick={handleStop}
+                    title="Stop Recording"
+                    variant="destructive"
+                    size="icon"
+                    className="h-10 w-10 rounded-full shadow-lg"
+                  >
+                    <Square size={16} fill="currentColor" />
+                  </Button>
+                ) : (
+                  <Button
+                    onClick={handleStart}
+                    title="Record"
+                    disabled={isInitializing || actionInProgress !== 'none'}
+                    size="icon"
+                    className="h-10 w-10 rounded-full shadow-lg"
+                  >
+                    <Video size={18} />
+                  </Button>
+                )}
                 <Button
                   onClick={handleLoadVideo}
                   title="Load from video"
-                  disabled={isInitializing || actionInProgress !== 'none'}
+                  disabled={isInitializing || actionInProgress !== 'none' || isRecording}
                   variant="secondary"
                   size="icon"
                   className="h-10 w-10 rounded-full shadow-lg"
                 >
-                  <FolderOpen size={18} />
+                  <Folder size={18} />
                 </Button>
               </div>
               <div className="w-8 h-10 flex items-center justify-center">
@@ -377,7 +425,7 @@ export function RecorderPage() {
           <div
             className={cn(
               'mt-4 mx-auto w-48 aspect-square rounded-[32%] overflow-hidden shadow-2xl bg-black ring-2 ring-border/20 transition-all duration-300',
-              selectedWebcamId !== 'none' && actionInProgress === 'none'
+              selectedWebcamId !== 'none' && actionInProgress === 'none' && !isRecording
                 ? 'opacity-100 scale-100'
                 : 'opacity-0 scale-95 pointer-events-none',
             )}

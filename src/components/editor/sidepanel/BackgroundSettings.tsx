@@ -4,7 +4,8 @@ import { useState, useRef, useEffect } from 'react'
 import { useEditorStore } from '../../../store/editorStore'
 import { cn } from '../../../lib/utils'
 import { WALLPAPERS } from '../../../lib/constants'
-import { ImageIcon, Check, UploadCloud, X, Plus, Paintbrush } from 'lucide-react'
+import { Photo, Check, CloudUpload, X, Plus } from 'tabler-icons-react'
+import { PaintBrushIcon } from '../../ui/icons'
 import { ControlGroup } from './ControlGroup'
 import { Button } from '../../ui/button'
 import { ColorPickerRoundedRect } from '../../ui/color-picker'
@@ -222,7 +223,7 @@ const GradientSelector = () => {
         </div>
       </div>
       <Button onClick={handleApplyGradient} size="sm" className="w-full">
-        <Paintbrush className="w-4 h-4 mr-2" />
+        <PaintBrushIcon className="w-4 h-4 mr-2" />
         Apply Colors
       </Button>
     </div>
@@ -288,7 +289,7 @@ const ImageSelector = () => {
                 }}
                 className="px-4 py-2 bg-primary text-primary-foreground rounded-lg font-medium text-sm hover:bg-primary/90 transition-colors shadow-lg"
               >
-                <UploadCloud className="w-4 h-4 mr-1.5 inline" />
+                <CloudUpload className="w-4 h-4 mr-1.5 inline" />
                 Replace
               </button>
             </div>
@@ -296,7 +297,7 @@ const ImageSelector = () => {
         ) : (
           <div className="flex flex-col items-center gap-3 text-center p-6">
             <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-              <UploadCloud className="w-6 h-6 text-primary" />
+              <CloudUpload className="w-6 h-6 text-primary" />
             </div>
             <div>
               <p className="text-sm font-semibold text-foreground mb-1">Upload Image</p>
@@ -330,7 +331,7 @@ export function BackgroundSettings() {
   return (
     <ControlGroup
       label="Background"
-      icon={<ImageIcon className="w-4 h-4 text-primary" />}
+      icon={<Photo className="w-4 h-4 text-primary" />}
       description="Choose how your video background looks"
     >
       <div className="space-y-6">

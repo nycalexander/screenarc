@@ -1,6 +1,6 @@
 import { useEditorStore } from '../../store/editorStore'
 import { RegionSettingsPanel } from './RegionSettingsPanel'
-import { AudioLines, Webcam, PanelsTopLeft, LineSquiggle, MousePointer } from 'lucide-react'
+import { Microphone, DeviceComputerCamera, LayoutBoard, Route, Pointer } from 'tabler-icons-react'
 import { BackgroundSettings } from './sidepanel/BackgroundSettings'
 import { FrameEffectsSettings } from './sidepanel/FrameEffectsSettings'
 import { CameraSettings } from './sidepanel/CameraSettings'
@@ -58,7 +58,7 @@ function FrameSettingsPanel() {
       <div className="p-6 border-b border-sidebar-border">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-            <PanelsTopLeft className="w-5 h-5 text-primary" />
+            <LayoutBoard className="w-5 h-5 text-primary" />
           </div>
           <div>
             <h2 className="text-lg font-semibold text-sidebar-foreground">General Settings</h2>
@@ -127,31 +127,27 @@ export function SidePanel() {
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [selectedRegionId, setSelectedRegionId])
 
-  // Render content based on active tab
-  const renderContent = () => {
-    switch (activeSidePanelTab) {
-      case 'general':
-        return selectedRegion ? <RegionSettingsPanel region={selectedRegion} /> : <FrameSettingsPanel />
-      case 'camera':
-        return <CameraSettings />
-      case 'audio':
-        return <AudioSettings />
-      case 'animation':
-        return <AnimationSettingsPanel />
-      case 'cursor':
-        return <CursorSettings />
-      default:
-        return <FrameSettingsPanel />
-    }
-  }
-
   return (
     <div className="h-full flex">
       {/* Main content area */}
-      <div className="flex-1 bg-sidebar overflow-hidden">
-        {' '}
-        {/* REMOVED overflow-y-auto here */}
-        {renderContent()}
+      <div className="flex-1 bg-sidebar overflow-hidden relative">
+        {/* Render all panels but only show the active one.
+            This prevents unmounting and preserves the internal state of components like Collapse. */}
+        <div className="h-full" hidden={activeSidePanelTab !== 'general'}>
+          {selectedRegion ? <RegionSettingsPanel region={selectedRegion} /> : <FrameSettingsPanel />}
+        </div>
+        <div className="h-full" hidden={activeSidePanelTab !== 'camera'}>
+          <CameraSettings />
+        </div>
+        <div className="h-full" hidden={activeSidePanelTab !== 'audio'}>
+          <AudioSettings />
+        </div>
+        <div className="h-full" hidden={activeSidePanelTab !== 'animation'}>
+          <AnimationSettingsPanel />
+        </div>
+        <div className="h-full" hidden={activeSidePanelTab !== 'cursor'}>
+          <CursorSettings />
+        </div>
       </div>
 
       {/* Vertical Tab Navigator (Always visible) */}
@@ -159,33 +155,33 @@ export function SidePanel() {
         <div className="flex flex-col items-center space-y-2">
           <TabButton
             label="General"
-            icon={<PanelsTopLeft className="w-5 h-5" />}
+            icon={<LayoutBoard className="w-5 h-5" />}
             isActive={activeSidePanelTab === 'general'}
             onClick={() => setActiveSidePanelTab('general')}
           />
           <TabButton
             label="Camera"
-            icon={<Webcam className="w-5 h-5" />}
+            icon={<DeviceComputerCamera className="w-5 h-5" />}
             isActive={activeSidePanelTab === 'camera'}
             onClick={() => setActiveSidePanelTab('camera')}
             disabled={!webcamVideoUrl}
           />
           <TabButton
             label="Audio"
-            icon={<AudioLines className="w-5 h-5" />}
+            icon={<Microphone className="w-5 h-5" />}
             isActive={activeSidePanelTab === 'audio'}
             onClick={() => setActiveSidePanelTab('audio')}
             disabled={!hasAudioTrack}
           />
           <TabButton
             label="Animation"
-            icon={<LineSquiggle className="w-5 h-5" />}
+            icon={<Route className="w-5 h-5" />}
             isActive={activeSidePanelTab === 'animation'}
             onClick={() => setActiveSidePanelTab('animation')}
           />
           <TabButton
             label="Cursor"
-            icon={<MousePointer className="w-5 h-5" />}
+            icon={<Pointer className="w-5 h-5" />}
             isActive={activeSidePanelTab === 'cursor'}
             onClick={() => setActiveSidePanelTab('cursor')}
           />

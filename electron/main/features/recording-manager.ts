@@ -94,7 +94,7 @@ async function startActualRecording(
 
   // Store recordingGeometry in the session
   appState.currentRecordingSession = { screenVideoPath, webcamVideoPath, metadataPath, recordingGeometry }
-  appState.recorderWin?.hide()
+  appState.recorderWin?.minimize()
 
   // Reset state for the new session
   appState.recordingStartTime = Date.now()
@@ -156,6 +156,9 @@ async function startActualRecording(
       setTimeout(() => cleanupAndDiscard(), 100)
     }
   })
+
+  // Notify the recorder window that recording has started
+  appState.recorderWin?.webContents.send('recording-started')
 
   createTray()
   return { canceled: false, ...appState.currentRecordingSession }
@@ -224,17 +227,12 @@ function createTray() {
       label: 'Stop Recording',
       click: async () => {
         await stopRecording()
-        appState.recorderWin?.webContents.send('recording-finished', {
-          canceled: false,
-          ...appState.currentRecordingSession,
-        })
       },
     },
     {
       label: 'Cancel Recording',
       click: async () => {
         await cancelRecording()
-        appState.recorderWin?.webContents.send('recording-finished', { canceled: true })
       },
     },
   ])
@@ -450,6 +448,9 @@ export async function stopRecording() {
     return
   }
 
+  // Notify recorder window that the recording has finished, allowing it to reset its UI
+  appState.recorderWin?.webContents.send('recording-finished', { canceled: false, ...session })
+
   // Step 2: Process and save metadata (after video file is complete)
   await processAndSaveMetadata(session)
 
@@ -487,6 +488,7 @@ export async function stopRecording() {
 export async function cancelRecording() {
   log.info('Cancelling recording and deleting files...')
   await cleanupAndDiscard()
+  appState.recorderWin?.webContents.send('recording-finished', { canceled: true })
   appState.recorderWin?.show()
 }
 

@@ -26,10 +26,20 @@ export interface FrameStyles {
 }
 
 export interface CursorStyles {
+  showCursor: boolean
   shadowBlur: number
   shadowOffsetX: number
   shadowOffsetY: number
   shadowColor: string
+  // Click Effects
+  clickRippleEffect: boolean
+  clickRippleColor: string
+  clickRippleSize: number
+  clickRippleDuration: number
+  clickScaleEffect: boolean
+  clickScaleAmount: number
+  clickScaleDuration: number
+  clickScaleEasing: string
 }
 
 export interface Preset {
@@ -134,6 +144,8 @@ export interface WebcamStyles {
   shadowOffsetY: number
   shadowColor: string
   isFlipped: boolean
+  scaleOnZoom: boolean
+  smartPosition: boolean
 }
 
 export type Dimensions = { width: number; height: number }
@@ -250,7 +262,6 @@ export interface WebcamActions {
 }
 
 export interface UIState {
-  theme: string
   mode: 'light' | 'dark'
   isPreviewFullScreen: boolean
   cursorThemeName: string
@@ -258,7 +269,6 @@ export interface UIState {
   activeSidePanelTab: SidePanelTab
 }
 export interface UIActions {
-  setTheme: (theme: string) => void
   toggleMode: () => void
   initializeSettings: () => Promise<void>
   togglePreviewFullScreen: () => void
@@ -277,6 +287,27 @@ export interface AudioActions {
   toggleMute: () => void
   setIsMuted: (isMuted: boolean) => void
 }
+
+export type RenderableState = Pick<
+  EditorState,
+  | 'platform'
+  | 'frameStyles'
+  | 'videoDimensions'
+  | 'aspectRatio'
+  | 'webcamPosition'
+  | 'webcamStyles'
+  | 'isWebcamVisible'
+  | 'zoomRegions'
+  | 'cutRegions'
+  | 'speedRegions'
+  | 'metadata'
+  | 'recordingGeometry'
+  | 'cursorImages'
+  | 'cursorBitmapsToRender'
+  | 'syncOffset'
+  | 'cursorTheme'
+  | 'cursorStyles'
+>
 
 // Combined state type for the editor store
 export type EditorState = ProjectState &

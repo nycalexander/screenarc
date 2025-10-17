@@ -1,5 +1,5 @@
-import type { WebcamState, WebcamActions, Slice } from '../../types'
-import type { WebcamPosition, WebcamStyles } from '../../types'
+import { DEFAULTS } from '../../lib/constants'
+import type { WebcamState, WebcamActions, WebcamPosition, WebcamStyles, Slice } from '../../types'
 
 export const initialWebcamState: WebcamState = {
   webcamVideoPath: null,
@@ -15,6 +15,8 @@ export const initialWebcamState: WebcamState = {
     shadowOffsetY: 10,
     shadowColor: 'rgba(0, 0, 0, 0.4)',
     isFlipped: false,
+    scaleOnZoom: DEFAULTS.CAMERA.STYLE.SCALE_ON_ZOOM.defaultValue,
+    smartPosition: DEFAULTS.CAMERA.SMART_POSITION.ENABLED.defaultValue,
   },
 }
 

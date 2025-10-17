@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useEditorStore } from '../../../store/editorStore'
-import { LineSquiggle, Wand2, Check } from 'lucide-react'
+import { Route, Wand, Check } from 'tabler-icons-react'
 import { ZOOM, DEFAULTS } from '../../../lib/constants'
 import { EASING_MAP } from '../../../lib/easing'
 import { cn } from '../../../lib/utils'
@@ -43,7 +43,7 @@ export function AnimationSettingsPanel() {
       <div className="p-6 border-b border-sidebar-border flex-shrink-0">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-            <LineSquiggle className="w-5 h-5 text-primary" />
+            <Route className="w-5 h-5 text-primary" />
           </div>
           <div>
             <h2 className="text-lg font-semibold text-sidebar-foreground">Global Animation</h2>
@@ -58,7 +58,7 @@ export function AnimationSettingsPanel() {
         <Collapse
           title="Animation Settings"
           description="These settings will be applied to all zoom regions."
-          icon={<LineSquiggle />}
+          icon={<Route />}
           defaultOpen={true}
           onReset={handleResetAnimation}
         >
@@ -128,7 +128,7 @@ export function AnimationSettingsPanel() {
               >
                 {applyStatus === 'idle' ? (
                   <>
-                    <Wand2 className="w-4 h-4 mr-2" />
+                    <Wand className="w-4 h-4 mr-2" />
                     Apply to All Zoom Regions
                   </>
                 ) : (

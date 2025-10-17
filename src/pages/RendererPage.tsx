@@ -5,7 +5,7 @@ import { EditorState, EditorActions, CursorTheme, CursorFrame, CursorImageBitmap
 import { ExportSettings } from '../components/editor/ExportModal'
 import { RESOLUTIONS } from '../lib/constants'
 import { drawScene } from '../lib/renderer'
-import { prepareCursorBitmaps } from '../lib/utils'
+import { prepareCursorBitmaps, mapExportTimeToSourceTime } from '../lib/utils'
 
 type RenderStartPayload = {
   projectState: Omit<EditorState, keyof EditorActions>
@@ -100,26 +100,6 @@ const loadBackgroundImage = (
   })
 }
 
-// Create a helper function to wait for the 'seeked' event
-const seekVideo = (video: HTMLVideoElement, time: number): Promise<void> => {
-  return new Promise((resolve, reject) => {
-    const onSeeked = () => {
-      video.removeEventListener('seeked', onSeeked)
-      video.removeEventListener('error', onError)
-      resolve()
-    }
-    const onError = (e: Event) => {
-      video.removeEventListener('seeked', onSeeked)
-      video.removeEventListener('error', onError)
-      reject(new Error(`Video seek failed: ${e}`))
-    }
-
-    video.addEventListener('seeked', onSeeked, { once: true })
-    video.addEventListener('error', onError, { once: true })
-    video.currentTime = time
-  })
-}
-
 export function RendererPage() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
@@ -137,6 +117,7 @@ export function RendererPage() {
         log.info('[RendererPage] Received "render:start" event.', { exportSettings })
         if (!canvas || !video) throw new Error('Canvas or Video ref is not available.')
 
+        // --- 1. SETUP CANVAS AND CONTEXT ---
         const { resolution, fps } = exportSettings
         const [ratioW, ratioH] = projectState.aspectRatio.split(':').map(Number)
         const baseHeight = RESOLUTIONS[resolution as keyof typeof RESOLUTIONS].height
@@ -146,12 +127,11 @@ export function RendererPage() {
 
         canvas.width = outputWidth
         canvas.height = outputHeight
-
         const ctx = canvas.getContext('2d', { alpha: false })
         if (!ctx) throw new Error('Failed to get 2D context from canvas.')
 
+        // --- 2. PREPARE STATE AND ASSETS ---
         useEditorStore.setState(projectState)
-
         let finalCursorBitmaps = new Map<string, CursorImageBitmap>()
         if (projectState.platform === 'win32' || projectState.platform === 'darwin') {
           if (projectState.cursorTheme) {
@@ -162,41 +142,22 @@ export function RendererPage() {
             } else {
               finalCursorBitmaps = await prepareMacOSCursorBitmaps(projectState.cursorTheme, scale)
             }
-          } else {
-            log.warn(
-              `[RendererPage] Platform is ${projectState.platform} but no cursorTheme was found in project state.`,
-            )
           }
         } else {
           log.info('[RendererPage] Preparing Linux bitmaps from project state.')
           finalCursorBitmaps = await prepareCursorBitmaps(projectState.cursorImages)
         }
-
         const projectStateWithCursorBitmaps = { ...projectState, cursorBitmapsToRender: finalCursorBitmaps }
-
         const bgImage = await loadBackgroundImage(projectState.frameStyles.background)
 
+        // --- 3. LOAD VIDEO SOURCES ---
         const loadVideo = (videoElement: HTMLVideoElement, source: string, path: string): Promise<void> =>
           new Promise((resolve, reject) => {
-            const onError = (e: Event) => {
-              videoElement.removeEventListener('canplaythrough', onCanPlay)
-              videoElement.removeEventListener('error', onError)
-              log.error(`[RendererPage] ${source} loading error:`, e)
-              reject(new Error(`Failed to load ${source}.`))
+            videoElement.onloadedmetadata = () => {
+              log.info(`[RendererPage] ${source} metadata loaded.`)
+              resolve()
             }
-
-            const onCanPlay = async () => {
-              try {
-                await seekVideo(videoElement, 0)
-                log.info(`[RendererPage] ${source} video is ready and seeked to frame 0.`)
-                resolve()
-              } catch (seekError) {
-                reject(seekError)
-              }
-            }
-
-            videoElement.addEventListener('canplaythrough', onCanPlay, { once: true })
-            videoElement.addEventListener('error', onError, { once: true })
+            videoElement.onerror = (e) => reject(new Error(`Failed to load ${source}: ${e}`))
             videoElement.src = `media://${path}`
             videoElement.muted = true
             videoElement.load()
@@ -208,83 +169,77 @@ export function RendererPage() {
         }
         await Promise.all(loadPromises)
 
+        // --- 4. CALCULATE EXPORT DURATION AND FRAMES ---
         let exportDuration = projectState.duration
-        Object.values(projectState.cutRegions).forEach((region) => {
-          exportDuration -= region.duration
-        })
+        Object.values(projectState.cutRegions).forEach((region) => (exportDuration -= region.duration))
         Object.values(projectState.speedRegions).forEach((region) => {
           exportDuration -= region.duration
           exportDuration += region.duration / region.speed
         })
         exportDuration = Math.max(0, exportDuration)
-
+        const totalFrames = Math.floor(exportDuration * fps)
         log.info(
-          `[RendererPage] Starting frame-by-frame rendering. Original: ${projectState.duration.toFixed(2)}s, Export: ${exportDuration.toFixed(2)}s`,
+          `[RendererPage] Starting seek-driven rendering. Total frames: ${totalFrames}, Export duration: ${exportDuration.toFixed(2)}s`,
         )
 
-        const totalFrames = Math.floor(exportDuration * fps)
-        let framesSent = 0
-        let sourceVideoTime = 0
-        const timePerFrame = 1 / fps
+        // --- 5. SETUP SEEK-DRIVEN RENDER LOOP ---
+        const seekPromise = (videoElement: HTMLVideoElement) => {
+          return new Promise<void>((resolve) => {
+            const onSeeked = () => {
+              videoElement.removeEventListener('seeked', onSeeked)
+              resolve()
+            }
+            videoElement.addEventListener('seeked', onSeeked)
+          })
+        }
 
-        for (let i = 0; i < totalFrames; i++) {
-          const currentTimeForDrawing = sourceVideoTime
+        for (let frame = 0; frame < totalFrames; frame++) {
+          const exportTimestamp = frame / fps
+          const sourceTimestamp = mapExportTimeToSourceTime(
+            exportTimestamp,
+            projectState.duration,
+            projectState.cutRegions,
+            projectState.speedRegions,
+          )
 
-          if (currentTimeForDrawing > projectState.duration + 0.1) {
-            log.warn(
-              `[RendererPage] Attempted to draw past source duration (${currentTimeForDrawing.toFixed(3)}s > ${projectState.duration.toFixed(3)}s). Stopping.`,
-            )
-            break
+          // Create seek promises for both videos
+          const mainSeek = seekPromise(video)
+          const webcamSeek = webcamVideo ? seekPromise(webcamVideo) : Promise.resolve()
+
+          // Set currentTime for both videos to trigger seeking
+          video.currentTime = sourceTimestamp
+          if (webcamVideo) {
+            webcamVideo.currentTime = sourceTimestamp
           }
 
-          const seekPromises: Promise<void>[] = [seekVideo(video, currentTimeForDrawing)]
-          if (projectStateWithCursorBitmaps.webcamVideoPath && webcamVideo) {
-            seekPromises.push(seekVideo(webcamVideo, currentTimeForDrawing))
-          }
-          await Promise.all(seekPromises)
+          // Wait for both seeks to complete
+          await Promise.all([mainSeek, webcamSeek])
 
+          // Now that videos are at the correct time, draw the scene
           await drawScene(
             ctx,
             projectStateWithCursorBitmaps,
             video,
             webcamVideo,
-            currentTimeForDrawing,
+            sourceTimestamp, // Use the precise source timestamp for drawing
             outputWidth,
             outputHeight,
             bgImage,
           )
 
+          // Send the rendered frame to the main process
           const imageData = ctx.getImageData(0, 0, outputWidth, outputHeight)
           const frameBuffer = Buffer.from(imageData.data.buffer)
-          const progress = Math.round((i / totalFrames) * 100)
+          const progress = ((frame + 1) / totalFrames) * 100
           window.electronAPI.sendFrameToMain({ frame: frameBuffer, progress })
-          framesSent++
-
-          const activeSpeedRegion = Object.values(projectState.speedRegions).find(
-            (r) => sourceVideoTime >= r.startTime && sourceVideoTime < r.startTime + r.duration,
-          )
-          const currentSpeed = activeSpeedRegion ? activeSpeedRegion.speed : 1
-
-          sourceVideoTime += timePerFrame * currentSpeed
-
-          let inCutRegion = true
-          while (inCutRegion) {
-            const activeCutRegion = Object.values(projectState.cutRegions).find(
-              (r) => sourceVideoTime >= r.startTime && sourceVideoTime < r.startTime + r.duration,
-            )
-            if (activeCutRegion) {
-              sourceVideoTime = activeCutRegion.startTime + activeCutRegion.duration
-            } else {
-              inCutRegion = false
-            }
-          }
         }
 
-        log.info(`[RendererPage] Render finished. Sent ${framesSent} frames. Sending "finishRender" signal.`)
+        // --- 6. FINISH ---
+        log.info('[RendererPage] Render loop finished. Sending "finishRender" signal.')
         window.electronAPI.finishRender()
       } catch (error) {
         log.error('[RendererPage] CRITICAL ERROR during render process:', error)
-        window.electronAPI.finishRender()
+        window.electronAPI.finishRender() // Ensure we always finish, even on error
       }
     })
 

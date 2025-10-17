@@ -1,15 +1,14 @@
 import React, { useEffect, useRef, memo, useState, useCallback } from 'react'
 import { useEditorStore, usePlaybackState } from '../../store/editorStore'
-import { Film } from 'lucide-react'
+import { Movie } from 'tabler-icons-react'
+import { FullscreenIcon, ExitFullscreenIcon } from '../ui/icons'
 import {
-  PauseIcon,
-  PlayIcon,
-  RewindIcon,
-  StepBackIcon,
-  StepForwardIcon,
-  FullscreenIcon,
-  ExitFullscreenIcon,
-} from '../ui/icons'
+  PlayerPlay,
+  PlayerTrackPrev as RewindIcon,
+  PlayerPause,
+  PlayerSkipBack,
+  PlayerSkipForward,
+} from 'tabler-icons-react'
 import { useShallow } from 'zustand/react/shallow'
 import { formatTime } from '../../lib/utils'
 import { Slider } from '../ui/slider'
@@ -82,6 +81,7 @@ export const Preview = memo(
 
     // --- Start of Changes for Fullscreen Controls ---
     const [isControlBarVisible, setIsControlBarVisible] = useState(false)
+    const [isCursorHidden, setIsCursorHidden] = useState(false)
     const inactivityTimerRef = useRef<number | null>(null)
     const previewContainerRef = useRef<HTMLDivElement>(null)
 
@@ -92,19 +92,27 @@ export const Preview = memo(
           window.clearTimeout(inactivityTimerRef.current)
           inactivityTimerRef.current = null
         }
+        setIsCursorHidden(false)
         return // Do nothing if not in fullscreen
       }
 
       // Start with controls hidden
       setIsControlBarVisible(false)
 
+      // Hide cursor after 3 seconds of inactivity
+      const initialHideTimeout = window.setTimeout(() => {
+        setIsCursorHidden(true)
+      }, 3000)
+
       const showControlsAndSetTimer = () => {
         setIsControlBarVisible(true)
+        setIsCursorHidden(false)
         if (inactivityTimerRef.current) {
           window.clearTimeout(inactivityTimerRef.current)
         }
         inactivityTimerRef.current = window.setTimeout(() => {
           setIsControlBarVisible(false)
+          setIsCursorHidden(true) // Ẩn con trỏ khi hết thời gian chờ
         }, 3000) // Hide after 3 seconds of inactivity
       }
 
@@ -115,6 +123,7 @@ export const Preview = memo(
 
       // Cleanup function
       return () => {
+        clearTimeout(initialHideTimeout)
         if (inactivityTimerRef.current) {
           window.clearTimeout(inactivityTimerRef.current)
         }
@@ -318,7 +327,13 @@ export const Preview = memo(
     }
 
     return (
-      <div ref={previewContainerRef} className="w-full h-full flex flex-col items-center justify-center relative">
+      <div
+        ref={previewContainerRef}
+        className={cn(
+          'w-full h-full flex flex-col items-center justify-center relative',
+          isPreviewFullScreen && isCursorHidden && 'cursor-none',
+        )}
+      >
         <div
           id="preview-container"
           className="transition-all duration-300 ease-out flex items-center justify-center w-full flex-1 min-h-0"
@@ -334,7 +349,7 @@ export const Preview = memo(
           ) : (
             <div className="w-full h-full bg-gradient-to-br from-muted/30 to-muted/10 border-2 border-dashed border-border/40 rounded-xl flex flex-col items-center justify-center text-muted-foreground gap-4 backdrop-blur-sm">
               <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center backdrop-blur-md border border-border/30 shadow-lg">
-                <Film className="w-10 h-10 text-primary/60" />
+                <Movie className="w-10 h-10 text-primary/60" />
               </div>
               <div className="text-center space-y-1">
                 <p className="text-lg font-semibold text-foreground/80">No project loaded</p>
@@ -389,7 +404,7 @@ export const Preview = memo(
                 title="Play/Pause (Space)"
                 className="flex-shrink-0 text-foreground hover:text-foreground hover:bg-accent h-10 w-10 rounded-xl transition-all duration-150"
               >
-                {isPlaying ? <PauseIcon className="w-4 h-4" /> : <PlayIcon className="w-4 h-4 ml-0.5" />}
+                {isPlaying ? <PlayerPause className="w-4 h-4" /> : <PlayerPlay className="w-4 h-4 ml-0.5" />}
               </Button>
               <Button
                 variant="ghost"
@@ -407,7 +422,7 @@ export const Preview = memo(
                 title="Previous Frame (J)"
                 className="flex-shrink-0 text-foreground hover:text-foreground hover:bg-accent h-10 w-10 rounded-xl transition-all duration-150"
               >
-                <StepBackIcon className="w-4 h-4" />
+                <PlayerSkipBack className="w-4 h-4" />
               </Button>
               <Button
                 variant="ghost"
@@ -416,7 +431,7 @@ export const Preview = memo(
                 title="Next Frame (K)"
                 className="flex-shrink-0 text-foreground hover:text-foreground hover:bg-accent h-10 w-10 rounded-xl transition-all duration-150"
               >
-                <StepForwardIcon className="w-4 h-4" />
+                <PlayerSkipForward className="w-4 h-4" />
               </Button>
 
               <div className="flex items-baseline gap-2 text-xs font-mono tabular-nums text-muted-foreground min-w-[130px] ml-2">

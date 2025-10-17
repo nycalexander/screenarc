@@ -1,14 +1,23 @@
 import type { UIState, UIActions, Slice, CursorStyles, SidePanelTab } from '../../types'
+import { DEFAULTS } from '../../lib/constants'
 
 const initialCursorStyles: CursorStyles = {
-  shadowBlur: 6,
-  shadowOffsetX: 3,
-  shadowOffsetY: 3,
-  shadowColor: 'rgba(0, 0, 0, 0.4)',
+  showCursor: DEFAULTS.CURSOR.SHOW_CURSOR.defaultValue,
+  shadowBlur: DEFAULTS.CURSOR.SHADOW.BLUR.defaultValue,
+  shadowOffsetX: DEFAULTS.CURSOR.SHADOW.OFFSET_X.defaultValue,
+  shadowOffsetY: DEFAULTS.CURSOR.SHADOW.OFFSET_Y.defaultValue,
+  shadowColor: DEFAULTS.CURSOR.SHADOW.DEFAULT_COLOR_RGBA,
+  clickRippleEffect: DEFAULTS.CURSOR.CLICK_RIPPLE.ENABLED.defaultValue,
+  clickRippleColor: DEFAULTS.CURSOR.CLICK_RIPPLE.COLOR.defaultValue,
+  clickRippleSize: DEFAULTS.CURSOR.CLICK_RIPPLE.SIZE.defaultValue,
+  clickRippleDuration: DEFAULTS.CURSOR.CLICK_RIPPLE.DURATION.defaultValue,
+  clickScaleEffect: DEFAULTS.CURSOR.CLICK_SCALE.ENABLED.defaultValue,
+  clickScaleAmount: DEFAULTS.CURSOR.CLICK_SCALE.AMOUNT.defaultValue,
+  clickScaleDuration: DEFAULTS.CURSOR.CLICK_SCALE.DURATION.defaultValue,
+  clickScaleEasing: DEFAULTS.CURSOR.CLICK_SCALE.EASING.defaultValue,
 }
 
 export const initialUIState: UIState = {
-  theme: 'ocean-blue', // Default theme
   mode: 'light',
   isPreviewFullScreen: false,
   cursorThemeName: 'default',
@@ -28,12 +37,6 @@ const updateWindowsTitleBar = (mode: 'light' | 'dark', platform: NodeJS.Platform
 
 export const createUISlice: Slice<UIState, UIActions> = (set, get) => ({
   ...initialUIState,
-  setTheme: (theme: string) => {
-    set((state) => {
-      state.theme = theme
-    })
-    window.electronAPI.setSetting('appearance.themeName', theme)
-  },
   toggleMode: () => {
     const newMode = get().mode === 'dark' ? 'light' : 'dark'
     set((state) => {
@@ -45,7 +48,6 @@ export const createUISlice: Slice<UIState, UIActions> = (set, get) => ({
   initializeSettings: async () => {
     try {
       const appearance = await window.electronAPI.getSetting<{
-        themeName: string
         mode: 'light' | 'dark'
         cursorThemeName: string
         cursorStyles: Partial<CursorStyles>
@@ -53,11 +55,6 @@ export const createUISlice: Slice<UIState, UIActions> = (set, get) => ({
 
       let finalMode: 'light' | 'dark' = 'light'
 
-      if (appearance?.themeName) {
-        set((state) => {
-          state.theme = appearance.themeName
-        })
-      }
       if (appearance?.mode) {
         finalMode = appearance.mode
         set((state) => {
