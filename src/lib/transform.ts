@@ -145,7 +145,6 @@ export const calculateZoomTransform = (
   recordingGeometry: { width: number; height: number },
   frameContentDimensions: { width: number; height: number },
 ): { scale: number; translateX: number; translateY: number; transformOrigin: string } => {
-
   const activeRegion = Object.values(zoomRegions).find(
     (r) => currentTime >= r.startTime && currentTime < r.startTime + r.duration,
   )

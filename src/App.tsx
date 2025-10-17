@@ -7,9 +7,8 @@ import { useEditorStore } from './store/editorStore'
 
 function App() {
   const [route, setRoute] = useState(window.location.hash)
-  const { theme, mode } = useEditorStore(
+  const { mode } = useEditorStore(
     useShallow((state) => ({
-      theme: state.theme,
       mode: state.mode,
     })),
   )
@@ -21,14 +20,14 @@ function App() {
 
   useEffect(() => {
     const root = document.documentElement
-    root.setAttribute('data-theme', theme)
+    root.setAttribute('data-theme', 'ocean-blue')
 
     if (mode === 'dark') {
       root.classList.add('dark')
     } else {
       root.classList.remove('dark')
     }
-  }, [theme, mode])
+  }, [mode])
 
   useEffect(() => {
     const handleHashChange = () => {

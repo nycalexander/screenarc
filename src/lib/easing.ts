@@ -26,8 +26,7 @@ function createSpringEasing({ tension = 250, friction = 25, mass = 1 } = {}) {
       const m_wd = m_w0 * Math.sqrt(1 - m_zeta * m_zeta)
       const b = (m_zeta * m_w0 + -velocity) / m_wd
       return (
-        1 -
-        Math.exp(-t * m_zeta * m_w0) * ((1 + b * Math.sin(m_wd * t)) * Math.cos(m_wd * t) + Math.sin(m_wd * t) * -1)
+        1 - Math.exp(-t * m_zeta * m_w0) * ((1 + b * Math.sin(m_wd * t)) * Math.cos(m_wd * t) + Math.sin(m_wd * t) * -1)
       )
     } else {
       // Critically damped (no bounce)

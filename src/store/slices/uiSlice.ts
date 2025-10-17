@@ -8,7 +8,6 @@ const initialCursorStyles: CursorStyles = {
 }
 
 export const initialUIState: UIState = {
-  theme: 'ocean-blue', // Default theme
   mode: 'light',
   isPreviewFullScreen: false,
   cursorThemeName: 'default',
@@ -28,12 +27,6 @@ const updateWindowsTitleBar = (mode: 'light' | 'dark', platform: NodeJS.Platform
 
 export const createUISlice: Slice<UIState, UIActions> = (set, get) => ({
   ...initialUIState,
-  setTheme: (theme: string) => {
-    set((state) => {
-      state.theme = theme
-    })
-    window.electronAPI.setSetting('appearance.themeName', theme)
-  },
   toggleMode: () => {
     const newMode = get().mode === 'dark' ? 'light' : 'dark'
     set((state) => {
@@ -45,7 +38,6 @@ export const createUISlice: Slice<UIState, UIActions> = (set, get) => ({
   initializeSettings: async () => {
     try {
       const appearance = await window.electronAPI.getSetting<{
-        themeName: string
         mode: 'light' | 'dark'
         cursorThemeName: string
         cursorStyles: Partial<CursorStyles>
@@ -53,11 +45,6 @@ export const createUISlice: Slice<UIState, UIActions> = (set, get) => ({
 
       let finalMode: 'light' | 'dark' = 'light'
 
-      if (appearance?.themeName) {
-        set((state) => {
-          state.theme = appearance.themeName
-        })
-      }
       if (appearance?.mode) {
         finalMode = appearance.mode
         set((state) => {
