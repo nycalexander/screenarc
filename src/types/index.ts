@@ -26,10 +26,20 @@ export interface FrameStyles {
 }
 
 export interface CursorStyles {
+  showCursor: boolean
   shadowBlur: number
   shadowOffsetX: number
   shadowOffsetY: number
   shadowColor: string
+  // Click Effects
+  clickRippleEffect: boolean
+  clickRippleColor: string
+  clickRippleSize: number
+  clickRippleDuration: number
+  clickScaleEffect: boolean
+  clickScaleAmount: number
+  clickScaleDuration: number
+  clickScaleEasing: string
 }
 
 export interface Preset {

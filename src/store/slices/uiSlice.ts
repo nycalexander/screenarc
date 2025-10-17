@@ -1,10 +1,20 @@
 import type { UIState, UIActions, Slice, CursorStyles, SidePanelTab } from '../../types'
+import { DEFAULTS } from '../../lib/constants'
 
 const initialCursorStyles: CursorStyles = {
-  shadowBlur: 6,
-  shadowOffsetX: 3,
-  shadowOffsetY: 3,
-  shadowColor: 'rgba(0, 0, 0, 0.4)',
+  showCursor: DEFAULTS.CURSOR.SHOW_CURSOR.defaultValue,
+  shadowBlur: DEFAULTS.CURSOR.SHADOW.BLUR.defaultValue,
+  shadowOffsetX: DEFAULTS.CURSOR.SHADOW.OFFSET_X.defaultValue,
+  shadowOffsetY: DEFAULTS.CURSOR.SHADOW.OFFSET_Y.defaultValue,
+  shadowColor: DEFAULTS.CURSOR.SHADOW.DEFAULT_COLOR_RGBA,
+  clickRippleEffect: DEFAULTS.CURSOR.CLICK_RIPPLE.ENABLED.defaultValue,
+  clickRippleColor: DEFAULTS.CURSOR.CLICK_RIPPLE.COLOR.defaultValue,
+  clickRippleSize: DEFAULTS.CURSOR.CLICK_RIPPLE.SIZE.defaultValue,
+  clickRippleDuration: DEFAULTS.CURSOR.CLICK_RIPPLE.DURATION.defaultValue,
+  clickScaleEffect: DEFAULTS.CURSOR.CLICK_SCALE.ENABLED.defaultValue,
+  clickScaleAmount: DEFAULTS.CURSOR.CLICK_SCALE.AMOUNT.defaultValue,
+  clickScaleDuration: DEFAULTS.CURSOR.CLICK_SCALE.DURATION.defaultValue,
+  clickScaleEasing: DEFAULTS.CURSOR.CLICK_SCALE.EASING.defaultValue,
 }
 
 export const initialUIState: UIState = {

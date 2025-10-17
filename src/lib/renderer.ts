@@ -1,7 +1,6 @@
 import { EditorState } from '../types'
 import { calculateZoomTransform } from './transform'
 import { findLastMetadataIndex } from './transform'
-import { EFFECTS } from './constants'
 import { EASING_MAP } from './easing'
 
 type RenderableState = Pick<
@@ -227,32 +226,31 @@ export const drawScene = async (
   ctx.restore()
 
   // --- 4. Draw Click Animations ---
-  const { DURATION, MAX_RADIUS, EASING, COLOR } = EFFECTS.CLICK_ANIMATION
-  const clickAnimationEasing = EASING_MAP[EASING as keyof typeof EASING_MAP] || ((t: number) => t)
+  if (state.cursorStyles.clickRippleEffect && state.recordingGeometry) {
+    const { clickRippleDuration, clickRippleSize, clickRippleColor } = state.cursorStyles
+    const rippleEasing = EASING_MAP.Balanced // Ripple uses a standard ease-out
 
-  if (state.recordingGeometry) {
-    const recentClicks = state.metadata.filter(
+    const recentRippleClicks = state.metadata.filter(
       (event) =>
         event.type === 'click' &&
         event.pressed &&
         currentTime >= event.timestamp &&
-        currentTime < event.timestamp + DURATION,
+        currentTime < event.timestamp + clickRippleDuration,
     )
 
-    for (const click of recentClicks) {
-      const progress = (currentTime - click.timestamp) / DURATION
-      const easedProgress = clickAnimationEasing(progress)
-
-      const currentRadius = easedProgress * MAX_RADIUS
+    for (const click of recentRippleClicks) {
+      const progress = (currentTime - click.timestamp) / clickRippleDuration
+      const easedProgress = rippleEasing(progress)
+      const currentRadius = easedProgress * clickRippleSize
       const currentOpacity = 1 - easedProgress
 
       // Scale cursor position from original recording geometry to the current frame's content size
       const cursorX = (click.x / state.recordingGeometry.width) * frameContentWidth
       const cursorY = (click.y / state.recordingGeometry.height) * frameContentHeight
 
-      // Use the pre-parsed color parts instead of running regex on every frame.
-      if (COLOR) {
-        const [r, g, b, baseAlpha] = COLOR
+      const colorResult = /rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/.exec(clickRippleColor)
+      if (colorResult) {
+        const [r, g, b, baseAlpha] = colorResult.slice(1).map(Number)
         ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${baseAlpha * currentOpacity})`
       }
 
@@ -265,12 +263,8 @@ export const drawScene = async (
   // --- 5. Draw Cursor ---
   const lastEventIndex = findLastMetadataIndex(state.metadata, currentTime)
 
-  if (lastEventIndex > -1 && state.recordingGeometry) {
+  if (state.cursorStyles.showCursor && lastEventIndex > -1 && state.recordingGeometry) {
     const event = state.metadata[lastEventIndex]
-    // Only draw the cursor if the last found event is very recent.
-    // A large gap between currentTime and the event's timestamp implies the mouse
-    // was outside the recording geometry and no events were being logged.
-    // 100ms is a safe threshold (equivalent to 5 missing mouse frames at 50 FPS).
     if (event && currentTime - event.timestamp < 0.1) {
       const cursorData = state.cursorBitmapsToRender.get(event.cursorImageKey!)
 
@@ -281,10 +275,45 @@ export const drawScene = async (
         const drawY = Math.round(cursorY - cursorData.yhot)
 
         ctx.save()
+
+        // Handle click scale animation
+        let cursorScale = 1
+        if (state.cursorStyles.clickScaleEffect) {
+          const { clickScaleDuration, clickScaleAmount, clickScaleEasing } = state.cursorStyles
+          const mostRecentClick = state.metadata
+            .filter(
+              (e) =>
+                e.type === 'click' &&
+                e.pressed &&
+                e.timestamp <= currentTime &&
+                e.timestamp > currentTime - clickScaleDuration,
+            )
+            .pop()
+
+          if (mostRecentClick) {
+            const progress = (currentTime - mostRecentClick.timestamp) / clickScaleDuration
+            const easingFn = EASING_MAP[clickScaleEasing as keyof typeof EASING_MAP] || EASING_MAP.Balanced
+            const easedProgress = easingFn(progress)
+            const scaleValue = 1 - (1 - clickScaleAmount) * Math.sin(easedProgress * Math.PI)
+            cursorScale = scaleValue
+          }
+        }
+
+        // Apply drop shadow
         const { shadowBlur, shadowOffsetX, shadowOffsetY, shadowColor } = state.cursorStyles
         if (shadowBlur > 0 || shadowOffsetX !== 0 || shadowOffsetY !== 0) {
           ctx.filter = `drop-shadow(${shadowOffsetX}px ${shadowOffsetY}px ${shadowBlur}px ${shadowColor})`
         }
+
+        // Apply scale transform if needed
+        if (cursorScale !== 1) {
+          const scaleCenterX = drawX + cursorData.xhot
+          const scaleCenterY = drawY + cursorData.yhot
+          ctx.translate(scaleCenterX, scaleCenterY)
+          ctx.scale(cursorScale, cursorScale)
+          ctx.translate(-scaleCenterX, -scaleCenterY)
+        }
+
         ctx.drawImage(cursorData.imageBitmap, drawX, drawY)
         ctx.restore()
       }
