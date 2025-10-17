@@ -10,7 +10,7 @@ import { ExportModal } from '../components/editor/ExportModal'
 import { WindowControls } from '../components/editor/WindowControls'
 import { PresetModal } from '../components/editor/PresetModal'
 import { SettingsModal } from '../components/settings/SettingsModal'
-import { Layers3, Loader2, Check, Settings } from 'lucide-react'
+import { Stack3, Loader2, Check, Settings } from 'tabler-icons-react'
 import { cn } from '../lib/utils'
 import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts'
 import { useExportProcess } from '../hooks/useExportProcess'
@@ -166,7 +166,7 @@ export function EditorPage() {
       default:
         return (
           <>
-            <Layers3 className="w-4 h-4 mr-2" /> Presets
+            <Stack3 className="w-4 h-4 mr-2" /> Presets
           </>
         )
     }

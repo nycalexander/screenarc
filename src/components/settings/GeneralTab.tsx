@@ -1,6 +1,6 @@
 import { useEditorStore } from '../../store/editorStore'
 import { Switch } from '../ui/switch'
-import { Moon, Sun } from 'lucide-react'
+import { Moon, Sun } from 'tabler-icons-react'
 import { useShallow } from 'zustand/react/shallow'
 
 export function GeneralTab() {

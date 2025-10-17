@@ -1,7 +1,7 @@
 import { memo } from 'react'
 import { TimelineRegion, CutRegion } from '../../../types'
 import { cn } from '../../../lib/utils'
-import { Scissors } from 'lucide-react'
+import { Scissors } from 'tabler-icons-react'
 
 interface CutRegionBlockProps {
   region: CutRegion

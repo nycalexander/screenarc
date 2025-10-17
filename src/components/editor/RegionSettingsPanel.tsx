@@ -4,7 +4,7 @@ import { useEditorStore } from '../../store/editorStore'
 import type { TimelineRegion, ZoomRegion } from '../../types'
 import { cn } from '../../lib/utils'
 import { Button } from '../ui/button'
-import { Camera, Scissors, MousePointer, Video, Trash2 } from 'lucide-react'
+import { Camera, Scissors, Pointer, Video, Trash } from 'tabler-icons-react'
 import { FocusPointPicker } from './sidepanel/FocusPointPicker'
 import { AnimationSettings } from './sidepanel/AnimationSettings'
 
@@ -32,7 +32,7 @@ function ZoomSettings({ region }: { region: ZoomRegion }) {
             onClick={() => handleModeChange('auto')}
             className="h-auto py-2.5 flex items-center justify-center gap-2 transition-all duration-200"
           >
-            <MousePointer className="w-4 h-4" />
+            <Pointer className="w-4 h-4" />
             <span className="font-medium">Auto</span>
           </Button>
           <Button
@@ -49,7 +49,7 @@ function ZoomSettings({ region }: { region: ZoomRegion }) {
       {activeTab === 'auto' && (
         <div className="p-4 bg-primary/5 border border-primary/20 rounded-lg">
           <div className="flex items-start gap-3">
-            <MousePointer className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+            <Pointer className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
             <div>
               <p className="text-sm font-medium text-foreground mb-1">Auto Tracking</p>
               <p className="text-xs text-muted-foreground leading-relaxed">
@@ -79,7 +79,7 @@ function ZoomSettings({ region }: { region: ZoomRegion }) {
           onClick={() => deleteRegion(region.id)}
           className="w-full h-10 bg-destructive/10 hover:bg-destructive text-destructive hover:text-destructive-foreground transition-all duration-200 flex items-center gap-2 justify-center font-medium"
         >
-          <Trash2 className="w-4 h-4" />
+          <Trash className="w-4 h-4" />
           <span>Delete Region</span>
         </Button>
       </div>

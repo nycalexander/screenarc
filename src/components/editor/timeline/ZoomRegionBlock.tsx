@@ -1,7 +1,7 @@
 import { memo } from 'react'
 import { TimelineRegion, ZoomRegion } from '../../../types'
 import { cn } from '../../../lib/utils'
-import { Search } from 'lucide-react'
+import { Search } from 'tabler-icons-react'
 
 interface ZoomRegionBlockProps {
   region: ZoomRegion
