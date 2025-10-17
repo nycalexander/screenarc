@@ -250,7 +250,6 @@ export interface WebcamActions {
 }
 
 export interface UIState {
-  theme: string
   mode: 'light' | 'dark'
   isPreviewFullScreen: boolean
   cursorThemeName: string
@@ -258,7 +257,6 @@ export interface UIState {
   activeSidePanelTab: SidePanelTab
 }
 export interface UIActions {
-  setTheme: (theme: string) => void
   toggleMode: () => void
   initializeSettings: () => Promise<void>
   togglePreviewFullScreen: () => void
