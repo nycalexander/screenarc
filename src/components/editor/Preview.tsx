@@ -81,6 +81,7 @@ export const Preview = memo(
 
     // --- Start of Changes for Fullscreen Controls ---
     const [isControlBarVisible, setIsControlBarVisible] = useState(false)
+    const [isCursorHidden, setIsCursorHidden] = useState(false)
     const inactivityTimerRef = useRef<number | null>(null)
     const previewContainerRef = useRef<HTMLDivElement>(null)
 
@@ -91,19 +92,27 @@ export const Preview = memo(
           window.clearTimeout(inactivityTimerRef.current)
           inactivityTimerRef.current = null
         }
+        setIsCursorHidden(false)
         return // Do nothing if not in fullscreen
       }
 
       // Start with controls hidden
       setIsControlBarVisible(false)
 
+      // Hide cursor after 3 seconds of inactivity
+      const initialHideTimeout = window.setTimeout(() => {
+        setIsCursorHidden(true)
+      }, 3000)
+
       const showControlsAndSetTimer = () => {
         setIsControlBarVisible(true)
+        setIsCursorHidden(false)
         if (inactivityTimerRef.current) {
           window.clearTimeout(inactivityTimerRef.current)
         }
         inactivityTimerRef.current = window.setTimeout(() => {
           setIsControlBarVisible(false)
+          setIsCursorHidden(true) // Ẩn con trỏ khi hết thời gian chờ
         }, 3000) // Hide after 3 seconds of inactivity
       }
 
@@ -114,6 +123,7 @@ export const Preview = memo(
 
       // Cleanup function
       return () => {
+        clearTimeout(initialHideTimeout)
         if (inactivityTimerRef.current) {
           window.clearTimeout(inactivityTimerRef.current)
         }
@@ -317,7 +327,13 @@ export const Preview = memo(
     }
 
     return (
-      <div ref={previewContainerRef} className="w-full h-full flex flex-col items-center justify-center relative">
+      <div
+        ref={previewContainerRef}
+        className={cn(
+          'w-full h-full flex flex-col items-center justify-center relative',
+          isPreviewFullScreen && isCursorHidden && 'cursor-none',
+        )}
+      >
         <div
           id="preview-container"
           className="transition-all duration-300 ease-out flex items-center justify-center w-full flex-1 min-h-0"
