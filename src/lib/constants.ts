@@ -38,16 +38,6 @@ export const TIMELINE = {
   REGION_DELETE_THRESHOLD: 0.05, // 50ms - Regions smaller than this on mouse up are deleted.
 }
 
-// Visual Effects constants
-export const EFFECTS = {
-  CLICK_ANIMATION: {
-    DURATION: 0.3, // seconds
-    MAX_RADIUS: 30, // pixels
-    EASING: 'Balanced',
-    COLOR: [255, 255, 255, 0.8], // [r, g, b, a]
-  },
-}
-
 // Zoom and Pan specific constants
 export const ZOOM = {
   DEFAULT_SPEED: 'Mellow',
@@ -117,12 +107,25 @@ export const DEFAULTS = {
   CURSOR: {
     THEME: { defaultValue: 'Default' },
     SCALE: { defaultValue: 2 },
+    SHOW_CURSOR: { defaultValue: true },
     SHADOW: {
       BLUR: { min: 0, max: 20, step: 1, defaultValue: 6 },
       OFFSET_X: { min: -20, max: 20, step: 1, defaultValue: 3 },
       OFFSET_Y: { min: -20, max: 20, step: 1, defaultValue: 3 },
       OPACITY: { min: 0, max: 1, step: 0.01, defaultValue: 0.4 },
       DEFAULT_COLOR_RGBA: 'rgba(0, 0, 0, 0.4)',
+    },
+    CLICK_RIPPLE: {
+      ENABLED: { defaultValue: false },
+      SIZE: { min: 10, max: 80, step: 1, defaultValue: 30 },
+      DURATION: { min: 0.1, max: 2.0, step: 0.05, defaultValue: 0.5 },
+      COLOR: { defaultValue: 'rgba(255, 255, 255, 0.8)' },
+    },
+    CLICK_SCALE: {
+      ENABLED: { defaultValue: true },
+      AMOUNT: { min: 0.5, max: 1.5, step: 0.05, defaultValue: 0.8 },
+      DURATION: { min: 0.1, max: 1, step: 0.05, defaultValue: 0.4 },
+      EASING: { defaultValue: 'Balanced' },
     },
   },
 }

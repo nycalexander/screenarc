@@ -11,6 +11,8 @@ export interface ColorPickerProps {
   label?: string
   /** Optional additional class names. */
   className?: string
+  /** Whether the color picker is disabled */
+  disabled?: boolean
 }
 
 /**
@@ -18,7 +20,7 @@ export interface ColorPickerProps {
  * The swatch and input are synchronized. It uses pre-defined styles from index.css
  * for consistent theming.
  */
-export const ColorPicker = ({ value, onChange, label, className }: ColorPickerProps) => {
+export const ColorPicker = ({ value, onChange, label, className, disabled = false }: ColorPickerProps) => {
   // Internal state for the text input to avoid updating the parent on every keystroke.
   const [localValue, setLocalValue] = useState(value)
   const colorInputId = useId()
@@ -72,26 +74,38 @@ export const ColorPicker = ({ value, onChange, label, className }: ColorPickerPr
     }
   }
 
+  const inputClasses = cn('color-picker-input w-full', disabled && 'opacity-50 cursor-not-allowed')
+
+  const swatchClasses = cn('color-picker-swatch', disabled ? 'opacity-70 cursor-not-allowed' : 'cursor-pointer')
+
   return (
-    <div className={cn('space-y-1 w-full', className)}>
+    <div className={cn('space-y-1 w-full', className, disabled && 'opacity-75')}>
       {label && (
-        <label htmlFor={colorInputId} className="text-sm text-muted-foreground">
+        <label
+          htmlFor={colorInputId}
+          className={cn('text-sm', disabled ? 'text-muted-foreground/70' : 'text-muted-foreground')}
+        >
           {label}
         </label>
       )}
       <div className="color-picker-container">
         {/* Color Swatch (visual + input type="color") */}
-        <div className="color-picker-swatch">
+        <div className={swatchClasses}>
           <input
             id={colorInputId}
             type="color"
-            value={value} // The native picker should always reflect the true parent state
+            value={value}
             onChange={handleSwatchChange}
-            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+            disabled={disabled}
+            className={cn('absolute inset-0 w-full h-full opacity-0', !disabled && 'cursor-pointer')}
             aria-label="Color Picker Swatch"
+            aria-disabled={disabled}
           />
           {/* The visible color block inside the swatch border */}
-          <div className="w-full h-full rounded-[5px]" style={{ backgroundColor: value }} />
+          <div
+            className={cn('w-full h-full rounded-[5px] transition-opacity', disabled && 'opacity-70')}
+            style={{ backgroundColor: value }}
+          />
         </div>
 
         {/* Text Input */}
@@ -101,9 +115,11 @@ export const ColorPicker = ({ value, onChange, label, className }: ColorPickerPr
           onChange={handleInputChange}
           onBlur={handleInputBlur}
           onKeyDown={handleInputKeyDown}
-          className="color-picker-input w-full"
+          disabled={disabled}
+          className={inputClasses}
           placeholder="#RRGGBB"
           aria-label="Color Hex Value"
+          aria-disabled={disabled}
         />
       </div>
     </div>
