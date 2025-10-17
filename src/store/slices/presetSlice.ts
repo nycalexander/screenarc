@@ -1,4 +1,4 @@
-import { APP } from '../../lib/constants'
+import { APP, DEFAULTS } from '../../lib/constants'
 import type { PresetState, PresetActions, Slice } from '../../types'
 import type { Preset, FrameStyles, WebcamStyles, WebcamPosition } from '../../types'
 import { initialFrameState } from './frameSlice'
@@ -57,6 +57,10 @@ export const createPresetSlice: Slice<PresetState, PresetActions> = (set, get) =
         }
         if (p.webcamStyles && p.webcamStyles.isFlipped === undefined) {
           p.webcamStyles.isFlipped = false
+          wasModified = true
+        }
+        if (p.webcamStyles && p.webcamStyles.smartPosition === undefined) {
+          p.webcamStyles.smartPosition = DEFAULTS.CAMERA.SMART_POSITION.ENABLED.defaultValue
           wasModified = true
         }
       })

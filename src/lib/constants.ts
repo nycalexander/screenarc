@@ -82,9 +82,10 @@ export const DEFAULTS = {
       SHAPE: { defaultValue: 'square' as const, values: ['circle', 'square', 'rectangle'] as const },
       RADIUS: { min: 0, max: 50, step: 1, defaultValue: 35 },
       FLIP: { defaultValue: false },
+      SCALE_ON_ZOOM: { defaultValue: true },
     },
     PLACEMENT: {
-      SIZE: { min: 10, max: 50, step: 1, defaultValue: 30 },
+      SIZE: { min: 10, max: 50, step: 1, defaultValue: 40 },
       POSITION: { defaultValue: 'bottom-right' },
     },
     EFFECTS: {
@@ -94,6 +95,13 @@ export const DEFAULTS = {
       OPACITY: { min: 0, max: 1, step: 0.01, defaultValue: 0.4 },
       DEFAULT_COLOR_RGBA: 'rgba(0, 0, 0, 0.4)',
     },
+    SMART_POSITION: {
+      ENABLED: { defaultValue: true },
+      LOOKAHEAD_TIME: 0.1, // seconds
+      TRANSITION_DURATION: 0.5, // 300ms for a smooth transition
+      EASING: 'Balanced',
+    },
+    SCALE_ON_ZOOM_AMOUNT: 0.8,
   },
   AUDIO: {
     VOLUME: { min: 0, max: 1, step: 0.01, defaultValue: 1 },

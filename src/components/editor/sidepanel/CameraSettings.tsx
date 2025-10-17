@@ -6,14 +6,15 @@ import {
   DeviceComputerCamera,
   Eye,
   Photo,
-  Maximize,
   Circle,
   Square,
   Rectangle,
   Wand,
   BorderRadius,
-  FlipVertical,
+  SquareToggle,
   DeviceComputerCameraOff,
+  ZoomIn,
+  ArrowsUpRight,
 } from 'tabler-icons-react'
 import { Button } from '../../ui/button'
 import { Switch } from '../../ui/switch'
@@ -25,6 +26,7 @@ import { Collapse } from '../../ui/collapse'
 import { cn } from '../../../lib/utils'
 import type { WebcamPosition } from '../../../types'
 import { DEFAULTS } from '../../../lib/constants'
+import { TransformPointBottomLeftIcon } from '../../ui/icons'
 
 const DisabledPanelPlaceholder = ({
   icon,
@@ -95,7 +97,11 @@ export function CameraSettings() {
   }
 
   const handleResetPlacement = () => {
-    updateWebcamStyle({ size: DEFAULTS.CAMERA.PLACEMENT.SIZE.defaultValue })
+    updateWebcamStyle({
+      size: DEFAULTS.CAMERA.PLACEMENT.SIZE.defaultValue,
+      scaleOnZoom: DEFAULTS.CAMERA.STYLE.SCALE_ON_ZOOM.defaultValue,
+      smartPosition: DEFAULTS.CAMERA.SMART_POSITION.ENABLED.defaultValue,
+    })
     setWebcamPosition({ pos: DEFAULTS.CAMERA.PLACEMENT.POSITION.defaultValue as WebcamPosition['pos'] })
   }
 
@@ -162,7 +168,7 @@ export function CameraSettings() {
               title="Style"
               description="Change shape and orientation"
               icon={<Photo />}
-              defaultOpen={true}
+              defaultOpen={false}
               onReset={handleResetStyle}
             >
               <div className="space-y-6">
@@ -225,7 +231,7 @@ export function CameraSettings() {
                   <label className="flex items-center justify-between text-sm font-medium text-sidebar-foreground">
                     <div className="flex items-center gap-2.5">
                       <div className="w-5 h-5 flex items-center justify-center text-primary">
-                        <FlipVertical className="w-4 h-4" />
+                        <SquareToggle className="w-4 h-4" />
                       </div>
                       <span>Flip Horizontal</span>
                     </div>
@@ -241,8 +247,8 @@ export function CameraSettings() {
             <Collapse
               title="Placement"
               description="Adjust size and corner position"
-              icon={<Maximize />}
-              defaultOpen={true}
+              icon={<TransformPointBottomLeftIcon />}
+              defaultOpen={false}
               onReset={handleResetPlacement}
             >
               <div className="space-y-6">
@@ -259,6 +265,36 @@ export function CameraSettings() {
                     onChange={(value) => updateWebcamStyle({ size: value })}
                   />
                 </div>
+                <div className="space-y-3">
+                  <label className="flex items-center justify-between text-sm font-medium text-sidebar-foreground">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-5 h-5 flex items-center justify-center text-primary">
+                        <ZoomIn className="w-4 h-4" />
+                      </div>
+                      <span>Scale on Zoom</span>
+                    </div>
+                    <Switch
+                      checked={webcamStyles.scaleOnZoom}
+                      onCheckedChange={(isChecked) => updateWebcamStyle({ scaleOnZoom: isChecked })}
+                    />
+                  </label>
+                </div>
+
+                <div className="space-y-3">
+                  <label className="flex items-center justify-between text-sm font-medium text-sidebar-foreground">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-5 h-5 flex items-center justify-center text-primary">
+                        <ArrowsUpRight className="w-4 h-4" />
+                      </div>
+                      <span>Smart Position</span>
+                    </div>
+                    <Switch
+                      checked={webcamStyles.smartPosition}
+                      onCheckedChange={(isChecked) => updateWebcamStyle({ smartPosition: isChecked })}
+                    />
+                  </label>
+                </div>
+
                 <div className="space-y-3">
                   <label className="text-sm font-medium text-sidebar-foreground">Position</label>
                   <div className="relative aspect-video w-full bg-muted/50 rounded-lg p-2 border border-border">
