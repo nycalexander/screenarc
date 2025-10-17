@@ -120,21 +120,7 @@ function calculateBoundedPan(
  * Implements edge snapping to prevent zooming outside the video frame.
  * The output is a value from 0 to 1 for CSS transform-origin.
  */
-function getTransformOrigin(targetX: number, targetY: number, zoomLevel: number): { x: number; y: number } {
-  // Safe boundary, transform-origin will be "stuck" to the edge when exceeded
-  // const boundary = 0.5 * (1 - 1 / zoomLevel)
-
-  // let originX: number
-  // if (targetX > boundary) originX = 1
-  // else if (targetX < -boundary) originX = 0
-  // else originX = 0.5 + targetX
-
-  // let originY: number
-  // if (targetY > boundary) originY = 1
-  // else if (targetY < -boundary) originY = 0
-  // else originY = 0.5 + targetY
-
-  // return { x: originX, y: originY }
+function getTransformOrigin(targetX: number, targetY: number): { x: number; y: number } {
   return { x: targetX + 0.5, y: targetY + 0.5 }
 }
 
@@ -162,7 +148,7 @@ export const calculateZoomTransform = (
   const zoomOutStartTime = startTime + duration - transitionDuration
   const zoomInEndTime = startTime + transitionDuration
 
-  const fixedOrigin = getTransformOrigin(targetX, targetY, zoomLevel)
+  const fixedOrigin = getTransformOrigin(targetX, targetY)
   const transformOrigin = `${fixedOrigin.x * 100}% ${fixedOrigin.y * 100}%`
 
   let currentScale = 1
