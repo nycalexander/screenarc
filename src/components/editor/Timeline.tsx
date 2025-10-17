@@ -11,7 +11,7 @@ import { formatTime, calculateRulerInterval } from '../../lib/utils'
 import { useTimelineInteraction } from '../../hooks/useTimelineInteraction'
 import { FlipScissorsIcon } from '../ui/icons'
 
-// Memoized Ruler component
+// Memoized Ruler component (không thay đổi)
 const Ruler = memo(
   ({
     ticks,
@@ -65,13 +65,10 @@ export function Timeline({ videoRef }: { videoRef: React.RefObject<HTMLVideoElem
   const animationFrameRef = useRef<number>()
 
   const [containerWidth, setContainerWidth] = useState(0)
-  const [timelineHeight, setTimelineHeight] = useState(0)
 
   useEffect(() => {
     const containerEl = containerRef.current
-    const timelineEl = timelineRef.current
     let widthObserver: ResizeObserver | null = null
-    let heightObserver: ResizeObserver | null = null
 
     if (containerEl) {
       setContainerWidth(containerEl.clientWidth)
@@ -81,17 +78,8 @@ export function Timeline({ videoRef }: { videoRef: React.RefObject<HTMLVideoElem
       widthObserver.observe(containerEl)
     }
 
-    if (timelineEl) {
-      setTimelineHeight(timelineEl.clientHeight)
-      heightObserver = new ResizeObserver((entries) => {
-        if (entries[0]) setTimelineHeight(entries[0].contentRect.height)
-      })
-      heightObserver.observe(timelineEl)
-    }
-
     return () => {
       if (widthObserver && containerEl) widthObserver.unobserve(containerEl)
-      if (heightObserver && timelineEl) heightObserver.unobserve(timelineEl)
     }
   }, [])
 
@@ -274,7 +262,7 @@ export function Timeline({ videoRef }: { videoRef: React.RefObject<HTMLVideoElem
                 style={{ transform: `translateX(${timeToPx(currentTime)}px)`, pointerEvents: 'none' }}
               >
                 <Playhead
-                  height={Math.floor(timelineHeight * 0.9)}
+                  height={Math.floor((timelineRef.current?.clientHeight ?? 0) * 0.9)}
                   isDragging={false}
                   onMouseDown={handlePlayheadMouseDown}
                 />
