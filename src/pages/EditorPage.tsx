@@ -213,67 +213,84 @@ export function EditorPage() {
 
   return (
     <main className="h-screen w-screen bg-background flex flex-col overflow-hidden select-none">
-      {isPreviewFullScreen ? (
-        <div className="w-full h-full flex items-center justify-center bg-black">
-          <Preview videoRef={videoRef} onSeekFrame={handleSeekFrame} />
+      {/*
+        Instead of conditionally rendering the entire layout, we now render it once
+        and use CSS classes to hide/show elements and expand the preview for fullscreen.
+        This prevents components like SidePanel from unmounting, preserving their internal state.
+      */}
+      <header
+        className={cn(
+          'relative h-12 flex-shrink-0 border-b border-border/50 bg-card/80 backdrop-blur-xl flex items-center justify-between px-3 shadow-xs',
+          isPreviewFullScreen && 'hidden', // Hide header in fullscreen
+        )}
+        style={{ WebkitAppRegion: 'drag' }}
+      >
+        {/* Left side controls */}
+        <div className="flex items-center gap-4 h-full">
+          {platform === 'linux' && (
+            <div className="h-full flex items-center">
+              <WindowControls />
+            </div>
+          )}
+          {platform === 'win32' && (
+            <div
+              className="flex items-center gap-2 flex-row-reverse" // Use flex-row-reverse to get desired order
+              style={{ WebkitAppRegion: 'no-drag' }}
+            >
+              {renderHeaderActions()}
+            </div>
+          )}
         </div>
-      ) : (
-        <>
-          <header
-            className="relative h-12 flex-shrink-0 border-b border-border/50 bg-card/80 backdrop-blur-xl flex items-center justify-between px-3 shadow-xs"
-            style={{ WebkitAppRegion: 'drag' }}
+
+        {/* Centered Title */}
+        <h1 className="text-sm font-bold text-foreground pointer-events-none tracking-tight absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+          ScreenArc
+        </h1>
+
+        {/* Right side controls (for non-Windows) */}
+        {platform !== 'win32' && (
+          <div
+            className="flex items-center gap-2" // Use flex-row-reverse to get desired order
+            style={{ WebkitAppRegion: 'no-drag' }}
           >
-            {/* Left side controls */}
-            <div className="flex items-center gap-4 h-full">
-              {platform === 'linux' && (
-                <div className="h-full flex items-center">
-                  <WindowControls />
-                </div>
-              )}
-              {platform === 'win32' && (
-                <div
-                  className="flex items-center gap-2 flex-row-reverse" // Use flex-row-reverse to get desired order
-                  style={{ WebkitAppRegion: 'no-drag' }}
-                >
-                  {renderHeaderActions()}
-                </div>
-              )}
-            </div>
-
-            {/* Centered Title */}
-            <h1 className="text-sm font-bold text-foreground pointer-events-none tracking-tight absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-              ScreenArc
-            </h1>
-
-            {/* Right side controls (for non-Windows) */}
-            {platform !== 'win32' && (
-              <div
-                className="flex items-center gap-2" // Use flex-row-reverse to get desired order
-                style={{ WebkitAppRegion: 'no-drag' }}
-              >
-                {renderHeaderActions()}
-              </div>
-            )}
-          </header>
-
-          <div className="flex flex-1 overflow-hidden">
-            <div className="w-[28rem] flex-shrink-0 bg-sidebar border-r border-sidebar-border overflow-hidden">
-              <SidePanel />
-            </div>
-            <div className="flex-1 flex flex-col overflow-hidden bg-background">
-              <div className="flex-1 flex items-center justify-center p-6 overflow-hidden min-h-0">
-                <Preview videoRef={videoRef} onSeekFrame={handleSeekFrame} />
-              </div>
-              <div className="flex-shrink-0">
-                <PreviewControls />
-              </div>
-              <div className="flex-shrink-0 bg-card/60 border-t border-border/50 backdrop-blur-sm overflow-hidden">
-                <Timeline videoRef={videoRef} />
-              </div>
-            </div>
+            {renderHeaderActions()}
           </div>
-        </>
-      )}
+        )}
+      </header>
+
+      <div className={cn('flex flex-1 overflow-hidden', isPreviewFullScreen && 'h-full w-full')}>
+        <div
+          className={cn(
+            'w-[28rem] flex-shrink-0 bg-sidebar border-r border-sidebar-border overflow-hidden',
+            isPreviewFullScreen && 'hidden', // Hide SidePanel in fullscreen
+          )}
+        >
+          <SidePanel />
+        </div>
+        <div className="flex-1 flex flex-col overflow-hidden bg-background">
+          <div
+            className={cn(
+              'flex-1 flex items-center justify-center p-6 overflow-hidden min-h-0',
+              // Make the preview container expand to fill the screen in fullscreen mode
+              isPreviewFullScreen && 'fixed inset-0 z-50 bg-black p-0',
+            )}
+          >
+            <Preview videoRef={videoRef} onSeekFrame={handleSeekFrame} />
+          </div>
+          <div className={cn('flex-shrink-0', isPreviewFullScreen && 'hidden')}>
+            <PreviewControls />
+          </div>
+          <div
+            className={cn(
+              'flex-shrink-0 bg-card/60 border-t border-border/50 backdrop-blur-sm overflow-hidden',
+              isPreviewFullScreen && 'hidden', // Hide Timeline in fullscreen
+            )}
+          >
+            <Timeline videoRef={videoRef} />
+          </div>
+        </div>
+      </div>
+
       <ExportModal
         isOpen={isExportModalOpen}
         onClose={closeExportModal}

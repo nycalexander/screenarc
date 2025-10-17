@@ -127,31 +127,27 @@ export function SidePanel() {
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [selectedRegionId, setSelectedRegionId])
 
-  // Render content based on active tab
-  const renderContent = () => {
-    switch (activeSidePanelTab) {
-      case 'general':
-        return selectedRegion ? <RegionSettingsPanel region={selectedRegion} /> : <FrameSettingsPanel />
-      case 'camera':
-        return <CameraSettings />
-      case 'audio':
-        return <AudioSettings />
-      case 'animation':
-        return <AnimationSettingsPanel />
-      case 'cursor':
-        return <CursorSettings />
-      default:
-        return <FrameSettingsPanel />
-    }
-  }
-
   return (
     <div className="h-full flex">
       {/* Main content area */}
-      <div className="flex-1 bg-sidebar overflow-hidden">
-        {' '}
-        {/* REMOVED overflow-y-auto here */}
-        {renderContent()}
+      <div className="flex-1 bg-sidebar overflow-hidden relative">
+        {/* Render all panels but only show the active one.
+            This prevents unmounting and preserves the internal state of components like Collapse. */}
+        <div className="h-full" hidden={activeSidePanelTab !== 'general'}>
+          {selectedRegion ? <RegionSettingsPanel region={selectedRegion} /> : <FrameSettingsPanel />}
+        </div>
+        <div className="h-full" hidden={activeSidePanelTab !== 'camera'}>
+          <CameraSettings />
+        </div>
+        <div className="h-full" hidden={activeSidePanelTab !== 'audio'}>
+          <AudioSettings />
+        </div>
+        <div className="h-full" hidden={activeSidePanelTab !== 'animation'}>
+          <AnimationSettingsPanel />
+        </div>
+        <div className="h-full" hidden={activeSidePanelTab !== 'cursor'}>
+          <CursorSettings />
+        </div>
       </div>
 
       {/* Vertical Tab Navigator (Always visible) */}
