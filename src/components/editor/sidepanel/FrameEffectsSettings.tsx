@@ -99,7 +99,7 @@ export function FrameEffectsSettings() {
         title="Shadow"
         description="Add depth with drop shadows"
         icon={<Shadow />}
-        defaultOpen={false}
+        defaultOpen={true}
         onReset={handleResetShadow}
       >
         <div className="space-y-4">

@@ -144,6 +144,8 @@ export interface WebcamStyles {
   shadowOffsetY: number
   shadowColor: string
   isFlipped: boolean
+  scaleOnZoom: boolean
+  smartPosition: boolean
 }
 
 export type Dimensions = { width: number; height: number }
@@ -285,6 +287,27 @@ export interface AudioActions {
   toggleMute: () => void
   setIsMuted: (isMuted: boolean) => void
 }
+
+export type RenderableState = Pick<
+  EditorState,
+  | 'platform'
+  | 'frameStyles'
+  | 'videoDimensions'
+  | 'aspectRatio'
+  | 'webcamPosition'
+  | 'webcamStyles'
+  | 'isWebcamVisible'
+  | 'zoomRegions'
+  | 'cutRegions'
+  | 'speedRegions'
+  | 'metadata'
+  | 'recordingGeometry'
+  | 'cursorImages'
+  | 'cursorBitmapsToRender'
+  | 'syncOffset'
+  | 'cursorTheme'
+  | 'cursorStyles'
+>
 
 // Combined state type for the editor store
 export type EditorState = ProjectState &
