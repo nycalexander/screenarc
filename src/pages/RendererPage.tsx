@@ -205,11 +205,11 @@ export function RendererPage() {
 
           // Create seek promises for both videos
           const mainSeek = seekPromise(video)
-          const webcamSeek = webcamVideo ? seekPromise(webcamVideo) : Promise.resolve()
+          const webcamSeek = (hasWebcam && webcamVideo) ? seekPromise(webcamVideo) : Promise.resolve()
 
           // Set currentTime for both videos to trigger seeking
           video.currentTime = sourceTimestamp
-          if (webcamVideo) {
+          if (hasWebcam && webcamVideo) {
             webcamVideo.currentTime = sourceTimestamp
           }
 
