@@ -164,8 +164,9 @@ export function RendererPage() {
           })
 
         const loadPromises: Promise<void>[] = [loadVideo(video, 'Main video', projectStateWithCursorBitmaps.videoPath!)]
-        if (projectStateWithCursorBitmaps.webcamVideoPath && webcamVideo) {
-          loadPromises.push(loadVideo(webcamVideo, 'Webcam video', projectStateWithCursorBitmaps.webcamVideoPath))
+        const hasWebcam = Boolean(projectStateWithCursorBitmaps.webcamVideoPath && typeof projectStateWithCursorBitmaps.webcamVideoPath === 'string')
+        if (hasWebcam && webcamVideo) {
+          loadPromises.push(loadVideo(webcamVideo, 'Webcam video', projectStateWithCursorBitmaps.webcamVideoPath!))
         }
         await Promise.all(loadPromises)
 
